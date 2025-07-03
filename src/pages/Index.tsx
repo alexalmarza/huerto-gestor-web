@@ -2,12 +2,13 @@
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, MapPin, CreditCard, FileText, Sprout } from "lucide-react";
+import { Users, MapPin, CreditCard, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PlotsManagement } from "@/components/PlotsManagement";
 import { MembersManagement } from "@/components/MembersManagement";
 import { PaymentsManagement } from "@/components/PaymentsManagement";
 import { ReportsManagement } from "@/components/ReportsManagement";
+import Header from "@/components/Header";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("overview");
@@ -21,30 +22,12 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <Sprout className="h-8 w-8 text-green-600" />
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">Huerto Gestor</h1>
-                <p className="text-sm text-gray-600">Sistema de Gestión de Huertos Comunitarios</p>
-              </div>
-            </div>
-            <Button variant="outline" className="flex items-center space-x-2">
-              <FileText className="h-4 w-4" />
-              <span>Generar Reporte</span>
-            </Button>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="grid w-full grid-cols-5 bg-white shadow-sm">
             <TabsTrigger value="overview" className="flex items-center space-x-2">
-              <Sprout className="h-4 w-4" />
               <span>Resumen</span>
             </TabsTrigger>
             <TabsTrigger value="plots" className="flex items-center space-x-2">
