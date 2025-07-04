@@ -17,6 +17,12 @@ export interface Member {
   deactivation_reason: string | null;
   created_at: string;
   updated_at: string;
+  assigned_plot?: {
+    id: string;
+    number: string;
+    size: string;
+    location: string;
+  };
 }
 
 export interface CreateMemberData {
@@ -40,11 +46,26 @@ export const useMembers = () => {
       setLoading(true);
       const { data, error } = await supabase
         .from('members')
-        .select('*')
+        .select(`
+          *,
+          assigned_plot:plots!assigned_member_id(
+            id,
+            number,
+            size,
+            location
+          )
+        `)
         .order('name');
 
       if (error) throw error;
-      setMembers((data || []) as Member[]);
+      
+      // Transform the data to match our interface
+      const transformedData = (data || []).map(member => ({
+        ...member,
+        assigned_plot: member.assigned_plot?.[0] || null
+      })) as Member[];
+      
+      setMembers(transformedData);
     } catch (error) {
       console.error('Error fetching members:', error);
       toast.error('Error al cargar los socios');

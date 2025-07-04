@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { User, Phone, Mail, MapPin, AlertTriangle } from "lucide-react";
+import { User, Phone, Mail, MapPin, AlertTriangle, Home } from "lucide-react";
 import { Member } from "@/hooks/useMembers";
 import { useEntityRedFlags } from "@/hooks/useEntityRedFlags";
 import { MemberDetailsDialog } from "./MemberDetailsDialog";
@@ -75,6 +75,17 @@ export const MemberCard = ({ member, onMemberUpdated }: MemberCardProps) => {
             <div className="flex items-center space-x-2 text-sm text-gray-600">
               <MapPin className="h-4 w-4" />
               <span>{member.address}</span>
+            </div>
+          )}
+          {member.assigned_plot && (
+            <div className="flex items-center space-x-2 text-sm text-green-600 bg-green-50 p-2 rounded">
+              <Home className="h-4 w-4" />
+              <span>
+                <strong>Parcela #{member.assigned_plot.number}</strong>
+                <span className="text-gray-600 ml-1">
+                  ({member.assigned_plot.size}, {member.assigned_plot.location})
+                </span>
+              </span>
             </div>
           )}
         </CardContent>

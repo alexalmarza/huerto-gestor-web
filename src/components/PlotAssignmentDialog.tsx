@@ -19,12 +19,11 @@ export const PlotAssignmentDialog = ({ isOpen, onClose, plotId, plotNumber }: Pl
   const [isAssigning, setIsAssigning] = useState(false);
   
   const { members } = useMembers();
-  const { plots, assignPlot } = usePlots();
+  const { assignPlot } = usePlots();
 
   // Filter active members who don't have a plot assigned
   const availableMembers = members.filter(member => 
-    member.is_active && 
-    !plots.some(plot => plot.assigned_member_id === member.id)
+    member.is_active && !member.assigned_plot
   );
 
   const handleAssign = async () => {
@@ -39,10 +38,7 @@ export const PlotAssignmentDialog = ({ isOpen, onClose, plotId, plotNumber }: Pl
       if (result.error === null) {
         console.log('Plot assignment successful, clearing form and closing dialog'); // Debug log
         setSelectedMemberId("");
-        // Close dialog after a brief delay to ensure state update is processed
-        setTimeout(() => {
-          onClose();
-        }, 100);
+        onClose();
       } else {
         console.error('Plot assignment failed:', result.error); // Debug log
       }
@@ -84,6 +80,11 @@ export const PlotAssignmentDialog = ({ isOpen, onClose, plotId, plotNumber }: Pl
                 ))}
               </SelectContent>
             </Select>
+            {availableMembers.length === 0 && (
+              <p className="text-sm text-gray-500 mt-1">
+                No hay socios activos disponibles (sin parcela asignada)
+              </p>
+            )}
           </div>
           <div className="flex justify-end space-x-2">
             <Button variant="outline" onClick={handleClose} disabled={isAssigning}>
@@ -91,7 +92,7 @@ export const PlotAssignmentDialog = ({ isOpen, onClose, plotId, plotNumber }: Pl
             </Button>
             <Button 
               onClick={handleAssign}
-              disabled={!selectedMemberId || isAssigning}
+              disabled={!selectedMemberId || isAssigning || availableMembers.length === 0}
               className="bg-green-600 hover:bg-green-700"
             >
               {isAssigning ? "Asignando..." : "Asignar Parcela"}

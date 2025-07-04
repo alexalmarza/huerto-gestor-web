@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -96,16 +97,8 @@ export const usePlots = () => {
 
       console.log('Plot assigned successfully:', data); // Debug log
       
-      // Update the local state immediately and ensure re-render
-      setPlots(currentPlots => {
-        const updatedPlots = currentPlots.map(plot => 
-          plot.id === plotId 
-            ? { ...data as Plot }
-            : plot
-        );
-        console.log('Updated plots state:', updatedPlots); // Debug log
-        return updatedPlots;
-      });
+      // Refetch all data to ensure consistency
+      await fetchPlots();
       
       toast.success('Parcela asignada exitosamente');
       return { data, error: null };
@@ -118,6 +111,8 @@ export const usePlots = () => {
 
   const unassignPlot = async (plotId: string) => {
     try {
+      console.log('Unassigning plot:', plotId); // Debug log
+      
       const { data, error } = await supabase
         .from('plots')
         .update({
@@ -131,14 +126,10 @@ export const usePlots = () => {
 
       if (error) throw error;
 
-      // Update the local state immediately
-      setPlots(currentPlots => 
-        currentPlots.map(plot => 
-          plot.id === plotId 
-            ? { ...data as Plot, member: undefined }
-            : plot
-        )
-      );
+      console.log('Plot unassigned successfully:', data); // Debug log
+      
+      // Refetch all data to ensure consistency
+      await fetchPlots();
       
       toast.success('Parcela liberada exitosamente');
       return { data, error: null };

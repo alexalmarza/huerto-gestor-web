@@ -2,10 +2,13 @@
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, User, Calendar, AlertTriangle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { MapPin, User, UserPlus, UserMinus, AlertTriangle } from "lucide-react";
 import { Plot } from "@/hooks/usePlots";
 import { useEntityRedFlags } from "@/hooks/useEntityRedFlags";
 import { PlotDetailsDialog } from "./PlotDetailsDialog";
+import { PlotAssignmentDialog } from "./PlotAssignmentDialog";
+import { PlotUnassignDialog } from "./PlotUnassignDialog";
 
 interface PlotCardProps {
   plot: Plot;
@@ -13,6 +16,8 @@ interface PlotCardProps {
 
 export const PlotCard = ({ plot }: PlotCardProps) => {
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
+  const [isUnassignDialogOpen, setIsUnassignDialogOpen] = useState(false);
   const { hasActiveRedFlags } = useEntityRedFlags('plot', plot.id);
 
   const getStatusColor = (status: string) => {
@@ -29,15 +34,20 @@ export const PlotCard = ({ plot }: PlotCardProps) => {
   };
 
   const cardClassName = hasActiveRedFlags 
-    ? "bg-red-50 border-red-200 hover:bg-red-100 transition-colors cursor-pointer"
-    : "hover:shadow-md transition-shadow cursor-pointer";
+    ? "bg-red-50 border-red-200 hover:bg-red-100 transition-colors"
+    : "hover:shadow-md transition-shadow";
+
+  const handleCardClick = (e: React.MouseEvent) => {
+    // Prevent card click when clicking buttons
+    if ((e.target as HTMLElement).closest('button')) {
+      return;
+    }
+    setIsDetailsOpen(true);
+  };
 
   return (
     <>
-      <Card 
-        className={cardClassName}
-        onClick={() => setIsDetailsOpen(true)}
-      >
+      <Card className={cardClassName} onClick={handleCardClick}>
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <CardTitle className="text-lg flex items-center space-x-2">
@@ -51,28 +61,52 @@ export const PlotCard = ({ plot }: PlotCardProps) => {
               {plot.status}
             </Badge>
           </div>
-          <CardDescription>{plot.location}</CardDescription>
+          <CardDescription>
+            {plot.size} • {plot.location}
+          </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-2">
-          <div className="text-sm">
-            <strong>Tamaño:</strong> {plot.size}
-          </div>
+        <CardContent className="space-y-3">
           {plot.member?.name ? (
-            <>
-              <div className="flex items-center space-x-2 text-sm text-gray-600">
-                <User className="h-4 w-4" />
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2 text-sm">
+                <User className="h-4 w-4 text-gray-400" />
                 <span><strong>Asignada a:</strong> {plot.member.name}</span>
               </div>
-              {plot.assigned_date && (
-                <div className="flex items-center space-x-2 text-sm text-gray-600">
-                  <Calendar className="h-4 w-4" />
-                  <span><strong>Desde:</strong> {new Date(plot.assigned_date).toLocaleDateString()}</span>
-                </div>
-              )}
-            </>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsUnassignDialogOpen(true);
+                }}
+                className="text-orange-600 hover:text-orange-700 hover:bg-orange-50"
+              >
+                <UserMinus className="h-4 w-4 mr-1" />
+                Desasignar
+              </Button>
+            </div>
           ) : (
-            <div className="text-sm text-gray-500 italic">
-              Disponible para asignación
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-gray-500 italic">
+                Parcela disponible
+              </span>
+              <Button
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsAssignDialogOpen(true);
+                }}
+                className="bg-green-600 hover:bg-green-700"
+              >
+                <UserPlus className="h-4 w-4 mr-1" />
+                Asignar
+              </Button>
+            </div>
+          )}
+          
+          {plot.assigned_date && (
+            <div className="text-xs text-gray-500">
+              Asignada: {new Date(plot.assigned_date).toLocaleDateString()}
             </div>
           )}
         </CardContent>
@@ -82,6 +116,22 @@ export const PlotCard = ({ plot }: PlotCardProps) => {
         isOpen={isDetailsOpen}
         onClose={() => setIsDetailsOpen(false)}
         plot={plot}
+        onRedFlagChange={() => {}}
+      />
+
+      <PlotAssignmentDialog
+        isOpen={isAssignDialogOpen}
+        onClose={() => setIsAssignDialogOpen(false)}
+        plotId={plot.id}
+        plotNumber={plot.number}
+      />
+
+      <PlotUnassignDialog
+        isOpen={isUnassignDialogOpen}
+        onClose={() => setIsUnassignDialogOpen(false)}
+        plotId={plot.id}
+        plotNumber={plot.number}
+        assignedMemberName={plot.member?.name || ""}
       />
     </>
   );
