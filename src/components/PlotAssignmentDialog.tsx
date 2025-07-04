@@ -37,9 +37,12 @@ export const PlotAssignmentDialog = ({ isOpen, onClose, plotId, plotNumber }: Pl
       const result = await assignPlot(plotId, { assigned_member_id: selectedMemberId });
       
       if (result.error === null) {
-        console.log('Plot assignment successful, closing dialog'); // Debug log
+        console.log('Plot assignment successful, clearing form and closing dialog'); // Debug log
         setSelectedMemberId("");
-        onClose();
+        // Close dialog after a brief delay to ensure state update is processed
+        setTimeout(() => {
+          onClose();
+        }, 100);
       } else {
         console.error('Plot assignment failed:', result.error); // Debug log
       }

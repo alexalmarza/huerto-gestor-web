@@ -96,14 +96,16 @@ export const usePlots = () => {
 
       console.log('Plot assigned successfully:', data); // Debug log
       
-      // Update the local state immediately, just like unassignPlot does
-      setPlots(currentPlots => 
-        currentPlots.map(plot => 
+      // Update the local state immediately and ensure re-render
+      setPlots(currentPlots => {
+        const updatedPlots = currentPlots.map(plot => 
           plot.id === plotId 
             ? { ...data as Plot }
             : plot
-        )
-      );
+        );
+        console.log('Updated plots state:', updatedPlots); // Debug log
+        return updatedPlots;
+      });
       
       toast.success('Parcela asignada exitosamente');
       return { data, error: null };
