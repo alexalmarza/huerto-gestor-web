@@ -37,9 +37,9 @@ export const PlotAssignmentDialog = ({ isOpen, onClose, plotId, plotNumber }: Pl
       const result = await assignPlot(plotId, { assigned_member_id: selectedMemberId });
       
       if (result.error === null) {
-        console.log('Plot assignment successful, refreshing entire page'); // Debug log
-        // Force complete page refresh
-        window.location.reload();
+        console.log('Plot assignment successful, closing dialog'); // Debug log
+        setSelectedMemberId("");
+        onClose();
       } else {
         console.error('Plot assignment failed:', result.error); // Debug log
       }

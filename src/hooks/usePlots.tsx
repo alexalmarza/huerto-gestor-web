@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -96,6 +95,15 @@ export const usePlots = () => {
       if (error) throw error;
 
       console.log('Plot assigned successfully:', data); // Debug log
+      
+      // Update the local state immediately, just like unassignPlot does
+      setPlots(currentPlots => 
+        currentPlots.map(plot => 
+          plot.id === plotId 
+            ? { ...data as Plot }
+            : plot
+        )
+      );
       
       toast.success('Parcela asignada exitosamente');
       return { data, error: null };
