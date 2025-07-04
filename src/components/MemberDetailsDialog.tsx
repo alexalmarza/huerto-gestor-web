@@ -1,74 +1,25 @@
-import { useState, useEffect } from "react";
+
+import { useState } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { User, Phone, Mail, MapPin, Calendar, FileText, Plus, Trash2, AlertTriangle, Edit } from "lucide-react";
+import { User, Phone, Mail, MapPin, Calendar, AlertTriangle, Edit, Home, UserX, UserCheck } from "lucide-react";
 import { Member } from "@/hooks/useMembers";
-import { useIncidents, MemberIncident } from "@/hooks/useIncidents";
-import { IncidentCreationDialog } from "./IncidentCreationDialog";
-import { RedFlagDialog } from "./RedFlagDialog";
-import { RedFlagsList } from "./RedFlagsList";
+import { useEntityRedFlags } from "@/hooks/useEntityRedFlags";
 import { MemberEditDialog } from "./MemberEditDialog";
+import { MemberDeactivationDialog } from "./MemberDeactivationDialog";
 
 interface MemberDetailsDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  member: Member | null;
-  onRedFlagChange?: () => void;
+  member: Member;
   onMemberUpdated?: () => void;
 }
 
-export const MemberDetailsDialog = ({ isOpen, onClose, member, onRedFlagChange, onMemberUpdated }: MemberDetailsDialogProps) => {
-  const [memberIncidents, setMemberIncidents] = useState<MemberIncident[]>([]);
-  const [isIncidentDialogOpen, setIsIncidentDialogOpen] = useState(false);
-  const [isRedFlagDialogOpen, setIsRedFlagDialogOpen] = useState(false);
+export const MemberDetailsDialog = ({ isOpen, onClose, member, onMemberUpdated }: MemberDetailsDialogProps) => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const { getMemberIncidents, addMemberIncident, deleteIncident } = useIncidents();
-
-  useEffect(() => {
-    if (member && isOpen) {
-      loadMemberIncidents();
-    }
-  }, [member, isOpen]);
-
-  const loadMemberIncidents = async () => {
-    if (!member) return;
-    
-    const { data } = await getMemberIncidents(member.id);
-    setMemberIncidents(data);
-  };
-
-  const handleIncidentCreated = async (incidentId: string) => {
-    if (!member) return;
-    
-    await addMemberIncident(member.id, incidentId);
-    loadMemberIncidents();
-    setIsIncidentDialogOpen(false);
-  };
-
-  const handleDeleteIncident = async (incidentId: string) => {
-    const result = await deleteIncident(incidentId);
-    if (result.error === null) {
-      loadMemberIncidents();
-    }
-  };
-
-  const handleRedFlagCreated = () => {
-    setIsRedFlagDialogOpen(false);
-    onRedFlagChange?.();
-  };
-
-  const handleRedFlagChanged = () => {
-    onRedFlagChange?.();
-  };
-
-  const handleMemberUpdated = () => {
-    setIsEditDialogOpen(false);
-    onMemberUpdated?.();
-  };
+  const [isDeactivationDialogOpen, setIsDeactivationDialogOpen] = useState(false);
+  const { hasActiveRedFlags } = useEntityRedFlags('member', member.id);
 
   const getPaymentStatusColor = (status: string) => {
     switch (status) {
@@ -83,28 +34,36 @@ export const MemberDetailsDialog = ({ isOpen, onClose, member, onRedFlagChange, 
     }
   };
 
-  if (!member) return null;
+  const handleMemberUpdated = () => {
+    onMemberUpdated?.();
+  };
+
+  const handleDeactivationClose = () => {
+    setIsDeactivationDialogOpen(false);
+    onMemberUpdated?.();
+  };
 
   return (
     <>
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle className="flex items-center justify-between">
-              <span className="flex items-center space-x-2">
-                <User className="h-5 w-5" />
-                <span>{member.name}</span>
-              </span>
-              <div className="flex items-center space-x-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setIsEditDialogOpen(true)}
-                  className="flex items-center space-x-1"
-                >
-                  <Edit className="h-4 w-4" />
-                  <span>Editar</span>
-                </Button>
+            <DialogTitle className="flex items-center space-x-2">
+              <User className="h-5 w-5" />
+              <span>{member.name}</span>
+              {hasActiveRedFlags && (
+                <AlertTriangle className="h-4 w-4 text-red-600" />
+              )}
+            </DialogTitle>
+            <DialogDescription>
+              Información detallada del socio
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-6">
+            {/* Status and Actions */}
+            <div className="flex items-center justify-between">
+              <div className="flex space-x-2">
                 <Badge className={getPaymentStatusColor(member.payment_status)}>
                   {member.payment_status}
                 </Badge>
@@ -112,191 +71,131 @@ export const MemberDetailsDialog = ({ isOpen, onClose, member, onRedFlagChange, 
                   {member.is_active ? "Activo" : "Inactivo"}
                 </Badge>
               </div>
-            </DialogTitle>
-            <DialogDescription>
-              DNI: {member.dni}
-            </DialogDescription>
-          </DialogHeader>
+              <div className="flex space-x-2">
+                <Button onClick={() => setIsEditDialogOpen(true)} variant="outline" size="sm">
+                  <Edit className="h-4 w-4 mr-2" />
+                  Editar
+                </Button>
+                {member.is_active ? (
+                  <Button 
+                    onClick={() => setIsDeactivationDialogOpen(true)} 
+                    variant="destructive" 
+                    size="sm"
+                  >
+                    <UserX className="h-4 w-4 mr-2" />
+                    Desactivar
+                  </Button>
+                ) : (
+                  <Button 
+                    onClick={() => {
+                      // Activar socio directamente
+                      handleMemberUpdated();
+                    }} 
+                    variant="default" 
+                    size="sm"
+                  >
+                    <UserCheck className="h-4 w-4 mr-2" />
+                    Reactivar
+                  </Button>
+                )}
+              </div>
+            </div>
 
-          <div className="space-y-6">
-            <Tabs defaultValue="info" className="w-full">
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="info">Información Personal</TabsTrigger>
-                <TabsTrigger value="incidents" className="flex items-center space-x-2">
-                  <FileText className="h-4 w-4" />
-                  <span>Incidencias ({memberIncidents.length})</span>
-                </TabsTrigger>
-                <TabsTrigger value="redflags" className="flex items-center space-x-2">
-                  <AlertTriangle className="h-4 w-4" />
-                  <span>Red Flags</span>
-                </TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="info" className="space-y-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">Datos Personales</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <strong>Nombre:</strong> {member.name}
-                      </div>
-                      <div>
-                        <strong>DNI:</strong> {member.dni}
-                      </div>
-                    </div>
-                    
+            {/* Member Information */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-3">
+                <div>
+                  <label className="text-sm font-medium text-gray-500">DNI</label>
+                  <p className="text-base">{member.dni}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-500">Email</label>
+                  <div className="flex items-center space-x-2">
+                    <Mail className="h-4 w-4 text-gray-400" />
+                    <p className="text-base">{member.email}</p>
+                  </div>
+                </div>
+                {member.phone && (
+                  <div>
+                    <label className="text-sm font-medium text-gray-500">Teléfono</label>
                     <div className="flex items-center space-x-2">
-                      <Mail className="h-4 w-4 text-gray-400" />
-                      <span>{member.email}</span>
+                      <Phone className="h-4 w-4 text-gray-400" />
+                      <p className="text-base">{member.phone}</p>
                     </div>
-                    
-                    {member.phone && (
-                      <div className="flex items-center space-x-2">
-                        <Phone className="h-4 w-4 text-gray-400" />
-                        <span>{member.phone}</span>
-                      </div>
-                    )}
-                    
-                    {member.address && (
-                      <div className="flex items-center space-x-2">
-                        <MapPin className="h-4 w-4 text-gray-400" />
-                        <span>{member.address}</span>
-                      </div>
-                    )}
-                    
-                    <div className="flex items-center space-x-2 text-sm text-gray-600">
-                      <Calendar className="h-4 w-4 text-gray-400" />
-                      <span>Socio desde: {new Date(member.join_date).toLocaleDateString()}</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="space-y-3">
+                <div>
+                  <label className="text-sm font-medium text-gray-500">Fecha de ingreso</label>
+                  <div className="flex items-center space-x-2">
+                    <Calendar className="h-4 w-4 text-gray-400" />
+                    <p className="text-base">{new Date(member.join_date).toLocaleDateString()}</p>
+                  </div>
+                </div>
+                {member.address && (
+                  <div>
+                    <label className="text-sm font-medium text-gray-500">Dirección</label>
+                    <div className="flex items-center space-x-2">
+                      <MapPin className="h-4 w-4 text-gray-400" />
+                      <p className="text-base">{member.address}</p>
                     </div>
+                  </div>
+                )}
+              </div>
+            </div>
 
-                    {!member.is_active && member.deactivation_date && (
-                      <div className="mt-4 p-3 bg-red-50 rounded-lg">
-                        <div className="text-sm text-red-800">
-                          <strong>Fecha de baja:</strong> {new Date(member.deactivation_date).toLocaleDateString()}
-                        </div>
-                        {member.deactivation_reason && (
-                          <div className="text-sm text-red-700 mt-1">
-                            <strong>Motivo:</strong> {member.deactivation_reason}
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              <TabsContent value="incidents" className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <h3 className="text-lg font-semibold">Incidencias</h3>
-                  <Button 
-                    size="sm"
-                    onClick={() => setIsIncidentDialogOpen(true)}
-                    className="flex items-center space-x-2"
-                  >
-                    <Plus className="h-4 w-4" />
-                    <span>Nueva Incidencia</span>
-                  </Button>
+            {/* Assigned Plot */}
+            {member.assigned_plot && (
+              <div className="p-4 bg-green-50 rounded-lg border border-green-200">
+                <div className="flex items-center space-x-2 text-green-700">
+                  <Home className="h-5 w-5" />
+                  <h3 className="font-medium">Parcela Asignada</h3>
                 </div>
-
-                <div className="space-y-2">
-                  {memberIncidents.length === 0 ? (
-                    <div className="text-center py-8 text-gray-500">
-                      No hay incidencias registradas para este socio
-                    </div>
-                  ) : (
-                    memberIncidents.map((incident) => (
-                      <Card key={incident.id}>
-                        <CardHeader className="pb-2">
-                          <div className="flex justify-between items-start">
-                            <div>
-                              <CardTitle className="text-base">{incident.incident.title}</CardTitle>
-                              <CardDescription>
-                                {new Date(incident.created_at).toLocaleDateString()}
-                              </CardDescription>
-                            </div>
-                            <AlertDialog>
-                              <AlertDialogTrigger asChild>
-                                <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700">
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
-                              </AlertDialogTrigger>
-                              <AlertDialogContent>
-                                <AlertDialogHeader>
-                                  <AlertDialogTitle>¿Eliminar incidencia?</AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                    Esta acción no se puede deshacer. La incidencia será eliminada permanentemente.
-                                  </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                  <AlertDialogAction 
-                                    onClick={() => handleDeleteIncident(incident.incident.id)}
-                                    className="bg-red-600 hover:bg-red-700"
-                                  >
-                                    Eliminar
-                                  </AlertDialogAction>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            </AlertDialog>
-                          </div>
-                        </CardHeader>
-                        {incident.incident.description && (
-                          <CardContent>
-                            <p className="text-sm text-gray-600">{incident.incident.description}</p>
-                          </CardContent>
-                        )}
-                      </Card>
-                    ))
-                  )}
+                <div className="mt-2">
+                  <p className="text-green-800">
+                    <strong>Parcela #{member.assigned_plot.number}</strong>
+                  </p>
+                  <p className="text-green-600">
+                    Tamaño: {member.assigned_plot.size} - Ubicación: {member.assigned_plot.location}
+                  </p>
                 </div>
-              </TabsContent>
+              </div>
+            )}
 
-              <TabsContent value="redflags" className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <h3 className="text-lg font-semibold">Red Flags</h3>
-                  <Button 
-                    size="sm"
-                    onClick={() => setIsRedFlagDialogOpen(true)}
-                    className="flex items-center space-x-2 bg-red-600 hover:bg-red-700"
-                  >
-                    <AlertTriangle className="h-4 w-4" />
-                    <span>Nueva Red Flag</span>
-                  </Button>
-                </div>
-
-                <RedFlagsList 
-                  entityType="member" 
-                  entityId={member.id} 
-                  onRedFlagChange={handleRedFlagChanged}
-                />
-              </TabsContent>
-            </Tabs>
+            {/* Deactivation Information */}
+            {!member.is_active && (
+              <div className="p-4 bg-red-50 rounded-lg border border-red-200">
+                <h3 className="font-medium text-red-700 mb-2">Información de Baja</h3>
+                {member.deactivation_date && (
+                  <p className="text-red-600 text-sm">
+                    <strong>Fecha de baja:</strong> {new Date(member.deactivation_date).toLocaleDateString()}
+                  </p>
+                )}
+                {member.deactivation_reason && (
+                  <p className="text-red-600 text-sm mt-1">
+                    <strong>Motivo:</strong> {member.deactivation_reason}
+                  </p>
+                )}
+              </div>
+            )}
           </div>
         </DialogContent>
       </Dialog>
-
-      <IncidentCreationDialog
-        isOpen={isIncidentDialogOpen}
-        onClose={() => setIsIncidentDialogOpen(false)}
-        onIncidentCreated={handleIncidentCreated}
-      />
-
-      <RedFlagDialog
-        isOpen={isRedFlagDialogOpen}
-        onClose={() => setIsRedFlagDialogOpen(false)}
-        onRedFlagCreated={handleRedFlagCreated}
-        entityType="member"
-        entityId={member.id}
-        entityName={member.name}
-      />
 
       <MemberEditDialog
         isOpen={isEditDialogOpen}
         onClose={() => setIsEditDialogOpen(false)}
         member={member}
         onMemberUpdated={handleMemberUpdated}
+      />
+
+      <MemberDeactivationDialog
+        isOpen={isDeactivationDialogOpen}
+        onClose={handleDeactivationClose}
+        memberId={member.id}
+        memberName={member.name}
       />
     </>
   );
