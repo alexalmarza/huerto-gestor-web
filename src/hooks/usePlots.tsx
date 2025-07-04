@@ -63,7 +63,7 @@ export const usePlots = () => {
 
       if (error) throw error;
       
-      setPlots(prev => [...prev, data as Plot]);
+      await fetchPlots(); // Refrescar la lista completa
       toast.success('Parcela creada exitosamente');
       return { data, error: null };
     } catch (error) {
@@ -91,7 +91,8 @@ export const usePlots = () => {
 
       if (error) throw error;
 
-      setPlots(prev => prev.map(plot => plot.id === plotId ? data as Plot : plot));
+      // Refrescar la lista completa para asegurar consistencia
+      await fetchPlots();
       toast.success('Parcela asignada exitosamente');
       return { data, error: null };
     } catch (error) {
@@ -116,7 +117,7 @@ export const usePlots = () => {
 
       if (error) throw error;
 
-      setPlots(prev => prev.map(plot => plot.id === plotId ? data as Plot : plot));
+      await fetchPlots(); // Refrescar la lista completa
       toast.success('Parcela liberada exitosamente');
       return { data, error: null };
     } catch (error) {
@@ -137,7 +138,7 @@ export const usePlots = () => {
 
       if (error) throw error;
 
-      setPlots(prev => prev.map(plot => plot.id === id ? data as Plot : plot));
+      await fetchPlots(); // Refrescar la lista completa
       toast.success('Parcela actualizada exitosamente');
       return { data, error: null };
     } catch (error) {
@@ -156,7 +157,7 @@ export const usePlots = () => {
 
       if (error) throw error;
 
-      setPlots(prev => prev.filter(plot => plot.id !== id));
+      await fetchPlots(); // Refrescar la lista completa
       toast.success('Parcela eliminada exitosamente');
       return { error: null };
     } catch (error) {

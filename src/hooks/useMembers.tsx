@@ -63,7 +63,7 @@ export const useMembers = () => {
 
       if (error) throw error;
       
-      setMembers(prev => [...prev, data as Member]);
+      await fetchMembers(); // Refrescar la lista completa
       toast.success('Socio creado exitosamente');
       return { data, error: null };
     } catch (error) {
@@ -84,7 +84,7 @@ export const useMembers = () => {
 
       if (error) throw error;
 
-      setMembers(prev => prev.map(member => member.id === id ? data as Member : member));
+      await fetchMembers(); // Refrescar la lista completa
       toast.success('Socio actualizado exitosamente');
       return { data, error: null };
     } catch (error) {
@@ -108,7 +108,7 @@ export const useMembers = () => {
 
       if (error) throw error;
 
-      setMembers(prev => prev.map(member => member.id === id ? data as Member : member));
+      await fetchMembers(); // Refrescar la lista completa
       toast.success('Socio desactivado exitosamente');
       return { data, error: null };
     } catch (error) {
@@ -131,7 +131,7 @@ export const useMembers = () => {
 
       if (error) throw error;
 
-      setMembers(prev => prev.map(member => member.id === id ? data as Member : member));
+      await fetchMembers(); // Refrescar la lista completa
       toast.success('Socio reactivado exitosamente');
       return { data, error: null };
     } catch (error) {
@@ -150,7 +150,7 @@ export const useMembers = () => {
 
       if (error) throw error;
 
-      setMembers(prev => prev.filter(member => member.id !== id));
+      await fetchMembers(); // Refrescar la lista completa
       toast.success('Socio eliminado exitosamente');
       return { error: null };
     } catch (error) {

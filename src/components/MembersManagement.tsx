@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -16,10 +17,12 @@ import {
 import { Plus, Search, User, Phone, Mail, MapPin, Calendar, UserMinus, UserCheck } from "lucide-react";
 import { useMembers } from "@/hooks/useMembers";
 import { MemberDeactivationDialog } from "./MemberDeactivationDialog";
+import { MemberDetailsDialog } from "./MemberDetailsDialog";
 
 export const MembersManagement = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [selectedMember, setSelectedMember] = useState<any>(null);
   const [deactivationDialog, setDeactivationDialog] = useState<{
     isOpen: boolean;
     memberId: string;
@@ -148,7 +151,12 @@ export const MembersManagement = () => {
         </div>
         
         <div className="flex space-x-2 pt-2">
-          <Button variant="outline" size="sm" className="flex-1">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="flex-1"
+            onClick={() => setSelectedMember(member)}
+          >
             Ver Perfil
           </Button>
           {isActive ? (
@@ -319,6 +327,12 @@ export const MembersManagement = () => {
         onClose={() => setDeactivationDialog({ isOpen: false, memberId: "", memberName: "" })}
         memberId={deactivationDialog.memberId}
         memberName={deactivationDialog.memberName}
+      />
+
+      <MemberDetailsDialog
+        isOpen={selectedMember !== null}
+        onClose={() => setSelectedMember(null)}
+        member={selectedMember}
       />
     </div>
   );

@@ -21,6 +21,7 @@ export interface MemberIncident {
   member_id: string;
   incident_id: string;
   created_at: string;
+  incident: Incident;
 }
 
 export interface PlotIncident {
@@ -66,7 +67,7 @@ export const useIncidents = () => {
 
       if (error) throw error;
       
-      setIncidents(prev => [data, ...prev]);
+      await fetchIncidents(); // Refrescar la lista
       toast.success('Incidencia creada exitosamente');
       return { data, error: null };
     } catch (error) {
@@ -84,7 +85,8 @@ export const useIncidents = () => {
           *,
           incident:incidents(*)
         `)
-        .eq('member_id', memberId);
+        .eq('member_id', memberId)
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
       return { data: data || [], error: null };
@@ -102,7 +104,8 @@ export const useIncidents = () => {
           *,
           incident:incidents(*)
         `)
-        .eq('plot_id', plotId);
+        .eq('plot_id', plotId)
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
       return { data: data || [], error: null };
