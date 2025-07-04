@@ -1,5 +1,4 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -34,9 +33,16 @@ export const PlotsManagement = () => {
     size: "",
     location: ""
   });
+  const [forceUpdate, setForceUpdate] = useState(0);
 
   const { plots, loading, createPlot, unassignPlot, updatePlot, deletePlot } = usePlots();
   const { members } = useMembers();
+
+  // Force re-render when plots change
+  useEffect(() => {
+    setForceUpdate(prev => prev + 1);
+    console.log('Plots updated, forcing re-render:', plots.length);
+  }, [plots]);
 
   const handleCreatePlot = async () => {
     if (!newPlot.number || !newPlot.size || !newPlot.location) {
@@ -76,6 +82,13 @@ export const PlotsManagement = () => {
     await unassignPlot(plotId);
   };
 
+  const handleAssignmentComplete = () => {
+    console.log('Assignment completed, closing dialog and forcing update');
+    setAssignmentDialog({ isOpen: false, plotId: "", plotNumber: "" });
+    // Force immediate re-render
+    setForceUpdate(prev => prev + 1);
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case "ocupada":
@@ -104,7 +117,7 @@ export const PlotsManagement = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" key={forceUpdate}>
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">Gestión de Parcelas</h2>
@@ -184,7 +197,7 @@ export const PlotsManagement = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filteredPlots.map((plot) => (
-          <Card key={plot.id} className="bg-white shadow-sm hover:shadow-md transition-shadow">
+          <Card key={`${plot.id}-${plot.status}-${forceUpdate}`} className="bg-white shadow-sm hover:shadow-md transition-shadow">
             <CardHeader className="pb-3">
               <div className="flex justify-between items-start">
                 <div>
@@ -285,7 +298,7 @@ export const PlotsManagement = () => {
 
       <PlotAssignmentDialog
         isOpen={assignmentDialog.isOpen}
-        onClose={() => setAssignmentDialog({ isOpen: false, plotId: "", plotNumber: "" })}
+        onClose={handleAssignmentComplete}
         plotId={assignmentDialog.plotId}
         plotNumber={assignmentDialog.plotNumber}
       />
