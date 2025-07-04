@@ -10,9 +10,10 @@ import { useRedFlags, RedFlag } from "@/hooks/useRedFlags";
 interface RedFlagsListProps {
   entityType: 'member' | 'plot';
   entityId: string;
+  onRedFlagChange?: () => void;
 }
 
-export const RedFlagsList = ({ entityType, entityId }: RedFlagsListProps) => {
+export const RedFlagsList = ({ entityType, entityId, onRedFlagChange }: RedFlagsListProps) => {
   const [entityRedFlags, setEntityRedFlags] = useState<RedFlag[]>([]);
   const [loading, setLoading] = useState(true);
   const { getEntityRedFlags, resolveRedFlag, deleteRedFlag } = useRedFlags();
@@ -28,6 +29,7 @@ export const RedFlagsList = ({ entityType, entityId }: RedFlagsListProps) => {
     const result = await resolveRedFlag(redFlagId);
     if (result.error === null) {
       loadEntityRedFlags();
+      onRedFlagChange?.();
     }
   };
 
@@ -35,6 +37,7 @@ export const RedFlagsList = ({ entityType, entityId }: RedFlagsListProps) => {
     const result = await deleteRedFlag(redFlagId);
     if (result.error === null) {
       loadEntityRedFlags();
+      onRedFlagChange?.();
     }
   };
 

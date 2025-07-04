@@ -17,9 +17,10 @@ interface PlotDetailsDialogProps {
   isOpen: boolean;
   onClose: () => void;
   plot: Plot | null;
+  onRedFlagChange?: () => void;
 }
 
-export const PlotDetailsDialog = ({ isOpen, onClose, plot }: PlotDetailsDialogProps) => {
+export const PlotDetailsDialog = ({ isOpen, onClose, plot, onRedFlagChange }: PlotDetailsDialogProps) => {
   const [plotIncidents, setPlotIncidents] = useState<PlotIncident[]>([]);
   const [isIncidentDialogOpen, setIsIncidentDialogOpen] = useState(false);
   const [isRedFlagDialogOpen, setIsRedFlagDialogOpen] = useState(false);
@@ -51,6 +52,15 @@ export const PlotDetailsDialog = ({ isOpen, onClose, plot }: PlotDetailsDialogPr
     if (result.error === null) {
       loadPlotIncidents();
     }
+  };
+
+  const handleRedFlagCreated = () => {
+    setIsRedFlagDialogOpen(false);
+    onRedFlagChange?.();
+  };
+
+  const handleRedFlagChanged = () => {
+    onRedFlagChange?.();
   };
 
   const getStatusColor = (status: string) => {
@@ -226,7 +236,11 @@ export const PlotDetailsDialog = ({ isOpen, onClose, plot }: PlotDetailsDialogPr
                   </Button>
                 </div>
 
-                <RedFlagsList entityType="plot" entityId={plot.id} />
+                <RedFlagsList 
+                  entityType="plot" 
+                  entityId={plot.id} 
+                  onRedFlagChange={handleRedFlagChanged}
+                />
               </TabsContent>
             </Tabs>
           </div>
@@ -242,6 +256,7 @@ export const PlotDetailsDialog = ({ isOpen, onClose, plot }: PlotDetailsDialogPr
       <RedFlagDialog
         isOpen={isRedFlagDialogOpen}
         onClose={() => setIsRedFlagDialogOpen(false)}
+        onRedFlagCreated={handleRedFlagCreated}
         entityType="plot"
         entityId={plot.id}
         entityName={`Parcela #${plot.number}`}

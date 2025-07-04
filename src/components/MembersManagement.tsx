@@ -3,336 +3,161 @@ import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogDescription, 
-  DialogHeader, 
-  DialogTitle, 
-  DialogTrigger 
-} from "@/components/ui/dialog";
-import { Plus, Search, User, Phone, Mail, MapPin, Calendar, UserMinus, UserCheck } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Search, Plus, Users, UserCheck, UserX, AlertCircle } from "lucide-react";
 import { useMembers } from "@/hooks/useMembers";
-import { MemberDeactivationDialog } from "./MemberDeactivationDialog";
-import { MemberDetailsDialog } from "./MemberDetailsDialog";
+import { MemberCard } from "./MemberCard";
+import { MemberCreationDialog } from "./MemberCreationDialog";
 
 export const MembersManagement = () => {
+  const { members, loading } = useMembers();
   const [searchTerm, setSearchTerm] = useState("");
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [selectedMember, setSelectedMember] = useState<any>(null);
-  const [deactivationDialog, setDeactivationDialog] = useState<{
-    isOpen: boolean;
-    memberId: string;
-    memberName: string;
-  }>({ isOpen: false, memberId: "", memberName: "" });
-  const [newMember, setNewMember] = useState({
-    name: "",
-    dni: "",
-    email: "",
-    phone: "",
-    address: ""
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [paymentFilter, setPaymentFilter] = useState("all");
+  const [isCreationDialogOpen, setIsCreationDialogOpen] = useState(false);
+
+  // Calculate statistics
+  const totalMembers = members.length;
+  const activeMembers = members.filter(member => member.is_active).length;
+  const inactiveMembers = members.filter(member => !member.is_active).length;
+  const pendingPayments = members.filter(member => member.payment_status === 'pendiente').length;
+
+  // Filter members based on search and filters
+  const filteredMembers = members.filter(member => {
+    const matchesSearch = member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         member.dni.includes(searchTerm) ||
+                         member.email.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesStatus = statusFilter === "all" || 
+                         (statusFilter === "active" && member.is_active) ||
+                         (statusFilter === "inactive" && !member.is_active);
+    
+    const matchesPayment = paymentFilter === "all" || member.payment_status === paymentFilter;
+    
+    return matchesSearch && matchesStatus && matchesPayment;
   });
-
-  const { members, loading, createMember, activateMember } = useMembers();
-
-  const activeMembers = members.filter(member => member.is_active);
-  const inactiveMembers = members.filter(member => !member.is_active);
-
-  const handleCreateMember = async () => {
-    if (!newMember.name || !newMember.dni || !newMember.email) {
-      return;
-    }
-
-    const memberData = {
-      ...newMember,
-      phone: newMember.phone || undefined,
-      address: newMember.address || undefined
-    };
-
-    const result = await createMember(memberData);
-    if (result.error === null) {
-      setNewMember({ name: "", dni: "", email: "", phone: "", address: "" });
-      setIsAddDialogOpen(false);
-    }
-  };
-
-  const handleActivateMember = async (memberId: string) => {
-    await activateMember(memberId);
-  };
-
-  const getPaymentStatusColor = (status: string) => {
-    switch (status) {
-      case "al día":
-        return "bg-green-100 text-green-800";
-      case "pendiente":
-        return "bg-orange-100 text-orange-800";
-      case "vencido":
-        return "bg-red-100 text-red-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
-
-  const filteredActiveMembers = activeMembers.filter(member =>
-    member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    member.dni.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    member.email.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const filteredInactiveMembers = inactiveMembers.filter(member =>
-    member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    member.dni.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    member.email.toLowerCase().includes(searchTerm.toLowerCase())
-  );
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-8">
+      <div className="flex items-center justify-center h-64">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
       </div>
     );
   }
 
-  const MemberCard = ({ member, isActive }: { member: any; isActive: boolean }) => (
-    <Card key={member.id} className="bg-white shadow-sm hover:shadow-md transition-shadow">
-      <CardHeader className="pb-3">
-        <div className="flex justify-between items-start">
-          <div>
-            <CardTitle className="text-lg flex items-center space-x-2">
-              <span>{member.name}</span>
-              {!isActive && <Badge variant="secondary">Inactivo</Badge>}
-            </CardTitle>
-            <CardDescription>DNI: {member.dni}</CardDescription>
-          </div>
-          <div className="flex flex-col items-end space-y-1">
-            {isActive && (
-              <Badge className={getPaymentStatusColor(member.payment_status)}>
-                {member.payment_status}
-              </Badge>
-            )}
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-3">
-        <div className="space-y-2">
-          <div className="flex items-center space-x-2 text-sm">
-            <Mail className="h-4 w-4 text-gray-400" />
-            <span>{member.email}</span>
-          </div>
-          {member.phone && (
-            <div className="flex items-center space-x-2 text-sm">
-              <Phone className="h-4 w-4 text-gray-400" />
-              <span>{member.phone}</span>
-            </div>
-          )}
-          {member.address && (
-            <div className="flex items-center space-x-2 text-sm">
-              <MapPin className="h-4 w-4 text-gray-400" />
-              <span>{member.address}</span>
-            </div>
-          )}
-          <div className="flex items-center space-x-2 text-sm text-gray-600">
-            <Calendar className="h-4 w-4 text-gray-400" />
-            <span>
-              {isActive ? 
-                `Socio desde: ${new Date(member.join_date).toLocaleDateString()}` :
-                `Baja: ${new Date(member.deactivation_date).toLocaleDateString()}`
-              }
-            </span>
-          </div>
-          {!isActive && member.deactivation_reason && (
-            <div className="text-sm text-gray-600 italic">
-              <strong>Motivo:</strong> {member.deactivation_reason}
-            </div>
-          )}
-        </div>
-        
-        <div className="flex space-x-2 pt-2">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="flex-1"
-            onClick={() => setSelectedMember(member)}
-          >
-            Ver Perfil
-          </Button>
-          {isActive ? (
-            <>
-              <Button variant="outline" size="sm" className="flex-1">
-                Editar
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="flex-1"
-                onClick={() => setDeactivationDialog({
-                  isOpen: true,
-                  memberId: member.id,
-                  memberName: member.name
-                })}
-              >
-                <UserMinus className="h-4 w-4 mr-1" />
-                Desactivar
-              </Button>
-            </>
-          ) : (
-            <Button 
-              size="sm" 
-              className="flex-1 bg-green-600 hover:bg-green-700"
-              onClick={() => handleActivateMember(member.id)}
-            >
-              <UserCheck className="h-4 w-4 mr-1" />
-              Reactivar
-            </Button>
-          )}
-        </div>
-      </CardContent>
-    </Card>
-  );
-
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">Gestión de Socios</h2>
-          <p className="text-gray-600">Administra los socios de la asociación</p>
-        </div>
-        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="bg-blue-600 hover:bg-blue-700">
+      {/* Statistics Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Socios</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{totalMembers}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Activos</CardTitle>
+            <UserCheck className="h-4 w-4 text-green-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-green-600">{activeMembers}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Inactivos</CardTitle>
+            <UserX className="h-4 w-4 text-red-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-red-600">{inactiveMembers}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Pagos Pendientes</CardTitle>
+            <AlertCircle className="h-4 w-4 text-orange-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-orange-600">{pendingPayments}</div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Controls */}
+      <Card>
+        <CardHeader>
+          <div className="flex justify-between items-center">
+            <div>
+              <CardTitle>Gestión de Socios</CardTitle>
+              <CardDescription>
+                Administra la información de los socios del huerto
+              </CardDescription>
+            </div>
+            <Button onClick={() => setIsCreationDialogOpen(true)}>
               <Plus className="h-4 w-4 mr-2" />
               Nuevo Socio
             </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>Agregar Nuevo Socio</DialogTitle>
-              <DialogDescription>
-                Completa la información personal del nuevo socio
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="name">Nombre Completo</Label>
-                  <Input 
-                    id="name" 
-                    placeholder="Juan Pérez González" 
-                    value={newMember.name}
-                    onChange={(e) => setNewMember(prev => ({ ...prev, name: e.target.value }))}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="dni">DNI/NIE</Label>
-                  <Input 
-                    id="dni" 
-                    placeholder="12345678A" 
-                    value={newMember.dni}
-                    onChange={(e) => setNewMember(prev => ({ ...prev, dni: e.target.value }))}
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="email">Email</Label>
-                  <Input 
-                    id="email" 
-                    type="email" 
-                    placeholder="juan@email.com" 
-                    value={newMember.email}
-                    onChange={(e) => setNewMember(prev => ({ ...prev, email: e.target.value }))}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="phone">Teléfono</Label>
-                  <Input 
-                    id="phone" 
-                    placeholder="666123456" 
-                    value={newMember.phone}
-                    onChange={(e) => setNewMember(prev => ({ ...prev, phone: e.target.value }))}
-                  />
-                </div>
-              </div>
-              <div>
-                <Label htmlFor="address">Dirección</Label>
-                <Input 
-                  id="address" 
-                  placeholder="Calle Mayor, 123, Madrid" 
-                  value={newMember.address}
-                  onChange={(e) => setNewMember(prev => ({ ...prev, address: e.target.value }))}
-                />
-              </div>
-              <div className="flex justify-end space-x-2">
-                <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
-                  Cancelar
-                </Button>
-                <Button 
-                  className="bg-blue-600 hover:bg-blue-700"
-                  onClick={handleCreateMember}
-                >
-                  Crear Socio
-                </Button>
-              </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col sm:flex-row gap-4 mb-6">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <Input
+                placeholder="Buscar por nombre, DNI o email..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
             </div>
-          </DialogContent>
-        </Dialog>
-      </div>
-
-      <div className="flex items-center space-x-2">
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-          <Input
-            placeholder="Buscar por nombre, DNI o email..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
-          />
-        </div>
-      </div>
-
-      <Tabs defaultValue="active" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="active" className="flex items-center space-x-2">
-            <User className="h-4 w-4" />
-            <span>Socios Activos ({activeMembers.length})</span>
-          </TabsTrigger>
-          <TabsTrigger value="inactive" className="flex items-center space-x-2">
-            <UserMinus className="h-4 w-4" />
-            <span>Socios Inactivos ({inactiveMembers.length})</span>
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="active" className="space-y-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {filteredActiveMembers.map((member) => (
-              <MemberCard key={member.id} member={member} isActive={true} />
-            ))}
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-full sm:w-[180px]">
+                <SelectValue placeholder="Estado" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos los estados</SelectItem>
+                <SelectItem value="active">Activos</SelectItem>
+                <SelectItem value="inactive">Inactivos</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={paymentFilter} onValueChange={setPaymentFilter}>
+              <SelectTrigger className="w-full sm:w-[180px]">
+                <SelectValue placeholder="Pagos" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos los pagos</SelectItem>
+                <SelectItem value="al día">Al día</SelectItem>
+                <SelectItem value="pendiente">Pendiente</SelectItem>
+                <SelectItem value="vencido">Vencido</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
-        </TabsContent>
 
-        <TabsContent value="inactive" className="space-y-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {filteredInactiveMembers.map((member) => (
-              <MemberCard key={member.id} member={member} isActive={false} />
-            ))}
-          </div>
-        </TabsContent>
-      </Tabs>
+          {/* Members Grid */}
+          {filteredMembers.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">
+              {searchTerm || statusFilter !== "all" || paymentFilter !== "all" 
+                ? "No se encontraron socios que coincidan con los filtros"
+                : "No hay socios registrados"}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredMembers.map((member) => (
+                <MemberCard key={member.id} member={member} />
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
-      <MemberDeactivationDialog
-        isOpen={deactivationDialog.isOpen}
-        onClose={() => setDeactivationDialog({ isOpen: false, memberId: "", memberName: "" })}
-        memberId={deactivationDialog.memberId}
-        memberName={deactivationDialog.memberName}
-      />
-
-      <MemberDetailsDialog
-        isOpen={selectedMember !== null}
-        onClose={() => setSelectedMember(null)}
-        member={selectedMember}
+      <MemberCreationDialog
+        isOpen={isCreationDialogOpen}
+        onClose={() => setIsCreationDialogOpen(false)}
       />
     </div>
   );

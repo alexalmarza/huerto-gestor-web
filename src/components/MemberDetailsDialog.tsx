@@ -17,9 +17,10 @@ interface MemberDetailsDialogProps {
   isOpen: boolean;
   onClose: () => void;
   member: Member | null;
+  onRedFlagChange?: () => void;
 }
 
-export const MemberDetailsDialog = ({ isOpen, onClose, member }: MemberDetailsDialogProps) => {
+export const MemberDetailsDialog = ({ isOpen, onClose, member, onRedFlagChange }: MemberDetailsDialogProps) => {
   const [memberIncidents, setMemberIncidents] = useState<MemberIncident[]>([]);
   const [isIncidentDialogOpen, setIsIncidentDialogOpen] = useState(false);
   const [isRedFlagDialogOpen, setIsRedFlagDialogOpen] = useState(false);
@@ -51,6 +52,15 @@ export const MemberDetailsDialog = ({ isOpen, onClose, member }: MemberDetailsDi
     if (result.error === null) {
       loadMemberIncidents();
     }
+  };
+
+  const handleRedFlagCreated = () => {
+    setIsRedFlagDialogOpen(false);
+    onRedFlagChange?.();
+  };
+
+  const handleRedFlagChanged = () => {
+    onRedFlagChange?.();
   };
 
   const getPaymentStatusColor = (status: string) => {
@@ -240,7 +250,11 @@ export const MemberDetailsDialog = ({ isOpen, onClose, member }: MemberDetailsDi
                   </Button>
                 </div>
 
-                <RedFlagsList entityType="member" entityId={member.id} />
+                <RedFlagsList 
+                  entityType="member" 
+                  entityId={member.id} 
+                  onRedFlagChange={handleRedFlagChanged}
+                />
               </TabsContent>
             </Tabs>
           </div>
@@ -256,6 +270,7 @@ export const MemberDetailsDialog = ({ isOpen, onClose, member }: MemberDetailsDi
       <RedFlagDialog
         isOpen={isRedFlagDialogOpen}
         onClose={() => setIsRedFlagDialogOpen(false)}
+        onRedFlagCreated={handleRedFlagCreated}
         entityType="member"
         entityId={member.id}
         entityName={member.name}
