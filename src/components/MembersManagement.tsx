@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -16,25 +17,25 @@ export const MembersManagement = () => {
   const [paymentFilter, setPaymentFilter] = useState("all");
   const [isCreationDialogOpen, setIsCreationDialogOpen] = useState(false);
 
-  // Calculate statistics
-  const totalMembers = members.length;
-  const activeMembers = members.filter(member => member.is_active).length;
-  const inactiveMembers = members.filter(member => !member.is_active).length;
-  const pendingPayments = members.filter(member => member.payment_status === 'pendiente').length;
+  // Filter only ACTIVE members
+  const activeMembers = members.filter(member => member.is_active);
 
-  // Filter members based on search and filters
-  const filteredMembers = members.filter(member => {
+  // Calculate statistics only for active members
+  const totalActiveMembers = activeMembers.length;
+  const totalMembers = members.length;
+  const inactiveMembers = members.filter(member => !member.is_active).length;
+  const pendingPayments = activeMembers.filter(member => member.payment_status === 'pendiente').length;
+
+  // Filter active members based on search and payment filters
+  const filteredMembers = activeMembers.filter(member => {
     const matchesSearch = member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          member.dni.includes(searchTerm) ||
                          member.email.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const matchesStatus = statusFilter === "all" || 
-                         (statusFilter === "active" && member.is_active) ||
-                         (statusFilter === "inactive" && !member.is_active);
-    
+    // Remove status filter logic since we only show active members here
     const matchesPayment = paymentFilter === "all" || member.payment_status === paymentFilter;
     
-    return matchesSearch && matchesStatus && matchesPayment;
+    return matchesSearch && matchesPayment;
   });
 
   const handleMemberUpdated = () => {
@@ -68,7 +69,7 @@ export const MembersManagement = () => {
             <UserCheck className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">{activeMembers}</div>
+            <div className="text-2xl font-bold text-green-600">{totalActiveMembers}</div>
           </CardContent>
         </Card>
         <Card>
@@ -96,9 +97,9 @@ export const MembersManagement = () => {
         <CardHeader>
           <div className="flex justify-between items-center">
             <div>
-              <CardTitle>Gestión de Socios</CardTitle>
+              <CardTitle>Socios Activos</CardTitle>
               <CardDescription>
-                Administra la información de los socios del huerto
+                Administra la información de los socios activos del huerto
               </CardDescription>
             </div>
             <Button onClick={() => setIsCreationDialogOpen(true)}>
@@ -118,16 +119,6 @@ export const MembersManagement = () => {
                 className="pl-10"
               />
             </div>
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full sm:w-[180px]">
-                <SelectValue placeholder="Estado" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos los estados</SelectItem>
-                <SelectItem value="active">Activos</SelectItem>
-                <SelectItem value="inactive">Inactivos</SelectItem>
-              </SelectContent>
-            </Select>
             <Select value={paymentFilter} onValueChange={setPaymentFilter}>
               <SelectTrigger className="w-full sm:w-[180px]">
                 <SelectValue placeholder="Pagos" />
@@ -144,9 +135,9 @@ export const MembersManagement = () => {
           {/* Members Grid */}
           {filteredMembers.length === 0 ? (
             <div className="text-center py-8 text-gray-500">
-              {searchTerm || statusFilter !== "all" || paymentFilter !== "all" 
-                ? "No se encontraron socios que coincidan con los filtros"
-                : "No hay socios registrados"}
+              {searchTerm || paymentFilter !== "all" 
+                ? "No se encontraron socios activos que coincidan con los filtros"
+                : "No hay socios activos registrados"}
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

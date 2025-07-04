@@ -13,14 +13,14 @@ export const InactiveMembersManagement = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [paymentFilter, setPaymentFilter] = useState("all");
 
-  // Filter only inactive members
+  // Filter only INACTIVE members
   const inactiveMembers = members.filter(member => !member.is_active);
 
-  // Calculate statistics
+  // Calculate statistics only for inactive members
   const totalInactiveMembers = inactiveMembers.length;
   const pendingPayments = inactiveMembers.filter(member => member.payment_status === 'pendiente').length;
 
-  // Filter members based on search and filters
+  // Filter inactive members based on search and payment filters
   const filteredMembers = inactiveMembers.filter(member => {
     const matchesSearch = member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          member.dni.includes(searchTerm) ||
