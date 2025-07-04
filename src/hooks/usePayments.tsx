@@ -51,7 +51,7 @@ export const usePayments = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setPayments(data || []);
+      setPayments((data || []) as Payment[]);
     } catch (error) {
       console.error('Error fetching payments:', error);
       toast.error('Error al cargar los pagos');
