@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,7 +10,7 @@ import { MemberCard } from "./MemberCard";
 import { MemberCreationDialog } from "./MemberCreationDialog";
 
 export const MembersManagement = () => {
-  const { members, loading } = useMembers();
+  const { members, loading, refetch } = useMembers();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [paymentFilter, setPaymentFilter] = useState("all");
@@ -37,6 +36,10 @@ export const MembersManagement = () => {
     
     return matchesSearch && matchesStatus && matchesPayment;
   });
+
+  const handleMemberUpdated = () => {
+    refetch();
+  };
 
   if (loading) {
     return (
@@ -148,7 +151,11 @@ export const MembersManagement = () => {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredMembers.map((member) => (
-                <MemberCard key={member.id} member={member} />
+                <MemberCard 
+                  key={member.id} 
+                  member={member} 
+                  onMemberUpdated={handleMemberUpdated}
+                />
               ))}
             </div>
           )}

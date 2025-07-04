@@ -10,9 +10,10 @@ import { MemberDetailsDialog } from "./MemberDetailsDialog";
 
 interface MemberCardProps {
   member: Member;
+  onMemberUpdated?: () => void;
 }
 
-export const MemberCard = ({ member }: MemberCardProps) => {
+export const MemberCard = ({ member, onMemberUpdated }: MemberCardProps) => {
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const { hasActiveRedFlags } = useEntityRedFlags('member', member.id);
 
@@ -83,6 +84,7 @@ export const MemberCard = ({ member }: MemberCardProps) => {
         isOpen={isDetailsOpen}
         onClose={() => setIsDetailsOpen(false)}
         member={member}
+        onMemberUpdated={onMemberUpdated}
       />
     </>
   );

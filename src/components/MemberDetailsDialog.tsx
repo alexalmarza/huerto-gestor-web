@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -6,24 +5,27 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { User, Phone, Mail, MapPin, Calendar, FileText, Plus, Trash2, AlertTriangle } from "lucide-react";
+import { User, Phone, Mail, MapPin, Calendar, FileText, Plus, Trash2, AlertTriangle, Edit } from "lucide-react";
 import { Member } from "@/hooks/useMembers";
 import { useIncidents, MemberIncident } from "@/hooks/useIncidents";
 import { IncidentCreationDialog } from "./IncidentCreationDialog";
 import { RedFlagDialog } from "./RedFlagDialog";
 import { RedFlagsList } from "./RedFlagsList";
+import { MemberEditDialog } from "./MemberEditDialog";
 
 interface MemberDetailsDialogProps {
   isOpen: boolean;
   onClose: () => void;
   member: Member | null;
   onRedFlagChange?: () => void;
+  onMemberUpdated?: () => void;
 }
 
-export const MemberDetailsDialog = ({ isOpen, onClose, member, onRedFlagChange }: MemberDetailsDialogProps) => {
+export const MemberDetailsDialog = ({ isOpen, onClose, member, onRedFlagChange, onMemberUpdated }: MemberDetailsDialogProps) => {
   const [memberIncidents, setMemberIncidents] = useState<MemberIncident[]>([]);
   const [isIncidentDialogOpen, setIsIncidentDialogOpen] = useState(false);
   const [isRedFlagDialogOpen, setIsRedFlagDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const { getMemberIncidents, addMemberIncident, deleteIncident } = useIncidents();
 
   useEffect(() => {
@@ -63,6 +65,11 @@ export const MemberDetailsDialog = ({ isOpen, onClose, member, onRedFlagChange }
     onRedFlagChange?.();
   };
 
+  const handleMemberUpdated = () => {
+    setIsEditDialogOpen(false);
+    onMemberUpdated?.();
+  };
+
   const getPaymentStatusColor = (status: string) => {
     switch (status) {
       case "al día":
@@ -88,7 +95,16 @@ export const MemberDetailsDialog = ({ isOpen, onClose, member, onRedFlagChange }
                 <User className="h-5 w-5" />
                 <span>{member.name}</span>
               </span>
-              <div className="flex space-x-2">
+              <div className="flex items-center space-x-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsEditDialogOpen(true)}
+                  className="flex items-center space-x-1"
+                >
+                  <Edit className="h-4 w-4" />
+                  <span>Editar</span>
+                </Button>
                 <Badge className={getPaymentStatusColor(member.payment_status)}>
                   {member.payment_status}
                 </Badge>
@@ -274,6 +290,13 @@ export const MemberDetailsDialog = ({ isOpen, onClose, member, onRedFlagChange }
         entityType="member"
         entityId={member.id}
         entityName={member.name}
+      />
+
+      <MemberEditDialog
+        isOpen={isEditDialogOpen}
+        onClose={() => setIsEditDialogOpen(false)}
+        member={member}
+        onMemberUpdated={handleMemberUpdated}
       />
     </>
   );
