@@ -97,15 +97,6 @@ export const usePlots = () => {
 
       console.log('Plot assigned successfully:', data); // Debug log
       
-      // Update the local state immediately
-      setPlots(currentPlots => 
-        currentPlots.map(plot => 
-          plot.id === plotId 
-            ? { ...data as Plot }
-            : plot
-        )
-      );
-      
       toast.success('Parcela asignada exitosamente');
       return { data, error: null };
     } catch (error) {

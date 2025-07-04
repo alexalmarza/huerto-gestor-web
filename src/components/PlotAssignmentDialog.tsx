@@ -19,7 +19,7 @@ export const PlotAssignmentDialog = ({ isOpen, onClose, plotId, plotNumber }: Pl
   const [isAssigning, setIsAssigning] = useState(false);
   
   const { members } = useMembers();
-  const { plots, assignPlot } = usePlots();
+  const { plots, assignPlot, refetch } = usePlots();
 
   // Filter active members who don't have a plot assigned
   const availableMembers = members.filter(member => 
@@ -37,9 +37,14 @@ export const PlotAssignmentDialog = ({ isOpen, onClose, plotId, plotNumber }: Pl
       const result = await assignPlot(plotId, { assigned_member_id: selectedMemberId });
       
       if (result.error === null) {
-        console.log('Plot assignment successful, closing dialog'); // Debug log
-        setSelectedMemberId("");
-        onClose();
+        console.log('Plot assignment successful, forcing complete refresh'); // Debug log
+        // Force a complete refresh from the database
+        setTimeout(async () => {
+          await refetch();
+          console.log('Complete refresh done, closing dialog'); // Debug log
+          setSelectedMemberId("");
+          onClose();
+        }, 500); // Small delay to ensure database is updated
       } else {
         console.error('Plot assignment failed:', result.error); // Debug log
       }
