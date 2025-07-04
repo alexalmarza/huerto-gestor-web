@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -35,6 +34,11 @@ export const PlotsManagement = () => {
 
   const handlePlotUpdated = () => {
     refetch();
+  };
+
+  const handleCreationDialogClose = () => {
+    setIsCreationDialogOpen(false);
+    refetch(); // Refresh the list when dialog closes
   };
 
   if (loading) {
@@ -150,7 +154,7 @@ export const PlotsManagement = () => {
 
       <PlotCreationDialog
         isOpen={isCreationDialogOpen}
-        onClose={() => setIsCreationDialogOpen(false)}
+        onClose={handleCreationDialogClose}
       />
     </div>
   );

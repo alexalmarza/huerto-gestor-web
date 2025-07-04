@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { MapPin, Plus } from "lucide-react";
+import { usePlots } from "@/hooks/usePlots";
 
 interface PlotCreationDialogProps {
   isOpen: boolean;
@@ -13,6 +14,7 @@ interface PlotCreationDialogProps {
 }
 
 export const PlotCreationDialog = ({ isOpen, onClose }: PlotCreationDialogProps) => {
+  const { createPlot } = usePlots();
   const [number, setNumber] = useState('');
   const [location, setLocation] = useState('');
   const [size, setSize] = useState('');
@@ -20,26 +22,46 @@ export const PlotCreationDialog = ({ isOpen, onClose }: PlotCreationDialogProps)
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async () => {
-    if (!number || !location || !size) {
+    if (!number.trim() || !location.trim() || !size.trim()) {
       return;
     }
 
     setIsSubmitting(true);
     
-    // TODO: Implement plot creation logic
-    console.log('Creating plot:', { number, location, size, status });
-    
-    // Reset form
-    setNumber('');
-    setLocation('');
-    setSize('');
-    setStatus('disponible');
-    setIsSubmitting(false);
-    onClose();
+    try {
+      const result = await createPlot({
+        number: number.trim(),
+        location: location.trim(),
+        size: size.trim()
+      });
+
+      if (result.error === null) {
+        // Reset form
+        setNumber('');
+        setLocation('');
+        setSize('');
+        setStatus('disponible');
+        onClose();
+      }
+    } catch (error) {
+      console.error('Error creating plot:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleClose = () => {
+    if (!isSubmitting) {
+      setNumber('');
+      setLocation('');
+      setSize('');
+      setStatus('disponible');
+      onClose();
+    }
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center space-x-2">
@@ -59,6 +81,7 @@ export const PlotCreationDialog = ({ isOpen, onClose }: PlotCreationDialogProps)
               placeholder="Ej: 001, A-12, etc."
               value={number}
               onChange={(e) => setNumber(e.target.value)}
+              disabled={isSubmitting}
             />
           </div>
 
@@ -69,6 +92,7 @@ export const PlotCreationDialog = ({ isOpen, onClose }: PlotCreationDialogProps)
               placeholder="Ej: Sector A, Zona Norte, etc."
               value={location}
               onChange={(e) => setLocation(e.target.value)}
+              disabled={isSubmitting}
             />
           </div>
 
@@ -79,12 +103,13 @@ export const PlotCreationDialog = ({ isOpen, onClose }: PlotCreationDialogProps)
               placeholder="Ej: 25m², 50m², etc."
               value={size}
               onChange={(e) => setSize(e.target.value)}
+              disabled={isSubmitting}
             />
           </div>
 
           <div>
             <Label htmlFor="status">Estado Inicial</Label>
-            <Select value={status} onValueChange={setStatus}>
+            <Select value={status} onValueChange={setStatus} disabled={isSubmitting}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -96,12 +121,12 @@ export const PlotCreationDialog = ({ isOpen, onClose }: PlotCreationDialogProps)
           </div>
 
           <div className="flex justify-end space-x-2">
-            <Button variant="outline" onClick={onClose} disabled={isSubmitting}>
+            <Button variant="outline" onClick={handleClose} disabled={isSubmitting}>
               Cancelar
             </Button>
             <Button 
               onClick={handleSubmit} 
-              disabled={!number || !location || !size || isSubmitting}
+              disabled={!number.trim() || !location.trim() || !size.trim() || isSubmitting}
             >
               <Plus className="h-4 w-4 mr-2" />
               {isSubmitting ? 'Creando...' : 'Crear Parcela'}

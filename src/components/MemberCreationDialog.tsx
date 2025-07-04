@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { User, Plus } from "lucide-react";
+import { useMembers } from "@/hooks/useMembers";
 
 interface MemberCreationDialogProps {
   isOpen: boolean;
@@ -13,6 +14,7 @@ interface MemberCreationDialogProps {
 }
 
 export const MemberCreationDialog = ({ isOpen, onClose }: MemberCreationDialogProps) => {
+  const { createMember } = useMembers();
   const [name, setName] = useState('');
   const [dni, setDni] = useState('');
   const [email, setEmail] = useState('');
@@ -21,27 +23,50 @@ export const MemberCreationDialog = ({ isOpen, onClose }: MemberCreationDialogPr
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async () => {
-    if (!name || !dni || !email) {
+    if (!name.trim() || !dni.trim() || !email.trim()) {
       return;
     }
 
     setIsSubmitting(true);
     
-    // TODO: Implement member creation logic
-    console.log('Creating member:', { name, dni, email, phone, address });
-    
-    // Reset form
-    setName('');
-    setDni('');
-    setEmail('');
-    setPhone('');
-    setAddress('');
-    setIsSubmitting(false);
-    onClose();
+    try {
+      const result = await createMember({
+        name: name.trim(),
+        dni: dni.trim(),
+        email: email.trim(),
+        phone: phone.trim() || undefined,
+        address: address.trim() || undefined
+      });
+
+      if (result.error === null) {
+        // Reset form
+        setName('');
+        setDni('');
+        setEmail('');
+        setPhone('');
+        setAddress('');
+        onClose();
+      }
+    } catch (error) {
+      console.error('Error creating member:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleClose = () => {
+    if (!isSubmitting) {
+      setName('');
+      setDni('');
+      setEmail('');
+      setPhone('');
+      setAddress('');
+      onClose();
+    }
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center space-x-2">
@@ -61,6 +86,7 @@ export const MemberCreationDialog = ({ isOpen, onClose }: MemberCreationDialogPr
               placeholder="Nombre completo"
               value={name}
               onChange={(e) => setName(e.target.value)}
+              disabled={isSubmitting}
             />
           </div>
 
@@ -71,6 +97,7 @@ export const MemberCreationDialog = ({ isOpen, onClose }: MemberCreationDialogPr
               placeholder="12345678A"
               value={dni}
               onChange={(e) => setDni(e.target.value)}
+              disabled={isSubmitting}
             />
           </div>
 
@@ -82,6 +109,7 @@ export const MemberCreationDialog = ({ isOpen, onClose }: MemberCreationDialogPr
               placeholder="email@ejemplo.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              disabled={isSubmitting}
             />
           </div>
 
@@ -92,6 +120,7 @@ export const MemberCreationDialog = ({ isOpen, onClose }: MemberCreationDialogPr
               placeholder="600123456"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
+              disabled={isSubmitting}
             />
           </div>
 
@@ -103,16 +132,17 @@ export const MemberCreationDialog = ({ isOpen, onClose }: MemberCreationDialogPr
               value={address}
               onChange={(e) => setAddress(e.target.value)}
               rows={2}
+              disabled={isSubmitting}
             />
           </div>
 
           <div className="flex justify-end space-x-2">
-            <Button variant="outline" onClick={onClose} disabled={isSubmitting}>
+            <Button variant="outline" onClick={handleClose} disabled={isSubmitting}>
               Cancelar
             </Button>
             <Button 
               onClick={handleSubmit} 
-              disabled={!name || !dni || !email || isSubmitting}
+              disabled={!name.trim() || !dni.trim() || !email.trim() || isSubmitting}
             >
               <Plus className="h-4 w-4 mr-2" />
               {isSubmitting ? 'Creando...' : 'Crear Socio'}

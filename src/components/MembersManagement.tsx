@@ -42,6 +42,11 @@ export const MembersManagement = () => {
     refetch();
   };
 
+  const handleCreationDialogClose = () => {
+    setIsCreationDialogOpen(false);
+    refetch(); // Refresh the list when dialog closes
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -155,7 +160,7 @@ export const MembersManagement = () => {
 
       <MemberCreationDialog
         isOpen={isCreationDialogOpen}
-        onClose={() => setIsCreationDialogOpen(false)}
+        onClose={handleCreationDialogClose}
       />
     </div>
   );
