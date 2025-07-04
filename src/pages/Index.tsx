@@ -1,24 +1,37 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Users, MapPin, CreditCard, FileText } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { PlotsManagement } from "@/components/PlotsManagement";
 import { MembersManagement } from "@/components/MembersManagement";
 import { PaymentsManagement } from "@/components/PaymentsManagement";
 import { ReportsManagement } from "@/components/ReportsManagement";
 import Header from "@/components/Header";
+import { usePlots } from "@/hooks/usePlots";
+import { useMembers } from "@/hooks/useMembers";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("overview");
+  const { plots } = usePlots();
+  const { members } = useMembers();
+
+  // Calculate statistics from real data
+  const totalPlots = plots.length;
+  const occupiedPlots = plots.filter(plot => plot.status === 'ocupada').length;
+  const availablePlots = plots.filter(plot => plot.status === 'disponible').length;
+  const totalMembers = members.length;
+  const pendingPayments = members.filter(member => member.payment_status === 'pendiente').length;
 
   const stats = [
-    { title: "Total Parcelas", value: "260", icon: MapPin, color: "text-green-600" },
-    { title: "Socios Activos", value: "245", icon: Users, color: "text-blue-600" },
-    { title: "Pagos Pendientes", value: "15", icon: CreditCard, color: "text-orange-600" },
-    { title: "Reportes Generados", value: "32", icon: FileText, color: "text-purple-600" },
+    { title: "Total Parcelas", value: totalPlots.toString(), icon: MapPin, color: "text-green-600" },
+    { title: "Socios Activos", value: totalMembers.toString(), icon: Users, color: "text-blue-600" },
+    { title: "Pagos Pendientes", value: pendingPayments.toString(), icon: CreditCard, color: "text-orange-600" },
+    { title: "Reportes Generados", value: "0", icon: FileText, color: "text-purple-600" },
   ];
+
+  const occupancyPercentage = totalPlots > 0 ? Math.round((occupiedPlots / totalPlots) * 100) : 0;
+  const paymentPercentage = totalMembers > 0 ? Math.round(((totalMembers - pendingPayments) / totalMembers) * 100) : 0;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
@@ -73,21 +86,21 @@ const Index = () => {
                     <span>Estado de Parcelas</span>
                   </CardTitle>
                   <CardDescription>
-                    Distribución actual de las 260 parcelas
+                    Distribución actual de las {totalPlots} parcelas
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-gray-600">Ocupadas</span>
-                      <span className="font-semibold text-green-600">245 (94%)</span>
+                      <span className="font-semibold text-green-600">{occupiedPlots} ({occupancyPercentage}%)</span>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-gray-600">Disponibles</span>
-                      <span className="font-semibold text-blue-600">15 (6%)</span>
+                      <span className="font-semibold text-blue-600">{availablePlots} ({100 - occupancyPercentage}%)</span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div className="bg-green-600 h-2 rounded-full" style={{ width: "94%" }}></div>
+                      <div className="bg-green-600 h-2 rounded-full" style={{ width: `${occupancyPercentage}%` }}></div>
                     </div>
                   </div>
                 </CardContent>
@@ -107,14 +120,14 @@ const Index = () => {
                   <div className="space-y-4">
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-gray-600">Pagados</span>
-                      <span className="font-semibold text-green-600">230 (94%)</span>
+                      <span className="font-semibold text-green-600">{totalMembers - pendingPayments} ({paymentPercentage}%)</span>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-gray-600">Pendientes</span>
-                      <span className="font-semibold text-orange-600">15 (6%)</span>
+                      <span className="font-semibold text-orange-600">{pendingPayments} ({100 - paymentPercentage}%)</span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div className="bg-green-600 h-2 rounded-full" style={{ width: "94%" }}></div>
+                      <div className="bg-green-600 h-2 rounded-full" style={{ width: `${paymentPercentage}%` }}></div>
                     </div>
                   </div>
                 </CardContent>

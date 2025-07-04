@@ -14,42 +14,32 @@ import {
   DialogTrigger 
 } from "@/components/ui/dialog";
 import { Plus, Search, MapPin, User, Calendar } from "lucide-react";
+import { usePlots } from "@/hooks/usePlots";
+import { useMembers } from "@/hooks/useMembers";
 
 export const PlotsManagement = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [newPlot, setNewPlot] = useState({
+    number: "",
+    size: "",
+    location: ""
+  });
 
-  // Mock data - en producción esto vendría de Supabase
-  const plots = [
-    {
-      id: 1,
-      number: "001",
-      size: "25m²",
-      status: "ocupada",
-      member: "Juan Pérez",
-      assignedDate: "2024-01-15",
-      location: "Sector A"
-    },
-    {
-      id: 2,
-      number: "002",
-      size: "30m²",
-      status: "disponible",
-      member: null,
-      assignedDate: null,
-      location: "Sector A"
-    },
-    {
-      id: 3,
-      number: "003",
-      size: "25m²",
-      status: "ocupada",
-      member: "María García",
-      assignedDate: "2024-02-10",
-      location: "Sector A"
-    },
-    // Más parcelas...
-  ];
+  const { plots, loading, createPlot } = usePlots();
+  const { members } = useMembers();
+
+  const handleCreatePlot = async () => {
+    if (!newPlot.number || !newPlot.size || !newPlot.location) {
+      return;
+    }
+
+    const result = await createPlot(newPlot);
+    if (result.error === null) {
+      setNewPlot({ number: "", size: "", location: "" });
+      setIsAddDialogOpen(false);
+    }
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -66,16 +56,24 @@ export const PlotsManagement = () => {
 
   const filteredPlots = plots.filter(plot =>
     plot.number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    plot.member?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    plot.member?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     plot.location.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">Gestión de Parcelas</h2>
-          <p className="text-gray-600">Administra las 260 parcelas del huerto comunitario</p>
+          <p className="text-gray-600">Administra las parcelas del huerto comunitario</p>
         </div>
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
@@ -95,22 +93,40 @@ export const PlotsManagement = () => {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="number">Número de Parcela</Label>
-                  <Input id="number" placeholder="001" />
+                  <Input 
+                    id="number" 
+                    placeholder="001" 
+                    value={newPlot.number}
+                    onChange={(e) => setNewPlot(prev => ({ ...prev, number: e.target.value }))}
+                  />
                 </div>
                 <div>
                   <Label htmlFor="size">Tamaño</Label>
-                  <Input id="size" placeholder="25m²" />
+                  <Input 
+                    id="size" 
+                    placeholder="25m²" 
+                    value={newPlot.size}
+                    onChange={(e) => setNewPlot(prev => ({ ...prev, size: e.target.value }))}
+                  />
                 </div>
               </div>
               <div>
                 <Label htmlFor="location">Ubicación/Sector</Label>
-                <Input id="location" placeholder="Sector A" />
+                <Input 
+                  id="location" 
+                  placeholder="Sector A" 
+                  value={newPlot.location}
+                  onChange={(e) => setNewPlot(prev => ({ ...prev, location: e.target.value }))}
+                />
               </div>
               <div className="flex justify-end space-x-2">
                 <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
                   Cancelar
                 </Button>
-                <Button className="bg-green-600 hover:bg-green-700">
+                <Button 
+                  className="bg-green-600 hover:bg-green-700"
+                  onClick={handleCreatePlot}
+                >
                   Crear Parcela
                 </Button>
               </div>
@@ -153,16 +169,18 @@ export const PlotsManagement = () => {
                 <strong>Tamaño:</strong> {plot.size}
               </div>
               
-              {plot.member ? (
+              {plot.member?.name ? (
                 <div className="space-y-2">
                   <div className="flex items-center space-x-2 text-sm">
                     <User className="h-4 w-4 text-gray-400" />
-                    <span>{plot.member}</span>
+                    <span>{plot.member.name}</span>
                   </div>
-                  <div className="flex items-center space-x-2 text-sm text-gray-600">
-                    <Calendar className="h-4 w-4 text-gray-400" />
-                    <span>Asignada: {plot.assignedDate}</span>
-                  </div>
+                  {plot.assigned_date && (
+                    <div className="flex items-center space-x-2 text-sm text-gray-600">
+                      <Calendar className="h-4 w-4 text-gray-400" />
+                      <span>Asignada: {new Date(plot.assigned_date).toLocaleDateString()}</span>
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div className="text-sm text-gray-500 italic">

@@ -14,48 +14,38 @@ import {
   DialogTrigger 
 } from "@/components/ui/dialog";
 import { Plus, Search, User, Phone, Mail, MapPin, Calendar } from "lucide-react";
+import { useMembers } from "@/hooks/useMembers";
 
 export const MembersManagement = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [newMember, setNewMember] = useState({
+    name: "",
+    dni: "",
+    email: "",
+    phone: "",
+    address: ""
+  });
 
-  // Mock data - en producción esto vendría de Supabase
-  const members = [
-    {
-      id: 1,
-      name: "Juan Pérez González",
-      dni: "12345678A",
-      email: "juan.perez@email.com",
-      phone: "666123456",
-      address: "Calle Mayor, 123, Madrid",
-      joinDate: "2024-01-15",
-      plotNumber: "001",
-      paymentStatus: "al día"
-    },
-    {
-      id: 2,
-      name: "María García López",
-      dni: "87654321B",
-      email: "maria.garcia@email.com",
-      phone: "666789012",
-      address: "Avenida Principal, 45, Madrid",
-      joinDate: "2024-02-10",
-      plotNumber: "003",
-      paymentStatus: "pendiente"
-    },
-    {
-      id: 3,
-      name: "Carlos Rodríguez",
-      dni: "11223344C",
-      email: "carlos.rodriguez@email.com",
-      phone: "666345678",
-      address: "Plaza España, 8, Madrid",
-      joinDate: "2023-11-20",
-      plotNumber: "015",
-      paymentStatus: "al día"
-    },
-    // Más socios...
-  ];
+  const { members, loading, createMember } = useMembers();
+
+  const handleCreateMember = async () => {
+    if (!newMember.name || !newMember.dni || !newMember.email) {
+      return;
+    }
+
+    const memberData = {
+      ...newMember,
+      phone: newMember.phone || undefined,
+      address: newMember.address || undefined
+    };
+
+    const result = await createMember(memberData);
+    if (result.error === null) {
+      setNewMember({ name: "", dni: "", email: "", phone: "", address: "" });
+      setIsAddDialogOpen(false);
+    }
+  };
 
   const getPaymentStatusColor = (status: string) => {
     switch (status) {
@@ -73,9 +63,16 @@ export const MembersManagement = () => {
   const filteredMembers = members.filter(member =>
     member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     member.dni.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    member.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    member.plotNumber.includes(searchTerm)
+    member.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -102,32 +99,61 @@ export const MembersManagement = () => {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="name">Nombre Completo</Label>
-                  <Input id="name" placeholder="Juan Pérez González" />
+                  <Input 
+                    id="name" 
+                    placeholder="Juan Pérez González" 
+                    value={newMember.name}
+                    onChange={(e) => setNewMember(prev => ({ ...prev, name: e.target.value }))}
+                  />
                 </div>
                 <div>
                   <Label htmlFor="dni">DNI/NIE</Label>
-                  <Input id="dni" placeholder="12345678A" />
+                  <Input 
+                    id="dni" 
+                    placeholder="12345678A" 
+                    value={newMember.dni}
+                    onChange={(e) => setNewMember(prev => ({ ...prev, dni: e.target.value }))}
+                  />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="email">Email</Label>
-                  <Input id="email" type="email" placeholder="juan@email.com" />
+                  <Input 
+                    id="email" 
+                    type="email" 
+                    placeholder="juan@email.com" 
+                    value={newMember.email}
+                    onChange={(e) => setNewMember(prev => ({ ...prev, email: e.target.value }))}
+                  />
                 </div>
                 <div>
                   <Label htmlFor="phone">Teléfono</Label>
-                  <Input id="phone" placeholder="666123456" />
+                  <Input 
+                    id="phone" 
+                    placeholder="666123456" 
+                    value={newMember.phone}
+                    onChange={(e) => setNewMember(prev => ({ ...prev, phone: e.target.value }))}
+                  />
                 </div>
               </div>
               <div>
                 <Label htmlFor="address">Dirección</Label>
-                <Input id="address" placeholder="Calle Mayor, 123, Madrid" />
+                <Input 
+                  id="address" 
+                  placeholder="Calle Mayor, 123, Madrid" 
+                  value={newMember.address}
+                  onChange={(e) => setNewMember(prev => ({ ...prev, address: e.target.value }))}
+                />
               </div>
               <div className="flex justify-end space-x-2">
                 <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
                   Cancelar
                 </Button>
-                <Button className="bg-blue-600 hover:bg-blue-700">
+                <Button 
+                  className="bg-blue-600 hover:bg-blue-700"
+                  onClick={handleCreateMember}
+                >
                   Crear Socio
                 </Button>
               </div>
@@ -140,7 +166,7 @@ export const MembersManagement = () => {
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
           <Input
-            placeholder="Buscar por nombre, DNI, email o parcela..."
+            placeholder="Buscar por nombre, DNI o email..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-10"
@@ -158,11 +184,8 @@ export const MembersManagement = () => {
                   <CardDescription>DNI: {member.dni}</CardDescription>
                 </div>
                 <div className="flex flex-col items-end space-y-1">
-                  <Badge className={getPaymentStatusColor(member.paymentStatus)}>
-                    {member.paymentStatus}
-                  </Badge>
-                  <Badge variant="outline">
-                    Parcela #{member.plotNumber}
+                  <Badge className={getPaymentStatusColor(member.payment_status)}>
+                    {member.payment_status}
                   </Badge>
                 </div>
               </div>
@@ -173,17 +196,21 @@ export const MembersManagement = () => {
                   <Mail className="h-4 w-4 text-gray-400" />
                   <span>{member.email}</span>
                 </div>
-                <div className="flex items-center space-x-2 text-sm">
-                  <Phone className="h-4 w-4 text-gray-400" />
-                  <span>{member.phone}</span>
-                </div>
-                <div className="flex items-center space-x-2 text-sm">
-                  <MapPin className="h-4 w-4 text-gray-400" />
-                  <span>{member.address}</span>
-                </div>
+                {member.phone && (
+                  <div className="flex items-center space-x-2 text-sm">
+                    <Phone className="h-4 w-4 text-gray-400" />
+                    <span>{member.phone}</span>
+                  </div>
+                )}
+                {member.address && (
+                  <div className="flex items-center space-x-2 text-sm">
+                    <MapPin className="h-4 w-4 text-gray-400" />
+                    <span>{member.address}</span>
+                  </div>
+                )}
                 <div className="flex items-center space-x-2 text-sm text-gray-600">
                   <Calendar className="h-4 w-4 text-gray-400" />
-                  <span>Socio desde: {member.joinDate}</span>
+                  <span>Socio desde: {new Date(member.join_date).toLocaleDateString()}</span>
                 </div>
               </div>
               
