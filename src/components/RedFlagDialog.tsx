@@ -12,6 +12,7 @@ import { useRedFlags } from "@/hooks/useRedFlags";
 interface RedFlagDialogProps {
   isOpen: boolean;
   onClose: () => void;
+  onRedFlagCreated: () => void;
   entityType: 'member' | 'plot';
   entityId: string;
   entityName: string;
@@ -26,7 +27,7 @@ const reasonOptions = [
   { value: 'otro', label: 'Otro motivo' }
 ];
 
-export const RedFlagDialog = ({ isOpen, onClose, entityType, entityId, entityName }: RedFlagDialogProps) => {
+export const RedFlagDialog = ({ isOpen, onClose, onRedFlagCreated, entityType, entityId, entityName }: RedFlagDialogProps) => {
   const [reason, setReason] = useState('');
   const [description, setDescription] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -49,6 +50,7 @@ export const RedFlagDialog = ({ isOpen, onClose, entityType, entityId, entityNam
     if (result.error === null) {
       setReason('');
       setDescription('');
+      onRedFlagCreated();
       onClose();
     }
     
