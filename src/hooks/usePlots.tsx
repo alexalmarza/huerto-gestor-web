@@ -24,6 +24,10 @@ export interface CreatePlotData {
   location: string;
 }
 
+export interface AssignPlotData {
+  assigned_member_id: string;
+}
+
 export const usePlots = () => {
   const [plots, setPlots] = useState<Plot[]>([]);
   const [loading, setLoading] = useState(true);
@@ -65,6 +69,59 @@ export const usePlots = () => {
     } catch (error) {
       console.error('Error creating plot:', error);
       toast.error('Error al crear la parcela');
+      return { data: null, error };
+    }
+  };
+
+  const assignPlot = async (plotId: string, assignData: AssignPlotData) => {
+    try {
+      const { data, error } = await supabase
+        .from('plots')
+        .update({
+          assigned_member_id: assignData.assigned_member_id,
+          assigned_date: new Date().toISOString(),
+          status: 'ocupada'
+        })
+        .eq('id', plotId)
+        .select(`
+          *,
+          member:members!assigned_member_id(name)
+        `)
+        .single();
+
+      if (error) throw error;
+
+      setPlots(prev => prev.map(plot => plot.id === plotId ? data as Plot : plot));
+      toast.success('Parcela asignada exitosamente');
+      return { data, error: null };
+    } catch (error) {
+      console.error('Error assigning plot:', error);
+      toast.error('Error al asignar la parcela');
+      return { data: null, error };
+    }
+  };
+
+  const unassignPlot = async (plotId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('plots')
+        .update({
+          assigned_member_id: null,
+          assigned_date: null,
+          status: 'disponible'
+        })
+        .eq('id', plotId)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      setPlots(prev => prev.map(plot => plot.id === plotId ? data as Plot : plot));
+      toast.success('Parcela liberada exitosamente');
+      return { data, error: null };
+    } catch (error) {
+      console.error('Error unassigning plot:', error);
+      toast.error('Error al liberar la parcela');
       return { data: null, error };
     }
   };
@@ -117,6 +174,8 @@ export const usePlots = () => {
     plots,
     loading,
     createPlot,
+    assignPlot,
+    unassignPlot,
     updatePlot,
     deletePlot,
     refetch: fetchPlots

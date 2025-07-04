@@ -12,6 +12,9 @@ export interface Member {
   address: string | null;
   join_date: string;
   payment_status: 'al día' | 'pendiente' | 'vencido';
+  is_active: boolean;
+  deactivation_date: string | null;
+  deactivation_reason: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -22,6 +25,10 @@ export interface CreateMemberData {
   email: string;
   phone?: string;
   address?: string;
+}
+
+export interface DeactivateMemberData {
+  deactivation_reason: string;
 }
 
 export const useMembers = () => {
@@ -87,6 +94,53 @@ export const useMembers = () => {
     }
   };
 
+  const deactivateMember = async (id: string, deactivationData: DeactivateMemberData) => {
+    try {
+      const { data, error } = await supabase
+        .from('members')
+        .update({
+          is_active: false,
+          deactivation_reason: deactivationData.deactivation_reason
+        })
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      setMembers(prev => prev.map(member => member.id === id ? data as Member : member));
+      toast.success('Socio desactivado exitosamente');
+      return { data, error: null };
+    } catch (error) {
+      console.error('Error deactivating member:', error);
+      toast.error('Error al desactivar el socio');
+      return { data: null, error };
+    }
+  };
+
+  const activateMember = async (id: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('members')
+        .update({
+          is_active: true
+        })
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      setMembers(prev => prev.map(member => member.id === id ? data as Member : member));
+      toast.success('Socio reactivado exitosamente');
+      return { data, error: null };
+    } catch (error) {
+      console.error('Error activating member:', error);
+      toast.error('Error al reactivar el socio');
+      return { data: null, error };
+    }
+  };
+
   const deleteMember = async (id: string) => {
     try {
       const { error } = await supabase
@@ -115,6 +169,8 @@ export const useMembers = () => {
     loading,
     createMember,
     updateMember,
+    deactivateMember,
+    activateMember,
     deleteMember,
     refetch: fetchMembers
   };

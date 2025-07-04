@@ -13,20 +13,26 @@ import {
   DialogTitle, 
   DialogTrigger 
 } from "@/components/ui/dialog";
-import { Plus, Search, MapPin, User, Calendar } from "lucide-react";
+import { Plus, Search, MapPin, User, Calendar, UserX } from "lucide-react";
 import { usePlots } from "@/hooks/usePlots";
 import { useMembers } from "@/hooks/useMembers";
+import { PlotAssignmentDialog } from "./PlotAssignmentDialog";
 
 export const PlotsManagement = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [assignmentDialog, setAssignmentDialog] = useState<{
+    isOpen: boolean;
+    plotId: string;
+    plotNumber: string;
+  }>({ isOpen: false, plotId: "", plotNumber: "" });
   const [newPlot, setNewPlot] = useState({
     number: "",
     size: "",
     location: ""
   });
 
-  const { plots, loading, createPlot } = usePlots();
+  const { plots, loading, createPlot, unassignPlot } = usePlots();
   const { members } = useMembers();
 
   const handleCreatePlot = async () => {
@@ -39,6 +45,10 @@ export const PlotsManagement = () => {
       setNewPlot({ number: "", size: "", location: "" });
       setIsAddDialogOpen(false);
     }
+  };
+
+  const handleUnassignPlot = async (plotId: string) => {
+    await unassignPlot(plotId);
   };
 
   const getStatusColor = (status: string) => {
@@ -193,8 +203,26 @@ export const PlotsManagement = () => {
                   Ver Detalles
                 </Button>
                 {plot.status === "disponible" ? (
-                  <Button size="sm" className="flex-1 bg-green-600 hover:bg-green-700">
+                  <Button 
+                    size="sm" 
+                    className="flex-1 bg-green-600 hover:bg-green-700"
+                    onClick={() => setAssignmentDialog({
+                      isOpen: true,
+                      plotId: plot.id,
+                      plotNumber: plot.number
+                    })}
+                  >
                     Asignar
+                  </Button>
+                ) : plot.status === "ocupada" ? (
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="flex-1"
+                    onClick={() => handleUnassignPlot(plot.id)}
+                  >
+                    <UserX className="h-4 w-4 mr-1" />
+                    Liberar
                   </Button>
                 ) : (
                   <Button variant="outline" size="sm" className="flex-1">
@@ -206,6 +234,13 @@ export const PlotsManagement = () => {
           </Card>
         ))}
       </div>
+
+      <PlotAssignmentDialog
+        isOpen={assignmentDialog.isOpen}
+        onClose={() => setAssignmentDialog({ isOpen: false, plotId: "", plotNumber: "" })}
+        plotId={assignmentDialog.plotId}
+        plotNumber={assignmentDialog.plotNumber}
+      />
     </div>
   );
 };

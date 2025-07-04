@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   Dialog, 
   DialogContent, 
@@ -13,12 +14,18 @@ import {
   DialogTitle, 
   DialogTrigger 
 } from "@/components/ui/dialog";
-import { Plus, Search, User, Phone, Mail, MapPin, Calendar } from "lucide-react";
+import { Plus, Search, User, Phone, Mail, MapPin, Calendar, UserMinus, UserCheck } from "lucide-react";
 import { useMembers } from "@/hooks/useMembers";
+import { MemberDeactivationDialog } from "./MemberDeactivationDialog";
 
 export const MembersManagement = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [deactivationDialog, setDeactivationDialog] = useState<{
+    isOpen: boolean;
+    memberId: string;
+    memberName: string;
+  }>({ isOpen: false, memberId: "", memberName: "" });
   const [newMember, setNewMember] = useState({
     name: "",
     dni: "",
@@ -27,7 +34,10 @@ export const MembersManagement = () => {
     address: ""
   });
 
-  const { members, loading, createMember } = useMembers();
+  const { members, loading, createMember, activateMember } = useMembers();
+
+  const activeMembers = members.filter(member => member.is_active);
+  const inactiveMembers = members.filter(member => !member.is_active);
 
   const handleCreateMember = async () => {
     if (!newMember.name || !newMember.dni || !newMember.email) {
@@ -47,6 +57,10 @@ export const MembersManagement = () => {
     }
   };
 
+  const handleActivateMember = async (memberId: string) => {
+    await activateMember(memberId);
+  };
+
   const getPaymentStatusColor = (status: string) => {
     switch (status) {
       case "al día":
@@ -60,7 +74,13 @@ export const MembersManagement = () => {
     }
   };
 
-  const filteredMembers = members.filter(member =>
+  const filteredActiveMembers = activeMembers.filter(member =>
+    member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    member.dni.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    member.email.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const filteredInactiveMembers = inactiveMembers.filter(member =>
     member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     member.dni.toLowerCase().includes(searchTerm.toLowerCase()) ||
     member.email.toLowerCase().includes(searchTerm.toLowerCase())
@@ -73,6 +93,98 @@ export const MembersManagement = () => {
       </div>
     );
   }
+
+  const MemberCard = ({ member, isActive }: { member: any; isActive: boolean }) => (
+    <Card key={member.id} className="bg-white shadow-sm hover:shadow-md transition-shadow">
+      <CardHeader className="pb-3">
+        <div className="flex justify-between items-start">
+          <div>
+            <CardTitle className="text-lg flex items-center space-x-2">
+              <span>{member.name}</span>
+              {!isActive && <Badge variant="secondary">Inactivo</Badge>}
+            </CardTitle>
+            <CardDescription>DNI: {member.dni}</CardDescription>
+          </div>
+          <div className="flex flex-col items-end space-y-1">
+            {isActive && (
+              <Badge className={getPaymentStatusColor(member.payment_status)}>
+                {member.payment_status}
+              </Badge>
+            )}
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <div className="space-y-2">
+          <div className="flex items-center space-x-2 text-sm">
+            <Mail className="h-4 w-4 text-gray-400" />
+            <span>{member.email}</span>
+          </div>
+          {member.phone && (
+            <div className="flex items-center space-x-2 text-sm">
+              <Phone className="h-4 w-4 text-gray-400" />
+              <span>{member.phone}</span>
+            </div>
+          )}
+          {member.address && (
+            <div className="flex items-center space-x-2 text-sm">
+              <MapPin className="h-4 w-4 text-gray-400" />
+              <span>{member.address}</span>
+            </div>
+          )}
+          <div className="flex items-center space-x-2 text-sm text-gray-600">
+            <Calendar className="h-4 w-4 text-gray-400" />
+            <span>
+              {isActive ? 
+                `Socio desde: ${new Date(member.join_date).toLocaleDateString()}` :
+                `Baja: ${new Date(member.deactivation_date).toLocaleDateString()}`
+              }
+            </span>
+          </div>
+          {!isActive && member.deactivation_reason && (
+            <div className="text-sm text-gray-600 italic">
+              <strong>Motivo:</strong> {member.deactivation_reason}
+            </div>
+          )}
+        </div>
+        
+        <div className="flex space-x-2 pt-2">
+          <Button variant="outline" size="sm" className="flex-1">
+            Ver Perfil
+          </Button>
+          {isActive ? (
+            <>
+              <Button variant="outline" size="sm" className="flex-1">
+                Editar
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="flex-1"
+                onClick={() => setDeactivationDialog({
+                  isOpen: true,
+                  memberId: member.id,
+                  memberName: member.name
+                })}
+              >
+                <UserMinus className="h-4 w-4 mr-1" />
+                Desactivar
+              </Button>
+            </>
+          ) : (
+            <Button 
+              size="sm" 
+              className="flex-1 bg-green-600 hover:bg-green-700"
+              onClick={() => handleActivateMember(member.id)}
+            >
+              <UserCheck className="h-4 w-4 mr-1" />
+              Reactivar
+            </Button>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
 
   return (
     <div className="space-y-6">
@@ -174,61 +286,41 @@ export const MembersManagement = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {filteredMembers.map((member) => (
-          <Card key={member.id} className="bg-white shadow-sm hover:shadow-md transition-shadow">
-            <CardHeader className="pb-3">
-              <div className="flex justify-between items-start">
-                <div>
-                  <CardTitle className="text-lg">{member.name}</CardTitle>
-                  <CardDescription>DNI: {member.dni}</CardDescription>
-                </div>
-                <div className="flex flex-col items-end space-y-1">
-                  <Badge className={getPaymentStatusColor(member.payment_status)}>
-                    {member.payment_status}
-                  </Badge>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="space-y-2">
-                <div className="flex items-center space-x-2 text-sm">
-                  <Mail className="h-4 w-4 text-gray-400" />
-                  <span>{member.email}</span>
-                </div>
-                {member.phone && (
-                  <div className="flex items-center space-x-2 text-sm">
-                    <Phone className="h-4 w-4 text-gray-400" />
-                    <span>{member.phone}</span>
-                  </div>
-                )}
-                {member.address && (
-                  <div className="flex items-center space-x-2 text-sm">
-                    <MapPin className="h-4 w-4 text-gray-400" />
-                    <span>{member.address}</span>
-                  </div>
-                )}
-                <div className="flex items-center space-x-2 text-sm text-gray-600">
-                  <Calendar className="h-4 w-4 text-gray-400" />
-                  <span>Socio desde: {new Date(member.join_date).toLocaleDateString()}</span>
-                </div>
-              </div>
-              
-              <div className="flex space-x-2 pt-2">
-                <Button variant="outline" size="sm" className="flex-1">
-                  Ver Perfil
-                </Button>
-                <Button variant="outline" size="sm" className="flex-1">
-                  Editar
-                </Button>
-                <Button variant="outline" size="sm" className="flex-1">
-                  Pagos
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      <Tabs defaultValue="active" className="space-y-4">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="active" className="flex items-center space-x-2">
+            <User className="h-4 w-4" />
+            <span>Socios Activos ({activeMembers.length})</span>
+          </TabsTrigger>
+          <TabsTrigger value="inactive" className="flex items-center space-x-2">
+            <UserMinus className="h-4 w-4" />
+            <span>Socios Inactivos ({inactiveMembers.length})</span>
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="active" className="space-y-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {filteredActiveMembers.map((member) => (
+              <MemberCard key={member.id} member={member} isActive={true} />
+            ))}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="inactive" className="space-y-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {filteredInactiveMembers.map((member) => (
+              <MemberCard key={member.id} member={member} isActive={false} />
+            ))}
+          </div>
+        </TabsContent>
+      </Tabs>
+
+      <MemberDeactivationDialog
+        isOpen={deactivationDialog.isOpen}
+        onClose={() => setDeactivationDialog({ isOpen: false, memberId: "", memberName: "" })}
+        memberId={deactivationDialog.memberId}
+        memberName={deactivationDialog.memberName}
+      />
     </div>
   );
 };

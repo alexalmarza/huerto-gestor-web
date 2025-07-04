@@ -13,9 +13,12 @@ export type Database = {
         Row: {
           address: string | null
           created_at: string
+          deactivation_date: string | null
+          deactivation_reason: string | null
           dni: string
           email: string
           id: string
+          is_active: boolean
           join_date: string
           name: string
           payment_status: string
@@ -25,9 +28,12 @@ export type Database = {
         Insert: {
           address?: string | null
           created_at?: string
+          deactivation_date?: string | null
+          deactivation_reason?: string | null
           dni: string
           email: string
           id?: string
+          is_active?: boolean
           join_date?: string
           name: string
           payment_status?: string
@@ -37,9 +43,12 @@ export type Database = {
         Update: {
           address?: string | null
           created_at?: string
+          deactivation_date?: string | null
+          deactivation_reason?: string | null
           dni?: string
           email?: string
           id?: string
+          is_active?: boolean
           join_date?: string
           name?: string
           payment_status?: string
