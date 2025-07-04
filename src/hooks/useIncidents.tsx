@@ -28,6 +28,7 @@ export interface PlotIncident {
   plot_id: string;
   incident_id: string;
   created_at: string;
+  incident: Incident;
 }
 
 export const useIncidents = () => {
@@ -73,10 +74,23 @@ export const useIncidents = () => {
   const getPlotIncidents = async (plotId: string) => {
     try {
       console.log('Getting plot incidents for:', plotId);
-      return { data: [], error: null };
+      // Return placeholder data with the expected structure
+      return { data: [] as PlotIncident[], error: null };
     } catch (error) {
       console.error('Error fetching plot incidents:', error);
-      return { data: [], error };
+      return { data: [] as PlotIncident[], error };
+    }
+  };
+
+  const addPlotIncident = async (plotId: string, incidentId: string) => {
+    try {
+      console.log('Adding plot incident:', { plotId, incidentId });
+      toast.success('Funcionalidad de incidencias disponible próximamente');
+      return { data: null, error: null };
+    } catch (error) {
+      console.error('Error adding plot incident:', error);
+      toast.error('Error al asociar la incidencia a la parcela');
+      return { data: null, error };
     }
   };
 
@@ -90,6 +104,7 @@ export const useIncidents = () => {
     createIncident,
     getMemberIncidents,
     getPlotIncidents,
+    addPlotIncident,
     refetch: fetchIncidents
   };
 };
