@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import jsPDF from 'jspdf';
@@ -37,10 +37,10 @@ export interface CreatePaymentData {
 
 export const usePayments = () => {
   const [payments, setPayments] = useState<Payment[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [totalCount, setTotalCount] = useState(0);
 
-  const fetchPayments = async (page: number = 0, pageSize: number = 10, filterYear?: number) => {
+  const fetchPayments = useCallback(async (page: number = 0, pageSize: number = 10, filterYear?: number) => {
     try {
       setLoading(true);
       
@@ -53,12 +53,10 @@ export const usePayments = () => {
         `, { count: 'exact' })
         .order('created_at', { ascending: false });
 
-      // Apply year filter if provided
       if (filterYear) {
         query = query.eq('payment_year', filterYear);
       }
 
-      // Apply pagination
       const from = page * pageSize;
       const to = from + pageSize - 1;
       query = query.range(from, to);
@@ -75,7 +73,7 @@ export const usePayments = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   const createPayment = async (paymentData: CreatePaymentData) => {
     try {
@@ -122,24 +120,20 @@ export const usePayments = () => {
     try {
       const doc = new jsPDF();
       
-      // Configurar el documento
       doc.setFontSize(20);
       doc.text('RECIBO DE PAGO', 105, 30, { align: 'center' });
       
-      // Información del recibo
       doc.setFontSize(12);
       doc.text(`Número de Recibo: ${payment.receipt_number || 'N/A'}`, 20, 60);
       doc.text(`Fecha: ${new Date(payment.payment_date).toLocaleDateString()}`, 20, 70);
       doc.text(`Año: ${payment.payment_year}`, 20, 80);
       
-      // Información del socio
       doc.setFontSize(14);
       doc.text('DATOS DEL SOCIO', 20, 100);
       doc.setFontSize(12);
       doc.text(`Nombre: ${payment.member?.name || 'N/A'}`, 20, 115);
       doc.text(`DNI: ${payment.member?.dni || 'N/A'}`, 20, 125);
       
-      // Información del pago
       doc.setFontSize(14);
       doc.text('DETALLES DEL PAGO', 20, 145);
       doc.setFontSize(12);
@@ -154,12 +148,10 @@ export const usePayments = () => {
         doc.text(`Concepto: ${payment.concept}`, 20, 190);
       }
       
-      // Pie del documento
       doc.setFontSize(10);
       doc.text('Este recibo es válido como comprobante de pago.', 20, 250);
       doc.text(`Generado el ${new Date().toLocaleDateString()} a las ${new Date().toLocaleTimeString()}`, 20, 260);
       
-      // Descargar el PDF
       const fileName = `recibo_${payment.receipt_number || payment.id}_${payment.payment_year}.pdf`;
       doc.save(fileName);
       
@@ -171,10 +163,6 @@ export const usePayments = () => {
       return { data: null, error };
     }
   };
-
-  useEffect(() => {
-    fetchPayments();
-  }, []);
 
   return {
     payments,
