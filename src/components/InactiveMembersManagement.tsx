@@ -49,7 +49,7 @@ export const InactiveMembersManagement = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Socios Inactivos</CardTitle>
+            <CardTitle className="text-sm font-medium">Socis Inactius</CardTitle>
             <UserX className="h-4 w-4 text-red-600" />
           </CardHeader>
           <CardContent>
@@ -58,7 +58,7 @@ export const InactiveMembersManagement = () => {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Con Pagos Pendientes</CardTitle>
+            <CardTitle className="text-sm font-medium">Amb Pagaments Pendents</CardTitle>
             <AlertCircle className="h-4 w-4 text-orange-600" />
           </CardHeader>
           <CardContent>
@@ -72,9 +72,9 @@ export const InactiveMembersManagement = () => {
         <CardHeader>
           <div className="flex justify-between items-center">
             <div>
-              <CardTitle>Socios Inactivos</CardTitle>
+              <CardTitle>Socis Inactius</CardTitle>
               <CardDescription>
-                Gestiona los socios que han sido desactivados del huerto
+                Gestiona els socis que han estat desactivats de l'hort
               </CardDescription>
             </div>
           </div>
@@ -84,7 +84,7 @@ export const InactiveMembersManagement = () => {
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
               <Input
-                placeholder="Buscar por nombre, DNI o email..."
+                placeholder="Cercar per nom, DNI o correu electrònic..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
@@ -92,13 +92,13 @@ export const InactiveMembersManagement = () => {
             </div>
             <Select value={paymentFilter} onValueChange={setPaymentFilter}>
               <SelectTrigger className="w-full sm:w-[180px]">
-                <SelectValue placeholder="Pagos" />
+                <SelectValue placeholder="Pagaments" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Todos los pagos</SelectItem>
-                <SelectItem value="al día">Al día</SelectItem>
-                <SelectItem value="pendiente">Pendiente</SelectItem>
-                <SelectItem value="vencido">Vencido</SelectItem>
+                <SelectItem value="all">Tots els pagaments</SelectItem>
+                <SelectItem value="al día">Al dia</SelectItem>
+                <SelectItem value="pendiente">Pendent</SelectItem>
+                <SelectItem value="vencido">Vençut</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -107,8 +107,8 @@ export const InactiveMembersManagement = () => {
           {filteredMembers.length === 0 ? (
             <div className="text-center py-8 text-gray-500">
               {searchTerm || paymentFilter !== "all" 
-                ? "No se encontraron socios inactivos que coincidan con los filtros"
-                : "No hay socios inactivos registrados"}
+                ? "No s'han trobat socis inactius que coincideixin amb els filtres"
+                : "No hi ha socis inactius registrats"}
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

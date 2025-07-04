@@ -38,17 +38,17 @@ export const MemberDeactivationDialog = ({ isOpen, onClose, memberId, memberName
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Desactivar Socio</DialogTitle>
+          <DialogTitle>Desactivar Soci</DialogTitle>
           <DialogDescription>
-            ¿Estás seguro de que quieres desactivar a {memberName}?
+            Estàs segur de voler desactivar a {memberName}?
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
           <div>
-            <Label htmlFor="reason">Motivo de la baja</Label>
+            <Label htmlFor="reason">Motiu de la baixa</Label>
             <Textarea
               id="reason"
-              placeholder="Describe el motivo de la desactivación..."
+              placeholder="Descriu el motiu de la desactivació..."
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               rows={3}
@@ -57,14 +57,14 @@ export const MemberDeactivationDialog = ({ isOpen, onClose, memberId, memberName
 
           <div className="flex justify-end space-x-2">
             <Button variant="outline" onClick={onClose}>
-              Cancelar
+              Cancel·lar
             </Button>
             <Button 
               onClick={handleDeactivate}
               disabled={!reason.trim() || isDeactivating}
               variant="destructive"
             >
-              {isDeactivating ? "Desactivando..." : "Desactivar Socio"}
+              {isDeactivating ? "Desactivant..." : "Desactivar Soci"}
             </Button>
           </div>
         </div>

@@ -60,17 +60,17 @@ export const PlotAssignmentDialog = ({ isOpen, onClose, plotId, plotNumber }: Pl
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Asignar Parcela #{plotNumber}</DialogTitle>
+          <DialogTitle>Assignar Parcel·la #{plotNumber}</DialogTitle>
           <DialogDescription>
-            Selecciona un socio activo para asignar esta parcela
+            Selecciona un soci actiu per assignar aquesta parcel·la
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
           <div>
-            <Label htmlFor="member">Socio</Label>
+            <Label htmlFor="member">Soci</Label>
             <Select value={selectedMemberId} onValueChange={setSelectedMemberId} disabled={isAssigning}>
               <SelectTrigger>
-                <SelectValue placeholder="Selecciona un socio" />
+                <SelectValue placeholder="Selecciona un soci" />
               </SelectTrigger>
               <SelectContent>
                 {availableMembers.map((member) => (
@@ -82,20 +82,20 @@ export const PlotAssignmentDialog = ({ isOpen, onClose, plotId, plotNumber }: Pl
             </Select>
             {availableMembers.length === 0 && (
               <p className="text-sm text-gray-500 mt-1">
-                No hay socios activos disponibles (sin parcela asignada)
+                No hi ha socis actius disponibles (sense parcel·la assignada)
               </p>
             )}
           </div>
           <div className="flex justify-end space-x-2">
             <Button variant="outline" onClick={handleClose} disabled={isAssigning}>
-              Cancelar
+              Cancel·lar
             </Button>
             <Button 
               onClick={handleAssign}
               disabled={!selectedMemberId || isAssigning || availableMembers.length === 0}
               className="bg-green-600 hover:bg-green-700"
             >
-              {isAssigning ? "Asignando..." : "Asignar Parcela"}
+              {isAssigning ? "Assignant..." : "Assignar Parcel·la"}
             </Button>
           </div>
         </div>

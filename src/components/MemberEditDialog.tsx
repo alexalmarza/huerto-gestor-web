@@ -82,19 +82,19 @@ export const MemberEditDialog = ({ isOpen, onClose, member, onMemberUpdated }: M
         <DialogHeader>
           <DialogTitle className="flex items-center space-x-2">
             <Edit className="h-5 w-5" />
-            <span>Editar Socio</span>
+            <span>Editar Soci</span>
           </DialogTitle>
           <DialogDescription>
-            Modificar la información del socio: {member.name}
+            Modificar la informació del soci: {member.name}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
           <div>
-            <Label htmlFor="edit-name">Nombre *</Label>
+            <Label htmlFor="edit-name">Nom *</Label>
             <Input
               id="edit-name"
-              placeholder="Nombre completo"
+              placeholder="Nom complet"
               value={name}
               onChange={(e) => setName(e.target.value)}
             />
@@ -111,18 +111,18 @@ export const MemberEditDialog = ({ isOpen, onClose, member, onMemberUpdated }: M
           </div>
 
           <div>
-            <Label htmlFor="edit-email">Email *</Label>
+            <Label htmlFor="edit-email">Correu electrònic *</Label>
             <Input
               id="edit-email"
               type="email"
-              placeholder="email@ejemplo.com"
+              placeholder="correu@exemple.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
           </div>
 
           <div>
-            <Label htmlFor="edit-phone">Teléfono</Label>
+            <Label htmlFor="edit-phone">Telèfon</Label>
             <Input
               id="edit-phone"
               placeholder="600123456"
@@ -132,10 +132,10 @@ export const MemberEditDialog = ({ isOpen, onClose, member, onMemberUpdated }: M
           </div>
 
           <div>
-            <Label htmlFor="edit-address">Dirección</Label>
+            <Label htmlFor="edit-address">Adreça</Label>
             <Textarea
               id="edit-address"
-              placeholder="Dirección completa"
+              placeholder="Adreça completa"
               value={address}
               onChange={(e) => setAddress(e.target.value)}
               rows={2}
@@ -143,29 +143,29 @@ export const MemberEditDialog = ({ isOpen, onClose, member, onMemberUpdated }: M
           </div>
 
           <div>
-            <Label htmlFor="edit-payment-status">Estado de Pago</Label>
+            <Label htmlFor="edit-payment-status">Estat de Pagament</Label>
             <Select value={paymentStatus} onValueChange={(value: 'al día' | 'pendiente' | 'vencido') => setPaymentStatus(value)}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="al día">Al día</SelectItem>
-                <SelectItem value="pendiente">Pendiente</SelectItem>
-                <SelectItem value="vencido">Vencido</SelectItem>
+                <SelectItem value="al día">Al dia</SelectItem>
+                <SelectItem value="pendiente">Pendent</SelectItem>
+                <SelectItem value="vencido">Vençut</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div className="flex justify-end space-x-2">
             <Button variant="outline" onClick={handleClose} disabled={isSubmitting}>
-              Cancelar
+              Cancel·lar
             </Button>
             <Button 
               onClick={handleSubmit} 
               disabled={!name || !dni || !email || isSubmitting}
             >
               <Edit className="h-4 w-4 mr-2" />
-              {isSubmitting ? 'Guardando...' : 'Guardar Cambios'}
+              {isSubmitting ? 'Guardant...' : 'Guardar Canvis'}
             </Button>
           </div>
         </div>

@@ -34,6 +34,19 @@ export const PlotCard = ({ plot, onPlotUpdated }: PlotCardProps) => {
     }
   };
 
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case "ocupada":
+        return "ocupada";
+      case "disponible":
+        return "disponible";
+      case "mantenimiento":
+        return "manteniment";
+      default:
+        return status;
+    }
+  };
+
   const cardClassName = hasActiveRedFlags 
     ? "bg-red-50 border-red-200 hover:bg-red-100 transition-colors"
     : "hover:shadow-md transition-shadow";
@@ -63,13 +76,13 @@ export const PlotCard = ({ plot, onPlotUpdated }: PlotCardProps) => {
           <div className="flex items-center justify-between">
             <CardTitle className="text-lg flex items-center space-x-2">
               <MapPin className="h-5 w-5" />
-              <span>Parcela #{plot.number}</span>
+              <span>Parcel·la #{plot.number}</span>
               {hasActiveRedFlags && (
                 <AlertTriangle className="h-4 w-4 text-red-600" />
               )}
             </CardTitle>
             <Badge className={getStatusColor(plot.status)}>
-              {plot.status}
+              {getStatusText(plot.status)}
             </Badge>
           </div>
           <CardDescription>
@@ -81,7 +94,7 @@ export const PlotCard = ({ plot, onPlotUpdated }: PlotCardProps) => {
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2 text-sm">
                 <User className="h-4 w-4 text-gray-400" />
-                <span><strong>Asignada a:</strong> {plot.member.name}</span>
+                <span><strong>Assignada a:</strong> {plot.member.name}</span>
               </div>
               <Button
                 size="sm"
@@ -93,13 +106,13 @@ export const PlotCard = ({ plot, onPlotUpdated }: PlotCardProps) => {
                 className="text-orange-600 hover:text-orange-700 hover:bg-orange-50"
               >
                 <UserMinus className="h-4 w-4 mr-1" />
-                Desasignar
+                Desassignar
               </Button>
             </div>
           ) : (
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-500 italic">
-                Parcela disponible
+                Parcel·la disponible
               </span>
               <Button
                 size="sm"
@@ -110,14 +123,14 @@ export const PlotCard = ({ plot, onPlotUpdated }: PlotCardProps) => {
                 className="bg-green-600 hover:bg-green-700"
               >
                 <UserPlus className="h-4 w-4 mr-1" />
-                Asignar
+                Assignar
               </Button>
             </div>
           )}
           
           {plot.assigned_date && (
             <div className="text-xs text-gray-500">
-              Asignada: {new Date(plot.assigned_date).toLocaleDateString()}
+              Assignada: {new Date(plot.assigned_date).toLocaleDateString()}
             </div>
           )}
         </CardContent>

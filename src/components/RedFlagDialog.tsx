@@ -19,12 +19,12 @@ interface RedFlagDialogProps {
 }
 
 const reasonOptions = [
-  { value: 'impago', label: 'Impago de cuotas' },
-  { value: 'incumplimiento', label: 'Incumplimiento de normas' },
-  { value: 'mantenimiento', label: 'Problemas de mantenimiento' },
-  { value: 'conflicto', label: 'Conflicto con otros socios' },
-  { value: 'daño_propiedad', label: 'Daño a la propiedad' },
-  { value: 'otro', label: 'Otro motivo' }
+  { value: 'impago', label: 'Impagament de quotes' },
+  { value: 'incumplimiento', label: 'Incompliment de normes' },
+  { value: 'mantenimiento', label: 'Problemes de manteniment' },
+  { value: 'conflicto', label: 'Conflicte amb altres socis' },
+  { value: 'daño_propiedad', label: 'Dany a la propietat' },
+  { value: 'otro', label: 'Altre motiu' }
 ];
 
 export const RedFlagDialog = ({ isOpen, onClose, onRedFlagCreated, entityType, entityId, entityName }: RedFlagDialogProps) => {
@@ -63,19 +63,19 @@ export const RedFlagDialog = ({ isOpen, onClose, onRedFlagCreated, entityType, e
         <DialogHeader>
           <DialogTitle className="flex items-center space-x-2">
             <AlertTriangle className="h-5 w-5 text-red-600" />
-            <span>Marcar Red Flag</span>
+            <span>Marcar Alerta</span>
           </DialogTitle>
           <DialogDescription>
-            Marcando una red flag para: <strong>{entityName}</strong> ({entityType === 'member' ? 'Socio' : 'Parcela'})
+            Marcant una alerta per: <strong>{entityName}</strong> ({entityType === 'member' ? 'Soci' : 'Parcel·la'})
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
           <div>
-            <Label htmlFor="reason">Motivo de la Red Flag</Label>
+            <Label htmlFor="reason">Motiu de l'Alerta</Label>
             <Select value={reason} onValueChange={setReason}>
               <SelectTrigger>
-                <SelectValue placeholder="Selecciona un motivo" />
+                <SelectValue placeholder="Selecciona un motiu" />
               </SelectTrigger>
               <SelectContent>
                 {reasonOptions.map((option) => (
@@ -88,10 +88,10 @@ export const RedFlagDialog = ({ isOpen, onClose, onRedFlagCreated, entityType, e
           </div>
 
           <div>
-            <Label htmlFor="description">Descripción (opcional)</Label>
+            <Label htmlFor="description">Descripció (opcional)</Label>
             <Textarea
               id="description"
-              placeholder="Describe el problema o situación..."
+              placeholder="Descriu el problema o situació..."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={3}
@@ -100,14 +100,14 @@ export const RedFlagDialog = ({ isOpen, onClose, onRedFlagCreated, entityType, e
 
           <div className="flex justify-end space-x-2">
             <Button variant="outline" onClick={onClose} disabled={isSubmitting}>
-              Cancelar
+              Cancel·lar
             </Button>
             <Button 
               onClick={handleSubmit} 
               disabled={!reason || isSubmitting}
               className="bg-red-600 hover:bg-red-700"
             >
-              {isSubmitting ? 'Creando...' : 'Crear Red Flag'}
+              {isSubmitting ? 'Creant...' : 'Crear Alerta'}
             </Button>
           </div>
         </div>

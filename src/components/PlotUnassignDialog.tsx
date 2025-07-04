@@ -51,24 +51,24 @@ export const PlotUnassignDialog = ({ isOpen, onClose, plotId, plotNumber, assign
         <DialogHeader>
           <DialogTitle className="flex items-center space-x-2">
             <AlertTriangle className="h-5 w-5 text-orange-600" />
-            <span>Desasignar Parcela #{plotNumber}</span>
+            <span>Desassignar Parcel·la #{plotNumber}</span>
           </DialogTitle>
           <DialogDescription>
-            ¿Estás seguro de que quieres desasignar esta parcela de <strong>{assignedMemberName}</strong>?
+            Estàs segur de voler desassignar aquesta parcel·la de <strong>{assignedMemberName}</strong>?
             <br />
-            La parcela quedará disponible para asignar a otro socio.
+            La parcel·la quedarà disponible per assignar a un altre soci.
           </DialogDescription>
         </DialogHeader>
         <div className="flex justify-end space-x-2">
           <Button variant="outline" onClick={handleClose} disabled={isUnassigning}>
-            Cancelar
+            Cancel·lar
           </Button>
           <Button 
             onClick={handleUnassign}
             disabled={isUnassigning}
             className="bg-orange-600 hover:bg-orange-700"
           >
-            {isUnassigning ? "Desasignando..." : "Desasignar Parcela"}
+            {isUnassigning ? "Desassignant..." : "Desassignar Parcel·la"}
           </Button>
         </div>
       </DialogContent>

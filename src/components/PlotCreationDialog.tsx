@@ -66,19 +66,19 @@ export const PlotCreationDialog = ({ isOpen, onClose }: PlotCreationDialogProps)
         <DialogHeader>
           <DialogTitle className="flex items-center space-x-2">
             <MapPin className="h-5 w-5" />
-            <span>Nueva Parcela</span>
+            <span>Nova Parcel·la</span>
           </DialogTitle>
           <DialogDescription>
-            Crear una nueva parcela en el huerto
+            Crear una nova parcel·la a l'hort
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
           <div>
-            <Label htmlFor="number">Número de Parcela *</Label>
+            <Label htmlFor="number">Número de Parcel·la *</Label>
             <Input
               id="number"
-              placeholder="Ej: 001, A-12, etc."
+              placeholder="Ex: 001, A-12, etc."
               value={number}
               onChange={(e) => setNumber(e.target.value)}
               disabled={isSubmitting}
@@ -86,10 +86,10 @@ export const PlotCreationDialog = ({ isOpen, onClose }: PlotCreationDialogProps)
           </div>
 
           <div>
-            <Label htmlFor="location">Ubicación *</Label>
+            <Label htmlFor="location">Ubicació *</Label>
             <Input
               id="location"
-              placeholder="Ej: Sector A, Zona Norte, etc."
+              placeholder="Ex: Sector A, Zona Nord, etc."
               value={location}
               onChange={(e) => setLocation(e.target.value)}
               disabled={isSubmitting}
@@ -97,10 +97,10 @@ export const PlotCreationDialog = ({ isOpen, onClose }: PlotCreationDialogProps)
           </div>
 
           <div>
-            <Label htmlFor="size">Tamaño *</Label>
+            <Label htmlFor="size">Mida *</Label>
             <Input
               id="size"
-              placeholder="Ej: 25m², 50m², etc."
+              placeholder="Ex: 25m², 50m², etc."
               value={size}
               onChange={(e) => setSize(e.target.value)}
               disabled={isSubmitting}
@@ -108,28 +108,28 @@ export const PlotCreationDialog = ({ isOpen, onClose }: PlotCreationDialogProps)
           </div>
 
           <div>
-            <Label htmlFor="status">Estado Inicial</Label>
+            <Label htmlFor="status">Estat Inicial</Label>
             <Select value={status} onValueChange={setStatus} disabled={isSubmitting}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="disponible">Disponible</SelectItem>
-                <SelectItem value="mantenimiento">Mantenimiento</SelectItem>
+                <SelectItem value="mantenimiento">Manteniment</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div className="flex justify-end space-x-2">
             <Button variant="outline" onClick={handleClose} disabled={isSubmitting}>
-              Cancelar
+              Cancel·lar
             </Button>
             <Button 
               onClick={handleSubmit} 
               disabled={!number.trim() || !location.trim() || !size.trim() || isSubmitting}
             >
               <Plus className="h-4 w-4 mr-2" />
-              {isSubmitting ? 'Creando...' : 'Crear Parcela'}
+              {isSubmitting ? 'Creant...' : 'Crear Parcel·la'}
             </Button>
           </div>
         </div>

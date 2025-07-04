@@ -29,6 +29,19 @@ export const MemberCard = ({ member, onMemberUpdated }: MemberCardProps) => {
     }
   };
 
+  const getPaymentStatusText = (status: string) => {
+    switch (status) {
+      case "al día":
+        return "Al dia";
+      case "pendiente":
+        return "Pendent";
+      case "vencido":
+        return "Vençut";
+      default:
+        return status;
+    }
+  };
+
   const cardClassName = hasActiveRedFlags 
     ? "bg-red-50 border-red-200 hover:bg-red-100 transition-colors cursor-pointer"
     : "hover:shadow-md transition-shadow cursor-pointer";
@@ -50,10 +63,10 @@ export const MemberCard = ({ member, onMemberUpdated }: MemberCardProps) => {
             </CardTitle>
             <div className="flex space-x-2">
               <Badge className={getPaymentStatusColor(member.payment_status)}>
-                {member.payment_status}
+                {getPaymentStatusText(member.payment_status)}
               </Badge>
               <Badge variant={member.is_active ? "default" : "secondary"}>
-                {member.is_active ? "Activo" : "Inactivo"}
+                {member.is_active ? "Actiu" : "Inactiu"}
               </Badge>
             </div>
           </div>
@@ -80,7 +93,7 @@ export const MemberCard = ({ member, onMemberUpdated }: MemberCardProps) => {
             <div className="flex items-center space-x-2 text-sm text-green-600 bg-green-50 p-2 rounded">
               <Home className="h-4 w-4" />
               <span>
-                <strong>Parcela #{member.assigned_plot.number}</strong>
+                <strong>Parcel·la #{member.assigned_plot.number}</strong>
                 <span className="text-gray-600 ml-1">
                   ({member.assigned_plot.size}, {member.assigned_plot.location})
                 </span>

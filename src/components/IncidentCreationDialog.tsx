@@ -42,26 +42,26 @@ export const IncidentCreationDialog = ({ isOpen, onClose, onIncidentCreated }: I
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Nueva Incidencia</DialogTitle>
+          <DialogTitle>Nova Incidència</DialogTitle>
           <DialogDescription>
-            Crea una nueva incidencia que podrás asociar a socios o parcelas
+            Crea una nova incidència que podràs associar a socis o parcel·les
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
           <div>
-            <Label htmlFor="title">Título</Label>
+            <Label htmlFor="title">Títol</Label>
             <Input
               id="title"
-              placeholder="Describe brevemente la incidencia..."
+              placeholder="Descriu breument la incidència..."
               value={title}
               onChange={(e) => setTitle(e.target.value)}
             />
           </div>
           <div>
-            <Label htmlFor="description">Descripción (opcional)</Label>
+            <Label htmlFor="description">Descripció (opcional)</Label>
             <Textarea
               id="description"
-              placeholder="Información adicional sobre la incidencia..."
+              placeholder="Informació addicional sobre la incidència..."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={3}
@@ -69,13 +69,13 @@ export const IncidentCreationDialog = ({ isOpen, onClose, onIncidentCreated }: I
           </div>
           <div className="flex justify-end space-x-2">
             <Button variant="outline" onClick={onClose}>
-              Cancelar
+              Cancel·lar
             </Button>
             <Button 
               onClick={handleCreate}
               disabled={!title.trim() || isCreating}
             >
-              {isCreating ? "Creando..." : "Crear Incidencia"}
+              {isCreating ? "Creant..." : "Crear Incidència"}
             </Button>
           </div>
         </div>

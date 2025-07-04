@@ -61,7 +61,7 @@ export const MembersManagement = () => {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Socios</CardTitle>
+            <CardTitle className="text-sm font-medium">Total Socis</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -70,7 +70,7 @@ export const MembersManagement = () => {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Activos</CardTitle>
+            <CardTitle className="text-sm font-medium">Actius</CardTitle>
             <UserCheck className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
@@ -79,7 +79,7 @@ export const MembersManagement = () => {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Inactivos</CardTitle>
+            <CardTitle className="text-sm font-medium">Inactius</CardTitle>
             <UserX className="h-4 w-4 text-red-600" />
           </CardHeader>
           <CardContent>
@@ -88,7 +88,7 @@ export const MembersManagement = () => {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pagos Pendientes</CardTitle>
+            <CardTitle className="text-sm font-medium">Pagaments Pendents</CardTitle>
             <AlertCircle className="h-4 w-4 text-orange-600" />
           </CardHeader>
           <CardContent>
@@ -102,14 +102,14 @@ export const MembersManagement = () => {
         <CardHeader>
           <div className="flex justify-between items-center">
             <div>
-              <CardTitle>Socios Activos</CardTitle>
+              <CardTitle>Socis Actius</CardTitle>
               <CardDescription>
-                Administra la información de los socios activos del huerto
+                Administra la informació dels socis actius de l'hort
               </CardDescription>
             </div>
             <Button onClick={() => setIsCreationDialogOpen(true)}>
               <Plus className="h-4 w-4 mr-2" />
-              Nuevo Socio
+              Nou Soci
             </Button>
           </div>
         </CardHeader>
@@ -118,7 +118,7 @@ export const MembersManagement = () => {
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
               <Input
-                placeholder="Buscar por nombre, DNI o email..."
+                placeholder="Cercar per nom, DNI o correu electrònic..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
@@ -126,13 +126,13 @@ export const MembersManagement = () => {
             </div>
             <Select value={paymentFilter} onValueChange={setPaymentFilter}>
               <SelectTrigger className="w-full sm:w-[180px]">
-                <SelectValue placeholder="Pagos" />
+                <SelectValue placeholder="Pagaments" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Todos los pagos</SelectItem>
-                <SelectItem value="al día">Al día</SelectItem>
-                <SelectItem value="pendiente">Pendiente</SelectItem>
-                <SelectItem value="vencido">Vencido</SelectItem>
+                <SelectItem value="all">Tots els pagaments</SelectItem>
+                <SelectItem value="al día">Al dia</SelectItem>
+                <SelectItem value="pendiente">Pendent</SelectItem>
+                <SelectItem value="vencido">Vençut</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -141,8 +141,8 @@ export const MembersManagement = () => {
           {filteredMembers.length === 0 ? (
             <div className="text-center py-8 text-gray-500">
               {searchTerm || paymentFilter !== "all" 
-                ? "No se encontraron socios activos que coincidan con los filtros"
-                : "No hay socios activos registrados"}
+                ? "No s'han trobat socis actius que coincideixin amb els filtres"
+                : "No hi ha socis actius registrats"}
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

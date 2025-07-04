@@ -35,6 +35,19 @@ export const MemberDetailsDialog = ({ isOpen, onClose, member, onMemberUpdated }
     }
   };
 
+  const getPaymentStatusText = (status: string) => {
+    switch (status) {
+      case "al día":
+        return "Al dia";
+      case "pendiente":
+        return "Pendent";
+      case "vencido":
+        return "Vençut";
+      default:
+        return status;
+    }
+  };
+
   const handleMemberUpdated = () => {
     onMemberUpdated?.();
   };
@@ -64,7 +77,7 @@ export const MemberDetailsDialog = ({ isOpen, onClose, member, onMemberUpdated }
               )}
             </DialogTitle>
             <DialogDescription>
-              Información detallada del socio
+              Informació detallada del soci
             </DialogDescription>
           </DialogHeader>
 
@@ -73,10 +86,10 @@ export const MemberDetailsDialog = ({ isOpen, onClose, member, onMemberUpdated }
             <div className="flex items-center justify-between">
               <div className="flex space-x-2">
                 <Badge className={getPaymentStatusColor(member.payment_status)}>
-                  {member.payment_status}
+                  {getPaymentStatusText(member.payment_status)}
                 </Badge>
                 <Badge variant={member.is_active ? "default" : "secondary"}>
-                  {member.is_active ? "Activo" : "Inactivo"}
+                  {member.is_active ? "Actiu" : "Inactiu"}
                 </Badge>
               </div>
               <div className="flex space-x-2">
@@ -114,7 +127,7 @@ export const MemberDetailsDialog = ({ isOpen, onClose, member, onMemberUpdated }
                   <p className="text-base">{member.dni}</p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-500">Email</label>
+                  <label className="text-sm font-medium text-gray-500">Correu electrònic</label>
                   <div className="flex items-center space-x-2">
                     <Mail className="h-4 w-4 text-gray-400" />
                     <p className="text-base">{member.email}</p>
@@ -122,7 +135,7 @@ export const MemberDetailsDialog = ({ isOpen, onClose, member, onMemberUpdated }
                 </div>
                 {member.phone && (
                   <div>
-                    <label className="text-sm font-medium text-gray-500">Teléfono</label>
+                    <label className="text-sm font-medium text-gray-500">Telèfon</label>
                     <div className="flex items-center space-x-2">
                       <Phone className="h-4 w-4 text-gray-400" />
                       <p className="text-base">{member.phone}</p>
@@ -133,7 +146,7 @@ export const MemberDetailsDialog = ({ isOpen, onClose, member, onMemberUpdated }
 
               <div className="space-y-3">
                 <div>
-                  <label className="text-sm font-medium text-gray-500">Fecha de ingreso</label>
+                  <label className="text-sm font-medium text-gray-500">Data d'ingrés</label>
                   <div className="flex items-center space-x-2">
                     <Calendar className="h-4 w-4 text-gray-400" />
                     <p className="text-base">{new Date(member.join_date).toLocaleDateString()}</p>
@@ -141,7 +154,7 @@ export const MemberDetailsDialog = ({ isOpen, onClose, member, onMemberUpdated }
                 </div>
                 {member.address && (
                   <div>
-                    <label className="text-sm font-medium text-gray-500">Dirección</label>
+                    <label className="text-sm font-medium text-gray-500">Adreça</label>
                     <div className="flex items-center space-x-2">
                       <MapPin className="h-4 w-4 text-gray-400" />
                       <p className="text-base">{member.address}</p>
@@ -156,14 +169,14 @@ export const MemberDetailsDialog = ({ isOpen, onClose, member, onMemberUpdated }
               <div className="p-4 bg-green-50 rounded-lg border border-green-200">
                 <div className="flex items-center space-x-2 text-green-700">
                   <Home className="h-5 w-5" />
-                  <h3 className="font-medium">Parcela Asignada</h3>
+                  <h3 className="font-medium">Parcel·la Assignada</h3>
                 </div>
                 <div className="mt-2">
                   <p className="text-green-800">
-                    <strong>Parcela #{member.assigned_plot.number}</strong>
+                    <strong>Parcel·la #{member.assigned_plot.number}</strong>
                   </p>
                   <p className="text-green-600">
-                    Tamaño: {member.assigned_plot.size} - Ubicación: {member.assigned_plot.location}
+                    Mida: {member.assigned_plot.size} - Ubicació: {member.assigned_plot.location}
                   </p>
                 </div>
               </div>
@@ -172,15 +185,15 @@ export const MemberDetailsDialog = ({ isOpen, onClose, member, onMemberUpdated }
             {/* Deactivation Information */}
             {!member.is_active && (
               <div className="p-4 bg-red-50 rounded-lg border border-red-200">
-                <h3 className="font-medium text-red-700 mb-2">Información de Baja</h3>
+                <h3 className="font-medium text-red-700 mb-2">Informació de Baixa</h3>
                 {member.deactivation_date && (
                   <p className="text-red-600 text-sm">
-                    <strong>Fecha de baja:</strong> {new Date(member.deactivation_date).toLocaleDateString()}
+                    <strong>Data de baixa:</strong> {new Date(member.deactivation_date).toLocaleDateString()}
                   </p>
                 )}
                 {member.deactivation_reason && (
                   <p className="text-red-600 text-sm mt-1">
-                    <strong>Motivo:</strong> {member.deactivation_reason}
+                    <strong>Motiu:</strong> {member.deactivation_reason}
                   </p>
                 )}
               </div>

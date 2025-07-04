@@ -71,19 +71,19 @@ export const MemberCreationDialog = ({ isOpen, onClose }: MemberCreationDialogPr
         <DialogHeader>
           <DialogTitle className="flex items-center space-x-2">
             <User className="h-5 w-5" />
-            <span>Nuevo Socio</span>
+            <span>Nou Soci</span>
           </DialogTitle>
           <DialogDescription>
-            Crear un nuevo socio en el sistema
+            Crear un nou soci al sistema
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
           <div>
-            <Label htmlFor="name">Nombre *</Label>
+            <Label htmlFor="name">Nom *</Label>
             <Input
               id="name"
-              placeholder="Nombre completo"
+              placeholder="Nom complet"
               value={name}
               onChange={(e) => setName(e.target.value)}
               disabled={isSubmitting}
@@ -102,11 +102,11 @@ export const MemberCreationDialog = ({ isOpen, onClose }: MemberCreationDialogPr
           </div>
 
           <div>
-            <Label htmlFor="email">Email *</Label>
+            <Label htmlFor="email">Correu electrònic *</Label>
             <Input
               id="email"
               type="email"
-              placeholder="email@ejemplo.com"
+              placeholder="correu@exemple.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               disabled={isSubmitting}
@@ -114,7 +114,7 @@ export const MemberCreationDialog = ({ isOpen, onClose }: MemberCreationDialogPr
           </div>
 
           <div>
-            <Label htmlFor="phone">Teléfono</Label>
+            <Label htmlFor="phone">Telèfon</Label>
             <Input
               id="phone"
               placeholder="600123456"
@@ -125,10 +125,10 @@ export const MemberCreationDialog = ({ isOpen, onClose }: MemberCreationDialogPr
           </div>
 
           <div>
-            <Label htmlFor="address">Dirección</Label>
+            <Label htmlFor="address">Adreça</Label>
             <Textarea
               id="address"
-              placeholder="Dirección completa"
+              placeholder="Adreça completa"
               value={address}
               onChange={(e) => setAddress(e.target.value)}
               rows={2}
@@ -138,14 +138,14 @@ export const MemberCreationDialog = ({ isOpen, onClose }: MemberCreationDialogPr
 
           <div className="flex justify-end space-x-2">
             <Button variant="outline" onClick={handleClose} disabled={isSubmitting}>
-              Cancelar
+              Cancel·lar
             </Button>
             <Button 
               onClick={handleSubmit} 
               disabled={!name.trim() || !dni.trim() || !email.trim() || isSubmitting}
             >
               <Plus className="h-4 w-4 mr-2" />
-              {isSubmitting ? 'Creando...' : 'Crear Socio'}
+              {isSubmitting ? 'Creant...' : 'Crear Soci'}
             </Button>
           </div>
         </div>
