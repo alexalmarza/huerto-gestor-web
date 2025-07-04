@@ -32,10 +32,10 @@ export const usePlots = () => {
     try {
       setLoading(true);
       const { data, error } = await supabase
-        .from('plots')
+        .from('plots' as any)
         .select(`
           *,
-          member:members(name)
+          member:members!assigned_member_id(name)
         `)
         .order('number');
 
@@ -52,7 +52,7 @@ export const usePlots = () => {
   const createPlot = async (plotData: CreatePlotData) => {
     try {
       const { data, error } = await supabase
-        .from('plots')
+        .from('plots' as any)
         .insert([plotData])
         .select()
         .single();
@@ -72,7 +72,7 @@ export const usePlots = () => {
   const updatePlot = async (id: string, updates: Partial<Plot>) => {
     try {
       const { data, error } = await supabase
-        .from('plots')
+        .from('plots' as any)
         .update(updates)
         .eq('id', id)
         .select()
@@ -93,7 +93,7 @@ export const usePlots = () => {
   const deletePlot = async (id: string) => {
     try {
       const { error } = await supabase
-        .from('plots')
+        .from('plots' as any)
         .delete()
         .eq('id', id);
 

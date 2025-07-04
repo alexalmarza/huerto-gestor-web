@@ -32,7 +32,7 @@ export const useMembers = () => {
     try {
       setLoading(true);
       const { data, error } = await supabase
-        .from('members')
+        .from('members' as any)
         .select('*')
         .order('name');
 
@@ -49,7 +49,7 @@ export const useMembers = () => {
   const createMember = async (memberData: CreateMemberData) => {
     try {
       const { data, error } = await supabase
-        .from('members')
+        .from('members' as any)
         .insert([memberData])
         .select()
         .single();
@@ -69,7 +69,7 @@ export const useMembers = () => {
   const updateMember = async (id: string, updates: Partial<Member>) => {
     try {
       const { data, error } = await supabase
-        .from('members')
+        .from('members' as any)
         .update(updates)
         .eq('id', id)
         .select()
@@ -90,7 +90,7 @@ export const useMembers = () => {
   const deleteMember = async (id: string) => {
     try {
       const { error } = await supabase
-        .from('members')
+        .from('members' as any)
         .delete()
         .eq('id', id);
 
