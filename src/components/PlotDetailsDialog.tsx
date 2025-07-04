@@ -6,12 +6,13 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { MapPin, User, Calendar, FileText, Plus, Trash2, AlertTriangle } from "lucide-react";
-import { Plot } from "@/hooks/usePlots";
+import { MapPin, User, Calendar, FileText, Plus, Trash2, AlertTriangle, Edit } from "lucide-react";
+import { Plot, usePlots } from "@/hooks/usePlots";
 import { useIncidents, PlotIncident } from "@/hooks/useIncidents";
 import { IncidentCreationDialog } from "./IncidentCreationDialog";
 import { RedFlagDialog } from "./RedFlagDialog";
 import { RedFlagsList } from "./RedFlagsList";
+import { PlotEditDialog } from "./PlotEditDialog";
 
 interface PlotDetailsDialogProps {
   isOpen: boolean;
@@ -24,7 +25,9 @@ export const PlotDetailsDialog = ({ isOpen, onClose, plot, onRedFlagChange }: Pl
   const [plotIncidents, setPlotIncidents] = useState<PlotIncident[]>([]);
   const [isIncidentDialogOpen, setIsIncidentDialogOpen] = useState(false);
   const [isRedFlagDialogOpen, setIsRedFlagDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const { getPlotIncidents, addPlotIncident, deleteIncident } = useIncidents();
+  const { deletePlot } = usePlots();
 
   useEffect(() => {
     if (plot && isOpen) {
@@ -63,6 +66,21 @@ export const PlotDetailsDialog = ({ isOpen, onClose, plot, onRedFlagChange }: Pl
     onRedFlagChange?.();
   };
 
+  const handlePlotUpdated = () => {
+    setIsEditDialogOpen(false);
+    onRedFlagChange?.(); // This will trigger a refresh of the plot data
+  };
+
+  const handleDeletePlot = async () => {
+    if (!plot) return;
+    
+    const result = await deletePlot(plot.id);
+    if (result.error === null) {
+      onClose();
+      onRedFlagChange?.(); // This will refresh the plots list
+    }
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case "ocupada":
@@ -84,13 +102,54 @@ export const PlotDetailsDialog = ({ isOpen, onClose, plot, onRedFlagChange }: Pl
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center justify-between">
-              <span>Parcela #{plot.number}</span>
-              <Badge className={getStatusColor(plot.status)}>
-                {plot.status}
-              </Badge>
+              <span>Parcel·la #{plot.number}</span>
+              <div className="flex items-center space-x-2">
+                <Badge className={getStatusColor(plot.status)}>
+                  {plot.status}
+                </Badge>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setIsEditDialogOpen(true)}
+                  className="flex items-center space-x-1"
+                >
+                  <Edit className="h-4 w-4" />
+                  <span>Editar</span>
+                </Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50 flex items-center space-x-1"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      <span>Eliminar</span>
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>¿Eliminar parcel·la?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Aquesta acció no es pot desfer. La parcel·la #{plot.number} serà eliminada permanentment, 
+                        així com totes les seves incidències i assignacions.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel·lar</AlertDialogCancel>
+                      <AlertDialogAction 
+                        onClick={handleDeletePlot}
+                        className="bg-red-600 hover:bg-red-700"
+                      >
+                        Eliminar Parcel·la
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
             </DialogTitle>
             <DialogDescription>
-              Información detallada de la parcela
+              Informació detallada de la parcel·la
             </DialogDescription>
           </DialogHeader>
 
@@ -99,10 +158,10 @@ export const PlotDetailsDialog = ({ isOpen, onClose, plot, onRedFlagChange }: Pl
               <div className="space-y-2">
                 <div className="flex items-center space-x-2 text-sm">
                   <MapPin className="h-4 w-4 text-gray-400" />
-                  <span><strong>Ubicación:</strong> {plot.location}</span>
+                  <span><strong>Ubicació:</strong> {plot.location}</span>
                 </div>
                 <div className="text-sm">
-                  <strong>Tamaño:</strong> {plot.size}
+                  <strong>Mida:</strong> {plot.size}
                 </div>
               </div>
               
@@ -111,18 +170,18 @@ export const PlotDetailsDialog = ({ isOpen, onClose, plot, onRedFlagChange }: Pl
                   <>
                     <div className="flex items-center space-x-2 text-sm">
                       <User className="h-4 w-4 text-gray-400" />
-                      <span><strong>Asignada a:</strong> {plot.member.name}</span>
+                      <span><strong>Assignada a:</strong> {plot.member.name}</span>
                     </div>
                     {plot.assigned_date && (
                       <div className="flex items-center space-x-2 text-sm">
                         <Calendar className="h-4 w-4 text-gray-400" />
-                        <span><strong>Desde:</strong> {new Date(plot.assigned_date).toLocaleDateString()}</span>
+                        <span><strong>Des de:</strong> {new Date(plot.assigned_date).toLocaleDateString()}</span>
                       </div>
                     )}
                   </>
                 ) : (
                   <div className="text-sm text-gray-500 italic">
-                    Parcela disponible para asignación
+                    Parcel·la disponible per assignar
                   </div>
                 )}
               </div>
@@ -130,10 +189,10 @@ export const PlotDetailsDialog = ({ isOpen, onClose, plot, onRedFlagChange }: Pl
 
             <Tabs defaultValue="info" className="w-full">
               <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="info">Información</TabsTrigger>
+                <TabsTrigger value="info">Informació</TabsTrigger>
                 <TabsTrigger value="incidents" className="flex items-center space-x-2">
                   <FileText className="h-4 w-4" />
-                  <span>Incidencias ({plotIncidents.length})</span>
+                  <span>Incidències ({plotIncidents.length})</span>
                 </TabsTrigger>
                 <TabsTrigger value="redflags" className="flex items-center space-x-2">
                   <AlertTriangle className="h-4 w-4" />
@@ -144,36 +203,36 @@ export const PlotDetailsDialog = ({ isOpen, onClose, plot, onRedFlagChange }: Pl
               <TabsContent value="info" className="space-y-4">
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-lg">Detalles de la Parcela</CardTitle>
+                    <CardTitle className="text-lg">Detalls de la Parcel·la</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-2">
                     <div><strong>Número:</strong> {plot.number}</div>
-                    <div><strong>Tamaño:</strong> {plot.size}</div>
-                    <div><strong>Ubicación:</strong> {plot.location}</div>
-                    <div><strong>Estado:</strong> {plot.status}</div>
+                    <div><strong>Mida:</strong> {plot.size}</div>
+                    <div><strong>Ubicació:</strong> {plot.location}</div>
+                    <div><strong>Estat:</strong> {plot.status}</div>
                     <div><strong>Creada:</strong> {new Date(plot.created_at).toLocaleDateString()}</div>
-                    <div><strong>Actualizada:</strong> {new Date(plot.updated_at).toLocaleDateString()}</div>
+                    <div><strong>Actualitzada:</strong> {new Date(plot.updated_at).toLocaleDateString()}</div>
                   </CardContent>
                 </Card>
               </TabsContent>
 
               <TabsContent value="incidents" className="space-y-4">
                 <div className="flex justify-between items-center">
-                  <h3 className="text-lg font-semibold">Incidencias</h3>
+                  <h3 className="text-lg font-semibold">Incidències</h3>
                   <Button 
                     size="sm"
                     onClick={() => setIsIncidentDialogOpen(true)}
                     className="flex items-center space-x-2"
                   >
                     <Plus className="h-4 w-4" />
-                    <span>Nueva Incidencia</span>
+                    <span>Nova Incidència</span>
                   </Button>
                 </div>
 
                 <div className="space-y-2">
                   {plotIncidents.length === 0 ? (
                     <div className="text-center py-8 text-gray-500">
-                      No hay incidencias registradas para esta parcela
+                      No hi ha incidències registrades per aquesta parcel·la
                     </div>
                   ) : (
                     plotIncidents.map((incident) => (
@@ -194,13 +253,13 @@ export const PlotDetailsDialog = ({ isOpen, onClose, plot, onRedFlagChange }: Pl
                               </AlertDialogTrigger>
                               <AlertDialogContent>
                                 <AlertDialogHeader>
-                                  <AlertDialogTitle>¿Eliminar incidencia?</AlertDialogTitle>
+                                  <AlertDialogTitle>¿Eliminar incidència?</AlertDialogTitle>
                                   <AlertDialogDescription>
-                                    Esta acción no se puede deshacer. La incidencia será eliminada permanentemente.
+                                    Aquesta acció no es pot desfer. La incidència serà eliminada permanentment.
                                   </AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
-                                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                  <AlertDialogCancel>Cancel·lar</AlertDialogCancel>
                                   <AlertDialogAction 
                                     onClick={() => handleDeleteIncident(incident.incident.id)}
                                     className="bg-red-600 hover:bg-red-700"
@@ -232,7 +291,7 @@ export const PlotDetailsDialog = ({ isOpen, onClose, plot, onRedFlagChange }: Pl
                     className="flex items-center space-x-2 bg-red-600 hover:bg-red-700"
                   >
                     <AlertTriangle className="h-4 w-4" />
-                    <span>Nueva Red Flag</span>
+                    <span>Nova Red Flag</span>
                   </Button>
                 </div>
 
@@ -259,7 +318,14 @@ export const PlotDetailsDialog = ({ isOpen, onClose, plot, onRedFlagChange }: Pl
         onRedFlagCreated={handleRedFlagCreated}
         entityType="plot"
         entityId={plot.id}
-        entityName={`Parcela #${plot.number}`}
+        entityName={`Parcel·la #${plot.number}`}
+      />
+
+      <PlotEditDialog
+        isOpen={isEditDialogOpen}
+        onClose={() => setIsEditDialogOpen(false)}
+        plot={plot}
+        onPlotUpdated={handlePlotUpdated}
       />
     </>
   );
