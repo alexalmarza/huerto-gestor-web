@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { User, Phone, Mail, MapPin, Calendar, FileText, Plus } from "lucide-react";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { User, Phone, Mail, MapPin, Calendar, FileText, Plus, Trash2 } from "lucide-react";
 import { Member } from "@/hooks/useMembers";
 import { useIncidents, MemberIncident } from "@/hooks/useIncidents";
 import { IncidentCreationDialog } from "./IncidentCreationDialog";
@@ -19,7 +20,7 @@ interface MemberDetailsDialogProps {
 export const MemberDetailsDialog = ({ isOpen, onClose, member }: MemberDetailsDialogProps) => {
   const [memberIncidents, setMemberIncidents] = useState<MemberIncident[]>([]);
   const [isIncidentDialogOpen, setIsIncidentDialogOpen] = useState(false);
-  const { getMemberIncidents, addMemberIncident } = useIncidents();
+  const { getMemberIncidents, addMemberIncident, deleteIncident } = useIncidents();
 
   useEffect(() => {
     if (member && isOpen) {
@@ -40,6 +41,13 @@ export const MemberDetailsDialog = ({ isOpen, onClose, member }: MemberDetailsDi
     await addMemberIncident(member.id, incidentId);
     loadMemberIncidents();
     setIsIncidentDialogOpen(false);
+  };
+
+  const handleDeleteIncident = async (incidentId: string) => {
+    const result = await deleteIncident(incidentId);
+    if (result.error === null) {
+      loadMemberIncidents();
+    }
   };
 
   const getPaymentStatusColor = (status: string) => {
@@ -168,10 +176,38 @@ export const MemberDetailsDialog = ({ isOpen, onClose, member }: MemberDetailsDi
                     memberIncidents.map((incident) => (
                       <Card key={incident.id}>
                         <CardHeader className="pb-2">
-                          <CardTitle className="text-base">{incident.incident.title}</CardTitle>
-                          <CardDescription>
-                            {new Date(incident.created_at).toLocaleDateString()}
-                          </CardDescription>
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <CardTitle className="text-base">{incident.incident.title}</CardTitle>
+                              <CardDescription>
+                                {new Date(incident.created_at).toLocaleDateString()}
+                              </CardDescription>
+                            </div>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700">
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>¿Eliminar incidencia?</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Esta acción no se puede deshacer. La incidencia será eliminada permanentemente.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                  <AlertDialogAction 
+                                    onClick={() => handleDeleteIncident(incident.incident.id)}
+                                    className="bg-red-600 hover:bg-red-700"
+                                  >
+                                    Eliminar
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </div>
                         </CardHeader>
                         {incident.incident.description && (
                           <CardContent>

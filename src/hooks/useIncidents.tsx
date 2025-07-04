@@ -77,6 +77,25 @@ export const useIncidents = () => {
     }
   };
 
+  const deleteIncident = async (incidentId: string) => {
+    try {
+      const { error } = await supabase
+        .from('incidents')
+        .delete()
+        .eq('id', incidentId);
+
+      if (error) throw error;
+      
+      await fetchIncidents(); // Refrescar la lista
+      toast.success('Incidencia eliminada exitosamente');
+      return { error: null };
+    } catch (error) {
+      console.error('Error deleting incident:', error);
+      toast.error('Error al eliminar la incidencia');
+      return { error };
+    }
+  };
+
   const getMemberIncidents = async (memberId: string) => {
     try {
       const { data, error } = await supabase
@@ -167,6 +186,7 @@ export const useIncidents = () => {
     incidents,
     loading,
     createIncident,
+    deleteIncident,
     getMemberIncidents,
     getPlotIncidents,
     addPlotIncident,
