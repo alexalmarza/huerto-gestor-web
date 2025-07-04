@@ -138,6 +138,7 @@ export const usePlots = () => {
   const updatePlot = async (id: string, updates: Partial<Plot>) => {
     try {
       const { data, error } = await supabase
+        .from('plots')
         .update(updates)
         .eq('id', id)
         .select()
