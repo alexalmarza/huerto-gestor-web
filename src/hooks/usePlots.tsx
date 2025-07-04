@@ -32,7 +32,7 @@ export const usePlots = () => {
     try {
       setLoading(true);
       const { data, error } = await supabase
-        .from('plots' as any)
+        .from('plots')
         .select(`
           *,
           member:members!assigned_member_id(name)
@@ -40,7 +40,7 @@ export const usePlots = () => {
         .order('number');
 
       if (error) throw error;
-      setPlots((data as Plot[]) || []);
+      setPlots(data || []);
     } catch (error) {
       console.error('Error fetching plots:', error);
       toast.error('Error al cargar las parcelas');
@@ -52,14 +52,14 @@ export const usePlots = () => {
   const createPlot = async (plotData: CreatePlotData) => {
     try {
       const { data, error } = await supabase
-        .from('plots' as any)
+        .from('plots')
         .insert([plotData])
         .select()
         .single();
 
       if (error) throw error;
       
-      setPlots(prev => [...prev, data as Plot]);
+      setPlots(prev => [...prev, data]);
       toast.success('Parcela creada exitosamente');
       return { data, error: null };
     } catch (error) {
@@ -72,7 +72,7 @@ export const usePlots = () => {
   const updatePlot = async (id: string, updates: Partial<Plot>) => {
     try {
       const { data, error } = await supabase
-        .from('plots' as any)
+        .from('plots')
         .update(updates)
         .eq('id', id)
         .select()
@@ -80,7 +80,7 @@ export const usePlots = () => {
 
       if (error) throw error;
 
-      setPlots(prev => prev.map(plot => plot.id === id ? (data as Plot) : plot));
+      setPlots(prev => prev.map(plot => plot.id === id ? data : plot));
       toast.success('Parcela actualizada exitosamente');
       return { data, error: null };
     } catch (error) {
@@ -93,7 +93,7 @@ export const usePlots = () => {
   const deletePlot = async (id: string) => {
     try {
       const { error } = await supabase
-        .from('plots' as any)
+        .from('plots')
         .delete()
         .eq('id', id);
 

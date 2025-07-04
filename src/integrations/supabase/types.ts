@@ -9,6 +9,89 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      members: {
+        Row: {
+          address: string | null
+          created_at: string
+          dni: string
+          email: string
+          id: string
+          join_date: string
+          name: string
+          payment_status: string
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          dni: string
+          email: string
+          id?: string
+          join_date?: string
+          name: string
+          payment_status?: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          dni?: string
+          email?: string
+          id?: string
+          join_date?: string
+          name?: string
+          payment_status?: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      plots: {
+        Row: {
+          assigned_date: string | null
+          assigned_member_id: string | null
+          created_at: string
+          id: string
+          location: string
+          number: string
+          size: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_date?: string | null
+          assigned_member_id?: string | null
+          created_at?: string
+          id?: string
+          location: string
+          number: string
+          size: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_date?: string | null
+          assigned_member_id?: string | null
+          created_at?: string
+          id?: string
+          location?: string
+          number?: string
+          size?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "plots_assigned_member_id_fkey"
+            columns: ["assigned_member_id"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string

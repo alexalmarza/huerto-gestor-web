@@ -32,12 +32,12 @@ export const useMembers = () => {
     try {
       setLoading(true);
       const { data, error } = await supabase
-        .from('members' as any)
+        .from('members')
         .select('*')
         .order('name');
 
       if (error) throw error;
-      setMembers((data as Member[]) || []);
+      setMembers(data || []);
     } catch (error) {
       console.error('Error fetching members:', error);
       toast.error('Error al cargar los socios');
@@ -49,14 +49,14 @@ export const useMembers = () => {
   const createMember = async (memberData: CreateMemberData) => {
     try {
       const { data, error } = await supabase
-        .from('members' as any)
+        .from('members')
         .insert([memberData])
         .select()
         .single();
 
       if (error) throw error;
       
-      setMembers(prev => [...prev, data as Member]);
+      setMembers(prev => [...prev, data]);
       toast.success('Socio creado exitosamente');
       return { data, error: null };
     } catch (error) {
@@ -69,7 +69,7 @@ export const useMembers = () => {
   const updateMember = async (id: string, updates: Partial<Member>) => {
     try {
       const { data, error } = await supabase
-        .from('members' as any)
+        .from('members')
         .update(updates)
         .eq('id', id)
         .select()
@@ -77,7 +77,7 @@ export const useMembers = () => {
 
       if (error) throw error;
 
-      setMembers(prev => prev.map(member => member.id === id ? (data as Member) : member));
+      setMembers(prev => prev.map(member => member.id === id ? data : member));
       toast.success('Socio actualizado exitosamente');
       return { data, error: null };
     } catch (error) {
@@ -90,7 +90,7 @@ export const useMembers = () => {
   const deleteMember = async (id: string) => {
     try {
       const { error } = await supabase
-        .from('members' as any)
+        .from('members')
         .delete()
         .eq('id', id);
 
