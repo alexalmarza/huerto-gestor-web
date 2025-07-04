@@ -100,7 +100,13 @@ export const usePlots = () => {
       setPlots(currentPlots => 
         currentPlots.map(plot => 
           plot.id === plotId 
-            ? { ...plot, ...data }
+            ? {
+                ...plot,
+                assigned_member_id: assignData.assigned_member_id,
+                assigned_date: new Date().toISOString(),
+                status: 'ocupada' as const,
+                member: data.member
+              }
             : plot
         )
       );
