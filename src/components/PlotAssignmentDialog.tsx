@@ -19,7 +19,7 @@ export const PlotAssignmentDialog = ({ isOpen, onClose, plotId, plotNumber }: Pl
   const [isAssigning, setIsAssigning] = useState(false);
   
   const { members } = useMembers();
-  const { plots, assignPlot, refetch } = usePlots();
+  const { plots, assignPlot } = usePlots();
 
   // Filter active members who don't have a plot assigned
   const availableMembers = members.filter(member => 
@@ -31,13 +31,16 @@ export const PlotAssignmentDialog = ({ isOpen, onClose, plotId, plotNumber }: Pl
     if (!selectedMemberId) return;
 
     setIsAssigning(true);
+    console.log('Starting plot assignment...'); // Debug log
+    
     const result = await assignPlot(plotId, { assigned_member_id: selectedMemberId });
     
     if (result.error === null) {
-      // Forzar una actualización adicional para asegurar que se vea el cambio
-      await refetch();
+      console.log('Plot assignment successful, closing dialog'); // Debug log
       setSelectedMemberId("");
       onClose();
+    } else {
+      console.error('Plot assignment failed:', result.error); // Debug log
     }
     setIsAssigning(false);
   };

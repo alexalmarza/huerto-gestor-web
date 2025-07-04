@@ -44,6 +44,7 @@ export const usePlots = () => {
         .order('number');
 
       if (error) throw error;
+      console.log('Plots fetched:', data); // Debug log
       setPlots((data || []) as Plot[]);
     } catch (error) {
       console.error('Error fetching plots:', error);
@@ -75,6 +76,8 @@ export const usePlots = () => {
 
   const assignPlot = async (plotId: string, assignData: AssignPlotData) => {
     try {
+      console.log('Assigning plot:', plotId, 'to member:', assignData.assigned_member_id); // Debug log
+      
       const { data, error } = await supabase
         .from('plots')
         .update({
@@ -91,8 +94,22 @@ export const usePlots = () => {
 
       if (error) throw error;
 
-      // Refrescar la lista completa para asegurar consistencia
-      await fetchPlots();
+      console.log('Plot assigned successfully:', data); // Debug log
+
+      // Actualizar el estado local inmediatamente para evitar retrasos
+      setPlots(currentPlots => 
+        currentPlots.map(plot => 
+          plot.id === plotId 
+            ? { ...plot, ...data }
+            : plot
+        )
+      );
+
+      // También refrescar desde la base de datos para asegurar consistencia
+      setTimeout(() => {
+        fetchPlots();
+      }, 500);
+
       toast.success('Parcela asignada exitosamente');
       return { data, error: null };
     } catch (error) {
@@ -117,7 +134,15 @@ export const usePlots = () => {
 
       if (error) throw error;
 
-      await fetchPlots(); // Refrescar la lista completa
+      // Actualizar el estado local inmediatamente
+      setPlots(currentPlots => 
+        currentPlots.map(plot => 
+          plot.id === plotId 
+            ? { ...plot, assigned_member_id: null, assigned_date: null, status: 'disponible' as const, member: undefined }
+            : plot
+        )
+      );
+
       toast.success('Parcela liberada exitosamente');
       return { data, error: null };
     } catch (error) {
