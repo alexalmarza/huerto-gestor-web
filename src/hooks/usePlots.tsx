@@ -97,6 +97,15 @@ export const usePlots = () => {
 
       console.log('Plot assigned successfully:', data); // Debug log
       
+      // Update the local state immediately
+      setPlots(currentPlots => 
+        currentPlots.map(plot => 
+          plot.id === plotId 
+            ? { ...data as Plot }
+            : plot
+        )
+      );
+      
       toast.success('Parcela asignada exitosamente');
       return { data, error: null };
     } catch (error) {
@@ -121,7 +130,15 @@ export const usePlots = () => {
 
       if (error) throw error;
 
-      await fetchPlots(); // Solo refrescar desde la base de datos
+      // Update the local state immediately
+      setPlots(currentPlots => 
+        currentPlots.map(plot => 
+          plot.id === plotId 
+            ? { ...data as Plot, member: undefined }
+            : plot
+        )
+      );
+      
       toast.success('Parcela liberada exitosamente');
       return { data, error: null };
     } catch (error) {
