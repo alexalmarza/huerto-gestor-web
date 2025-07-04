@@ -37,7 +37,7 @@ export const useMembers = () => {
         .order('name');
 
       if (error) throw error;
-      setMembers(data || []);
+      setMembers((data as Member[]) || []);
     } catch (error) {
       console.error('Error fetching members:', error);
       toast.error('Error al cargar los socios');
@@ -56,7 +56,7 @@ export const useMembers = () => {
 
       if (error) throw error;
       
-      setMembers(prev => [...prev, data]);
+      setMembers(prev => [...prev, data as Member]);
       toast.success('Socio creado exitosamente');
       return { data, error: null };
     } catch (error) {
@@ -77,7 +77,7 @@ export const useMembers = () => {
 
       if (error) throw error;
 
-      setMembers(prev => prev.map(member => member.id === id ? data : member));
+      setMembers(prev => prev.map(member => member.id === id ? (data as Member) : member));
       toast.success('Socio actualizado exitosamente');
       return { data, error: null };
     } catch (error) {

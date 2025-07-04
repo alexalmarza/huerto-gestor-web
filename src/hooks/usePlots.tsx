@@ -40,7 +40,7 @@ export const usePlots = () => {
         .order('number');
 
       if (error) throw error;
-      setPlots(data || []);
+      setPlots((data as Plot[]) || []);
     } catch (error) {
       console.error('Error fetching plots:', error);
       toast.error('Error al cargar las parcelas');
@@ -59,7 +59,7 @@ export const usePlots = () => {
 
       if (error) throw error;
       
-      setPlots(prev => [...prev, data]);
+      setPlots(prev => [...prev, data as Plot]);
       toast.success('Parcela creada exitosamente');
       return { data, error: null };
     } catch (error) {
@@ -80,7 +80,7 @@ export const usePlots = () => {
 
       if (error) throw error;
 
-      setPlots(prev => prev.map(plot => plot.id === id ? data : plot));
+      setPlots(prev => prev.map(plot => plot.id === id ? (data as Plot) : plot));
       toast.success('Parcela actualizada exitosamente');
       return { data, error: null };
     } catch (error) {
