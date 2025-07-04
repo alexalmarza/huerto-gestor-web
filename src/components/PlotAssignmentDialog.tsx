@@ -28,21 +28,26 @@ export const PlotAssignmentDialog = ({ isOpen, onClose, plotId, plotNumber }: Pl
   );
 
   const handleAssign = async () => {
-    if (!selectedMemberId) return;
+    if (!selectedMemberId || isAssigning) return;
 
     setIsAssigning(true);
     console.log('Starting plot assignment...'); // Debug log
     
-    const result = await assignPlot(plotId, { assigned_member_id: selectedMemberId });
-    
-    if (result.error === null) {
-      console.log('Plot assignment successful, closing dialog'); // Debug log
-      setSelectedMemberId("");
-      onClose();
-    } else {
-      console.error('Plot assignment failed:', result.error); // Debug log
+    try {
+      const result = await assignPlot(plotId, { assigned_member_id: selectedMemberId });
+      
+      if (result.error === null) {
+        console.log('Plot assignment successful, closing dialog'); // Debug log
+        setSelectedMemberId("");
+        onClose();
+      } else {
+        console.error('Plot assignment failed:', result.error); // Debug log
+      }
+    } catch (error) {
+      console.error('Plot assignment error:', error);
+    } finally {
+      setIsAssigning(false);
     }
-    setIsAssigning(false);
   };
 
   const handleClose = () => {

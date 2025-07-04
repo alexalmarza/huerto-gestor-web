@@ -96,25 +96,8 @@ export const usePlots = () => {
 
       console.log('Plot assigned successfully:', data); // Debug log
 
-      // Actualizar el estado local inmediatamente para evitar retrasos
-      setPlots(currentPlots => 
-        currentPlots.map(plot => 
-          plot.id === plotId 
-            ? {
-                ...plot,
-                assigned_member_id: assignData.assigned_member_id,
-                assigned_date: new Date().toISOString(),
-                status: 'ocupada' as const,
-                member: data.member
-              }
-            : plot
-        )
-      );
-
-      // También refrescar desde la base de datos para asegurar consistencia
-      setTimeout(() => {
-        fetchPlots();
-      }, 500);
+      // Solo refrescar desde la base de datos
+      await fetchPlots();
 
       toast.success('Parcela asignada exitosamente');
       return { data, error: null };
@@ -140,15 +123,7 @@ export const usePlots = () => {
 
       if (error) throw error;
 
-      // Actualizar el estado local inmediatamente
-      setPlots(currentPlots => 
-        currentPlots.map(plot => 
-          plot.id === plotId 
-            ? { ...plot, assigned_member_id: null, assigned_date: null, status: 'disponible' as const, member: undefined }
-            : plot
-        )
-      );
-
+      await fetchPlots(); // Solo refrescar desde la base de datos
       toast.success('Parcela liberada exitosamente');
       return { data, error: null };
     } catch (error) {
