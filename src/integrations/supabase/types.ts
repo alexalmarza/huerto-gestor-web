@@ -278,6 +278,51 @@ export type Database = {
         }
         Relationships: []
       }
+      red_flags: {
+        Row: {
+          created_at: string
+          description: string | null
+          entity_id: string
+          entity_type: string
+          flagged_at: string
+          flagged_by: string | null
+          id: string
+          reason: string
+          resolved: boolean
+          resolved_at: string | null
+          resolved_by: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          entity_id: string
+          entity_type: string
+          flagged_at?: string
+          flagged_by?: string | null
+          id?: string
+          reason: string
+          resolved?: boolean
+          resolved_at?: string | null
+          resolved_by?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          entity_id?: string
+          entity_type?: string
+          flagged_at?: string
+          flagged_by?: string | null
+          id?: string
+          reason?: string
+          resolved?: boolean
+          resolved_at?: string | null
+          resolved_by?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

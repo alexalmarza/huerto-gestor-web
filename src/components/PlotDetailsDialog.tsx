@@ -6,10 +6,12 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { MapPin, User, Calendar, FileText, Plus, Trash2 } from "lucide-react";
+import { MapPin, User, Calendar, FileText, Plus, Trash2, AlertTriangle } from "lucide-react";
 import { Plot } from "@/hooks/usePlots";
 import { useIncidents, PlotIncident } from "@/hooks/useIncidents";
 import { IncidentCreationDialog } from "./IncidentCreationDialog";
+import { RedFlagDialog } from "./RedFlagDialog";
+import { RedFlagsList } from "./RedFlagsList";
 
 interface PlotDetailsDialogProps {
   isOpen: boolean;
@@ -20,6 +22,7 @@ interface PlotDetailsDialogProps {
 export const PlotDetailsDialog = ({ isOpen, onClose, plot }: PlotDetailsDialogProps) => {
   const [plotIncidents, setPlotIncidents] = useState<PlotIncident[]>([]);
   const [isIncidentDialogOpen, setIsIncidentDialogOpen] = useState(false);
+  const [isRedFlagDialogOpen, setIsRedFlagDialogOpen] = useState(false);
   const { getPlotIncidents, addPlotIncident, deleteIncident } = useIncidents();
 
   useEffect(() => {
@@ -116,11 +119,15 @@ export const PlotDetailsDialog = ({ isOpen, onClose, plot }: PlotDetailsDialogPr
             </div>
 
             <Tabs defaultValue="info" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
+              <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="info">Información</TabsTrigger>
                 <TabsTrigger value="incidents" className="flex items-center space-x-2">
                   <FileText className="h-4 w-4" />
                   <span>Incidencias ({plotIncidents.length})</span>
+                </TabsTrigger>
+                <TabsTrigger value="redflags" className="flex items-center space-x-2">
+                  <AlertTriangle className="h-4 w-4" />
+                  <span>Red Flags</span>
                 </TabsTrigger>
               </TabsList>
 
@@ -205,6 +212,22 @@ export const PlotDetailsDialog = ({ isOpen, onClose, plot }: PlotDetailsDialogPr
                   )}
                 </div>
               </TabsContent>
+
+              <TabsContent value="redflags" className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-lg font-semibold">Red Flags</h3>
+                  <Button 
+                    size="sm"
+                    onClick={() => setIsRedFlagDialogOpen(true)}
+                    className="flex items-center space-x-2 bg-red-600 hover:bg-red-700"
+                  >
+                    <AlertTriangle className="h-4 w-4" />
+                    <span>Nueva Red Flag</span>
+                  </Button>
+                </div>
+
+                <RedFlagsList entityType="plot" entityId={plot.id} />
+              </TabsContent>
             </Tabs>
           </div>
         </DialogContent>
@@ -214,6 +237,14 @@ export const PlotDetailsDialog = ({ isOpen, onClose, plot }: PlotDetailsDialogPr
         isOpen={isIncidentDialogOpen}
         onClose={() => setIsIncidentDialogOpen(false)}
         onIncidentCreated={handleIncidentCreated}
+      />
+
+      <RedFlagDialog
+        isOpen={isRedFlagDialogOpen}
+        onClose={() => setIsRedFlagDialogOpen(false)}
+        entityType="plot"
+        entityId={plot.id}
+        entityName={`Parcela #${plot.number}`}
       />
     </>
   );
