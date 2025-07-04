@@ -13,14 +13,17 @@ import {
   DialogTitle, 
   DialogTrigger 
 } from "@/components/ui/dialog";
-import { Plus, Search, MapPin, User, Calendar, UserX } from "lucide-react";
-import { usePlots } from "@/hooks/usePlots";
+import { Plus, Search, MapPin, User, Calendar, UserX, Edit, Trash2 } from "lucide-react";
+import { usePlots, Plot } from "@/hooks/usePlots";
 import { useMembers } from "@/hooks/useMembers";
 import { PlotAssignmentDialog } from "./PlotAssignmentDialog";
+import { PlotDetailsDialog } from "./PlotDetailsDialog";
 
 export const PlotsManagement = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [editingPlot, setEditingPlot] = useState<Plot | null>(null);
+  const [selectedPlot, setSelectedPlot] = useState<Plot | null>(null);
   const [assignmentDialog, setAssignmentDialog] = useState<{
     isOpen: boolean;
     plotId: string;
@@ -32,7 +35,7 @@ export const PlotsManagement = () => {
     location: ""
   });
 
-  const { plots, loading, createPlot, unassignPlot } = usePlots();
+  const { plots, loading, createPlot, unassignPlot, updatePlot, deletePlot } = usePlots();
   const { members } = useMembers();
 
   const handleCreatePlot = async () => {
@@ -44,6 +47,28 @@ export const PlotsManagement = () => {
     if (result.error === null) {
       setNewPlot({ number: "", size: "", location: "" });
       setIsAddDialogOpen(false);
+    }
+  };
+
+  const handleUpdatePlot = async () => {
+    if (!editingPlot || !editingPlot.number || !editingPlot.size || !editingPlot.location) {
+      return;
+    }
+
+    const result = await updatePlot(editingPlot.id, {
+      number: editingPlot.number,
+      size: editingPlot.size,
+      location: editingPlot.location
+    });
+    
+    if (result.error === null) {
+      setEditingPlot(null);
+    }
+  };
+
+  const handleDeletePlot = async (plotId: string) => {
+    if (window.confirm("¿Estás seguro de que quieres eliminar esta parcela?")) {
+      await deletePlot(plotId);
     }
   };
 
@@ -169,9 +194,27 @@ export const PlotsManagement = () => {
                     <span>{plot.location}</span>
                   </CardDescription>
                 </div>
-                <Badge className={getStatusColor(plot.status)}>
-                  {plot.status}
-                </Badge>
+                <div className="flex flex-col items-end space-y-1">
+                  <Badge className={getStatusColor(plot.status)}>
+                    {plot.status}
+                  </Badge>
+                  <div className="flex space-x-1">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setEditingPlot(plot)}
+                    >
+                      <Edit className="h-3 w-3" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleDeletePlot(plot.id)}
+                    >
+                      <Trash2 className="h-3 w-3" />
+                    </Button>
+                  </div>
+                </div>
               </div>
             </CardHeader>
             <CardContent className="space-y-3">
@@ -199,7 +242,12 @@ export const PlotsManagement = () => {
               )}
               
               <div className="flex space-x-2 pt-2">
-                <Button variant="outline" size="sm" className="flex-1">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="flex-1"
+                  onClick={() => setSelectedPlot(plot)}
+                >
                   Ver Detalles
                 </Button>
                 {plot.status === "disponible" ? (
@@ -241,6 +289,64 @@ export const PlotsManagement = () => {
         plotId={assignmentDialog.plotId}
         plotNumber={assignmentDialog.plotNumber}
       />
+
+      <PlotDetailsDialog
+        isOpen={selectedPlot !== null}
+        onClose={() => setSelectedPlot(null)}
+        plot={selectedPlot}
+      />
+
+      {editingPlot && (
+        <Dialog open={true} onOpenChange={() => setEditingPlot(null)}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Editar Parcela #{editingPlot.number}</DialogTitle>
+              <DialogDescription>
+                Modifica la información de la parcela
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="edit-number">Número de Parcela</Label>
+                  <Input 
+                    id="edit-number" 
+                    value={editingPlot.number}
+                    onChange={(e) => setEditingPlot(prev => prev ? { ...prev, number: e.target.value } : null)}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="edit-size">Tamaño</Label>
+                  <Input 
+                    id="edit-size" 
+                    value={editingPlot.size}
+                    onChange={(e) => setEditingPlot(prev => prev ? { ...prev, size: e.target.value } : null)}
+                  />
+                </div>
+              </div>
+              <div>
+                <Label htmlFor="edit-location">Ubicación/Sector</Label>
+                <Input 
+                  id="edit-location" 
+                  value={editingPlot.location}
+                  onChange={(e) => setEditingPlot(prev => prev ? { ...prev, location: e.target.value } : null)}
+                />
+              </div>
+              <div className="flex justify-end space-x-2">
+                <Button variant="outline" onClick={() => setEditingPlot(null)}>
+                  Cancelar
+                </Button>
+                <Button 
+                  className="bg-green-600 hover:bg-green-700"
+                  onClick={handleUpdatePlot}
+                >
+                  Guardar Cambios
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 };

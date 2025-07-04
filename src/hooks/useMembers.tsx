@@ -15,6 +15,7 @@ export interface Member {
   is_active: boolean;
   deactivation_date: string | null;
   deactivation_reason: string | null;
+  deactivation_reasons: string[] | null;
   created_at: string;
   updated_at: string;
 }
@@ -28,7 +29,7 @@ export interface CreateMemberData {
 }
 
 export interface DeactivateMemberData {
-  deactivation_reason: string;
+  deactivation_reasons: string[];
 }
 
 export const useMembers = () => {
@@ -100,7 +101,7 @@ export const useMembers = () => {
         .from('members')
         .update({
           is_active: false,
-          deactivation_reason: deactivationData.deactivation_reason
+          deactivation_reasons: deactivationData.deactivation_reasons
         })
         .eq('id', id)
         .select()

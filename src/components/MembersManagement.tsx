@@ -141,7 +141,19 @@ export const MembersManagement = () => {
               }
             </span>
           </div>
-          {!isActive && member.deactivation_reason && (
+          {!isActive && member.deactivation_reasons && (
+            <div className="space-y-1">
+              <div className="text-sm font-medium text-gray-700">Motivos de baja:</div>
+              <div className="flex flex-wrap gap-1">
+                {member.deactivation_reasons.map((reason: string, index: number) => (
+                  <Badge key={index} variant="outline" className="text-xs">
+                    {reason}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
+          {!isActive && member.deactivation_reason && !member.deactivation_reasons && (
             <div className="text-sm text-gray-600 italic">
               <strong>Motivo:</strong> {member.deactivation_reason}
             </div>
