@@ -19,7 +19,7 @@ export const PlotAssignmentDialog = ({ isOpen, onClose, plotId, plotNumber }: Pl
   const [isAssigning, setIsAssigning] = useState(false);
   
   const { members } = useMembers();
-  const { plots, assignPlot } = usePlots();
+  const { plots, assignPlot, refetch } = usePlots();
 
   // Filter active members who don't have a plot assigned
   const availableMembers = members.filter(member => 
@@ -34,14 +34,23 @@ export const PlotAssignmentDialog = ({ isOpen, onClose, plotId, plotNumber }: Pl
     const result = await assignPlot(plotId, { assigned_member_id: selectedMemberId });
     
     if (result.error === null) {
+      // Forzar una actualización adicional para asegurar que se vea el cambio
+      await refetch();
       setSelectedMemberId("");
       onClose();
     }
     setIsAssigning(false);
   };
 
+  const handleClose = () => {
+    if (!isAssigning) {
+      setSelectedMemberId("");
+      onClose();
+    }
+  };
+
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Asignar Parcela #{plotNumber}</DialogTitle>
@@ -52,7 +61,7 @@ export const PlotAssignmentDialog = ({ isOpen, onClose, plotId, plotNumber }: Pl
         <div className="space-y-4">
           <div>
             <Label htmlFor="member">Socio</Label>
-            <Select value={selectedMemberId} onValueChange={setSelectedMemberId}>
+            <Select value={selectedMemberId} onValueChange={setSelectedMemberId} disabled={isAssigning}>
               <SelectTrigger>
                 <SelectValue placeholder="Selecciona un socio" />
               </SelectTrigger>
@@ -66,7 +75,7 @@ export const PlotAssignmentDialog = ({ isOpen, onClose, plotId, plotNumber }: Pl
             </Select>
           </div>
           <div className="flex justify-end space-x-2">
-            <Button variant="outline" onClick={onClose}>
+            <Button variant="outline" onClick={handleClose} disabled={isAssigning}>
               Cancelar
             </Button>
             <Button 
