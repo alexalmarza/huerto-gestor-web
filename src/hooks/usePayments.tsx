@@ -74,7 +74,13 @@ export const usePayments = () => {
 
       if (error) throw error;
       
-      await fetchPayments(); // Refresh the list
+      // Add the new payment to the current list immediately for better UX
+      if (data) {
+        setPayments(prevPayments => [data as Payment, ...prevPayments]);
+      }
+      
+      // Also fetch fresh data to ensure consistency
+      await fetchPayments();
       toast.success('Pago registrado exitosamente');
       return { data, error: null };
     } catch (error) {
@@ -93,7 +99,9 @@ export const usePayments = () => {
 
       if (error) throw error;
       
-      await fetchPayments(); // Refresh the list
+      // Remove the payment from the current list immediately
+      setPayments(prevPayments => prevPayments.filter(payment => payment.id !== paymentId));
+      
       toast.success('Pago eliminado exitosamente');
       return { error: null };
     } catch (error) {
