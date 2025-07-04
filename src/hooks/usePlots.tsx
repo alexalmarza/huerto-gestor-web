@@ -95,7 +95,10 @@ export const usePlots = () => {
       if (error) throw error;
 
       console.log('Plot assigned successfully:', data); // Debug log
-
+      
+      // Actualizar el estado inmediatamente
+      await fetchPlots();
+      
       toast.success('Parcela asignada exitosamente');
       return { data, error: null };
     } catch (error) {
