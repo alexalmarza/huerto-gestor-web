@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -37,21 +38,37 @@ export interface CreatePaymentData {
 export const usePayments = () => {
   const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
+  const [totalCount, setTotalCount] = useState(0);
 
-  const fetchPayments = async () => {
+  const fetchPayments = async (page: number = 0, pageSize: number = 10, filterYear?: number) => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      
+      let query = supabase
         .from('payments')
         .select(`
           *,
           member:members(name, dni),
           plot:plots(number)
-        `)
+        `, { count: 'exact' })
         .order('created_at', { ascending: false });
 
+      // Apply year filter if provided
+      if (filterYear) {
+        query = query.eq('payment_year', filterYear);
+      }
+
+      // Apply pagination
+      const from = page * pageSize;
+      const to = from + pageSize - 1;
+      query = query.range(from, to);
+
+      const { data, error, count } = await query;
+
       if (error) throw error;
+      
       setPayments((data || []) as Payment[]);
+      setTotalCount(count || 0);
     } catch (error) {
       console.error('Error fetching payments:', error);
       toast.error('Error al cargar los pagos');
@@ -74,13 +91,6 @@ export const usePayments = () => {
 
       if (error) throw error;
       
-      // Add the new payment to the current list immediately for better UX
-      if (data) {
-        setPayments(prevPayments => [data as Payment, ...prevPayments]);
-      }
-      
-      // Also fetch fresh data to ensure consistency
-      await fetchPayments();
       toast.success('Pago registrado exitosamente');
       return { data, error: null };
     } catch (error) {
@@ -98,9 +108,6 @@ export const usePayments = () => {
         .eq('id', paymentId);
 
       if (error) throw error;
-      
-      // Remove the payment from the current list immediately
-      setPayments(prevPayments => prevPayments.filter(payment => payment.id !== paymentId));
       
       toast.success('Pago eliminado exitosamente');
       return { error: null };
@@ -172,9 +179,10 @@ export const usePayments = () => {
   return {
     payments,
     loading,
+    totalCount,
     createPayment,
     deletePayment,
     generateReceiptPDF,
-    refetch: fetchPayments
+    fetchPayments
   };
 };

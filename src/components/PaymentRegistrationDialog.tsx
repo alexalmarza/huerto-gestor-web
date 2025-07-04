@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -12,9 +11,10 @@ import { usePayments, CreatePaymentData } from "@/hooks/usePayments";
 interface PaymentRegistrationDialogProps {
   isOpen: boolean;
   onClose: () => void;
+  onPaymentRegistered?: () => void;
 }
 
-export const PaymentRegistrationDialog = ({ isOpen, onClose }: PaymentRegistrationDialogProps) => {
+export const PaymentRegistrationDialog = ({ isOpen, onClose, onPaymentRegistered }: PaymentRegistrationDialogProps) => {
   const [selectedMemberId, setSelectedMemberId] = useState("");
   const [paymentType, setPaymentType] = useState<'parcela' | 'material' | 'alquiler'>('parcela');
   const [selectedPlotId, setSelectedPlotId] = useState("");
@@ -74,6 +74,7 @@ export const PaymentRegistrationDialog = ({ isOpen, onClose }: PaymentRegistrati
 
     const result = await createPayment(paymentData);
     if (result.error === null) {
+      onPaymentRegistered?.();
       onClose();
     }
   };

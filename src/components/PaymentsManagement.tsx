@@ -1,10 +1,19 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { 
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+  PaginationEllipsis
+} from "@/components/ui/pagination";
 import { 
   AlertDialog, 
   AlertDialogAction, 
@@ -23,9 +32,26 @@ import { PaymentRegistrationDialog } from "@/components/PaymentRegistrationDialo
 export const PaymentsManagement = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("todos");
+  const [filterYear, setFilterYear] = useState<number | undefined>(undefined);
+  const [currentPage, setCurrentPage] = useState(0);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   
-  const { payments, loading, deletePayment, generateReceiptPDF } = usePayments();
+  const pageSize = 10;
+  const { payments, loading, totalCount, deletePayment, generateReceiptPDF, fetchPayments } = usePayments();
+
+  // Calculate available years from current year and past years
+  const currentYear = new Date().getFullYear();
+  const availableYears = Array.from({ length: 10 }, (_, i) => currentYear - i);
+
+  // Fetch payments when filters or page change
+  useEffect(() => {
+    fetchPayments(currentPage, pageSize, filterYear);
+  }, [currentPage, filterYear, fetchPayments]);
+
+  // Reset to first page when filters change
+  useEffect(() => {
+    setCurrentPage(0);
+  }, [filterYear, filterStatus]);
 
   const getStatusColor = (paymentType: string) => {
     switch (paymentType) {
@@ -65,12 +91,99 @@ export const PaymentsManagement = () => {
     return matchesSearch && matchesStatus;
   });
 
+  const totalPages = Math.ceil(totalCount / pageSize);
+
   const handleDeletePayment = async (paymentId: string) => {
-    await deletePayment(paymentId);
+    const result = await deletePayment(paymentId);
+    if (result.error === null) {
+      // Refresh the current page
+      fetchPayments(currentPage, pageSize, filterYear);
+    }
   };
 
   const handleGenerateReceipt = async (payment: any) => {
     await generateReceiptPDF(payment);
+  };
+
+  const handlePaymentRegistered = () => {
+    // Refresh payments after a new payment is registered
+    fetchPayments(currentPage, pageSize, filterYear);
+    setIsAddDialogOpen(false);
+  };
+
+  const renderPaginationItems = () => {
+    const items = [];
+    const maxVisiblePages = 5;
+    
+    // Previous button
+    items.push(
+      <PaginationItem key="prev">
+        <PaginationPrevious 
+          onClick={() => currentPage > 0 && setCurrentPage(currentPage - 1)}
+          className={currentPage === 0 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+        />
+      </PaginationItem>
+    );
+
+    // Page numbers
+    let startPage = Math.max(0, currentPage - Math.floor(maxVisiblePages / 2));
+    let endPage = Math.min(totalPages - 1, startPage + maxVisiblePages - 1);
+    
+    if (endPage - startPage < maxVisiblePages - 1) {
+      startPage = Math.max(0, endPage - maxVisiblePages + 1);
+    }
+
+    if (startPage > 0) {
+      items.push(
+        <PaginationItem key={0}>
+          <PaginationLink onClick={() => setCurrentPage(0)} className="cursor-pointer">
+            1
+          </PaginationLink>
+        </PaginationItem>
+      );
+      if (startPage > 1) {
+        items.push(<PaginationEllipsis key="ellipsis1" />);
+      }
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      items.push(
+        <PaginationItem key={i}>
+          <PaginationLink 
+            onClick={() => setCurrentPage(i)}
+            isActive={currentPage === i}
+            className="cursor-pointer"
+          >
+            {i + 1}
+          </PaginationLink>
+        </PaginationItem>
+      );
+    }
+
+    if (endPage < totalPages - 1) {
+      if (endPage < totalPages - 2) {
+        items.push(<PaginationEllipsis key="ellipsis2" />);
+      }
+      items.push(
+        <PaginationItem key={totalPages - 1}>
+          <PaginationLink onClick={() => setCurrentPage(totalPages - 1)} className="cursor-pointer">
+            {totalPages}
+          </PaginationLink>
+        </PaginationItem>
+      );
+    }
+
+    // Next button
+    items.push(
+      <PaginationItem key="next">
+        <PaginationNext 
+          onClick={() => currentPage < totalPages - 1 && setCurrentPage(currentPage + 1)}
+          className={currentPage >= totalPages - 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+        />
+      </PaginationItem>
+    );
+
+    return items;
   };
 
   if (loading) {
@@ -112,6 +225,17 @@ export const PaymentsManagement = () => {
             <SelectItem value="parcela">Parcela</SelectItem>
             <SelectItem value="material">Material</SelectItem>
             <SelectItem value="alquiler">Alquiler</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={filterYear?.toString() || "todos"} onValueChange={(value) => setFilterYear(value === "todos" ? undefined : parseInt(value))}>
+          <SelectTrigger className="w-32">
+            <SelectValue placeholder="Año" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="todos">Todos</SelectItem>
+            {availableYears.map(year => (
+              <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>
@@ -216,9 +340,23 @@ export const PaymentsManagement = () => {
         )}
       </div>
 
+      {totalPages > 1 && (
+        <div className="flex justify-between items-center">
+          <p className="text-sm text-gray-600">
+            Mostrando {currentPage * pageSize + 1} - {Math.min((currentPage + 1) * pageSize, totalCount)} de {totalCount} pagos
+          </p>
+          <Pagination>
+            <PaginationContent>
+              {renderPaginationItems()}
+            </PaginationContent>
+          </Pagination>
+        </div>
+      )}
+
       <PaymentRegistrationDialog
         isOpen={isAddDialogOpen}
         onClose={() => setIsAddDialogOpen(false)}
+        onPaymentRegistered={handlePaymentRegistered}
       />
     </div>
   );
