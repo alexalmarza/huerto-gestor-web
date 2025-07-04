@@ -46,8 +46,7 @@ export const usePlots = () => {
       if (error) throw error;
       console.log('Plots fetched:', data); // Debug log
       
-      // Force a new array reference to trigger React re-render
-      setPlots([...(data || []) as Plot[]]);
+      setPlots((data || []) as Plot[]);
     } catch (error) {
       console.error('Error fetching plots:', error);
       toast.error('Error al cargar las parcelas');
@@ -97,9 +96,6 @@ export const usePlots = () => {
       if (error) throw error;
 
       console.log('Plot assigned successfully:', data); // Debug log
-      
-      // Force immediate UI update by fetching fresh data
-      await fetchPlots();
       
       toast.success('Parcela asignada exitosamente');
       return { data, error: null };
