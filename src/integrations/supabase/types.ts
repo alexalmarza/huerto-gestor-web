@@ -9,6 +9,66 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      incidents: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      member_incidents: {
+        Row: {
+          created_at: string
+          id: string
+          incident_id: string
+          member_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          incident_id: string
+          member_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          incident_id?: string
+          member_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "member_incidents_incident_id_fkey"
+            columns: ["incident_id"]
+            isOneToOne: false
+            referencedRelation: "incidents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "member_incidents_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       members: {
         Row: {
           address: string | null
@@ -56,6 +116,42 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      plot_incidents: {
+        Row: {
+          created_at: string
+          id: string
+          incident_id: string
+          plot_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          incident_id: string
+          plot_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          incident_id?: string
+          plot_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "plot_incidents_incident_id_fkey"
+            columns: ["incident_id"]
+            isOneToOne: false
+            referencedRelation: "incidents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "plot_incidents_plot_id_fkey"
+            columns: ["plot_id"]
+            isOneToOne: false
+            referencedRelation: "plots"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       plots: {
         Row: {

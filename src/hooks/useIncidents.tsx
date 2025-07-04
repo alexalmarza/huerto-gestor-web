@@ -38,9 +38,13 @@ export const useIncidents = () => {
   const fetchIncidents = async () => {
     try {
       setLoading(true);
-      // For now, we'll use a placeholder since the incidents table isn't in the types yet
-      console.log('Incidents feature will be available once database types are updated');
-      setIncidents([]);
+      const { data, error } = await supabase
+        .from('incidents')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setIncidents(data || []);
     } catch (error) {
       console.error('Error fetching incidents:', error);
       toast.error('Error al cargar las incidencias');
@@ -51,9 +55,20 @@ export const useIncidents = () => {
 
   const createIncident = async (incidentData: CreateIncidentData) => {
     try {
-      console.log('Creating incident:', incidentData);
-      toast.success('Funcionalidad de incidencias disponible próximamente');
-      return { data: { id: 'temp-id', ...incidentData, created_at: new Date().toISOString(), updated_at: new Date().toISOString(), description: incidentData.description || null }, error: null };
+      const { data, error } = await supabase
+        .from('incidents')
+        .insert([{
+          title: incidentData.title,
+          description: incidentData.description || null
+        }])
+        .select()
+        .single();
+
+      if (error) throw error;
+      
+      setIncidents(prev => [data, ...prev]);
+      toast.success('Incidencia creada exitosamente');
+      return { data, error: null };
     } catch (error) {
       console.error('Error creating incident:', error);
       toast.error('Error al crear la incidencia');
@@ -63,8 +78,16 @@ export const useIncidents = () => {
 
   const getMemberIncidents = async (memberId: string) => {
     try {
-      console.log('Getting member incidents for:', memberId);
-      return { data: [], error: null };
+      const { data, error } = await supabase
+        .from('member_incidents')
+        .select(`
+          *,
+          incident:incidents(*)
+        `)
+        .eq('member_id', memberId);
+
+      if (error) throw error;
+      return { data: data || [], error: null };
     } catch (error) {
       console.error('Error fetching member incidents:', error);
       return { data: [], error };
@@ -73,23 +96,62 @@ export const useIncidents = () => {
 
   const getPlotIncidents = async (plotId: string) => {
     try {
-      console.log('Getting plot incidents for:', plotId);
-      // Return placeholder data with the expected structure
-      return { data: [] as PlotIncident[], error: null };
+      const { data, error } = await supabase
+        .from('plot_incidents')
+        .select(`
+          *,
+          incident:incidents(*)
+        `)
+        .eq('plot_id', plotId);
+
+      if (error) throw error;
+      return { data: data || [], error: null };
     } catch (error) {
       console.error('Error fetching plot incidents:', error);
-      return { data: [] as PlotIncident[], error };
+      return { data: [], error };
     }
   };
 
   const addPlotIncident = async (plotId: string, incidentId: string) => {
     try {
-      console.log('Adding plot incident:', { plotId, incidentId });
-      toast.success('Funcionalidad de incidencias disponible próximamente');
-      return { data: null, error: null };
+      const { data, error } = await supabase
+        .from('plot_incidents')
+        .insert([{
+          plot_id: plotId,
+          incident_id: incidentId
+        }])
+        .select()
+        .single();
+
+      if (error) throw error;
+      
+      toast.success('Incidencia asociada a la parcela exitosamente');
+      return { data, error: null };
     } catch (error) {
       console.error('Error adding plot incident:', error);
       toast.error('Error al asociar la incidencia a la parcela');
+      return { data: null, error };
+    }
+  };
+
+  const addMemberIncident = async (memberId: string, incidentId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('member_incidents')
+        .insert([{
+          member_id: memberId,
+          incident_id: incidentId
+        }])
+        .select()
+        .single();
+
+      if (error) throw error;
+      
+      toast.success('Incidencia asociada al socio exitosamente');
+      return { data, error: null };
+    } catch (error) {
+      console.error('Error adding member incident:', error);
+      toast.error('Error al asociar la incidencia al socio');
       return { data: null, error };
     }
   };
@@ -105,6 +167,7 @@ export const useIncidents = () => {
     getMemberIncidents,
     getPlotIncidents,
     addPlotIncident,
+    addMemberIncident,
     refetch: fetchIncidents
   };
 };
