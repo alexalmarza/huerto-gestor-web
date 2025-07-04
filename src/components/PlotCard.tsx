@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MapPin, User, UserPlus, UserMinus, AlertTriangle } from "lucide-react";
-import { Plot } from "@/hooks/usePlots";
+import { Plot, usePlots } from "@/hooks/usePlots";
 import { useEntityRedFlags } from "@/hooks/useEntityRedFlags";
 import { PlotDetailsDialog } from "./PlotDetailsDialog";
 import { PlotAssignmentDialog } from "./PlotAssignmentDialog";
@@ -12,9 +12,10 @@ import { PlotUnassignDialog } from "./PlotUnassignDialog";
 
 interface PlotCardProps {
   plot: Plot;
+  onPlotUpdated?: () => void;
 }
 
-export const PlotCard = ({ plot }: PlotCardProps) => {
+export const PlotCard = ({ plot, onPlotUpdated }: PlotCardProps) => {
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
   const [isUnassignDialogOpen, setIsUnassignDialogOpen] = useState(false);
@@ -43,6 +44,16 @@ export const PlotCard = ({ plot }: PlotCardProps) => {
       return;
     }
     setIsDetailsOpen(true);
+  };
+
+  const handleAssignmentClose = () => {
+    setIsAssignDialogOpen(false);
+    onPlotUpdated?.();
+  };
+
+  const handleUnassignClose = () => {
+    setIsUnassignDialogOpen(false);
+    onPlotUpdated?.();
   };
 
   return (
@@ -116,19 +127,19 @@ export const PlotCard = ({ plot }: PlotCardProps) => {
         isOpen={isDetailsOpen}
         onClose={() => setIsDetailsOpen(false)}
         plot={plot}
-        onRedFlagChange={() => {}}
+        onRedFlagChange={() => onPlotUpdated?.()}
       />
 
       <PlotAssignmentDialog
         isOpen={isAssignDialogOpen}
-        onClose={() => setIsAssignDialogOpen(false)}
+        onClose={handleAssignmentClose}
         plotId={plot.id}
         plotNumber={plot.number}
       />
 
       <PlotUnassignDialog
         isOpen={isUnassignDialogOpen}
-        onClose={() => setIsUnassignDialogOpen(false)}
+        onClose={handleUnassignClose}
         plotId={plot.id}
         plotNumber={plot.number}
         assignedMemberName={plot.member?.name || ""}

@@ -2,9 +2,10 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, MapPin, CreditCard, FileText } from "lucide-react";
+import { Users, MapPin, CreditCard, FileText, UserX } from "lucide-react";
 import { PlotsManagement } from "@/components/PlotsManagement";
 import { MembersManagement } from "@/components/MembersManagement";
+import { InactiveMembersManagement } from "@/components/InactiveMembersManagement";
 import { PaymentsManagement } from "@/components/PaymentsManagement";
 import { ReportsManagement } from "@/components/ReportsManagement";
 import Header from "@/components/Header";
@@ -20,17 +21,19 @@ const Index = () => {
   const totalPlots = plots.length;
   const occupiedPlots = plots.filter(plot => plot.status === 'ocupada').length;
   const availablePlots = plots.filter(plot => plot.status === 'disponible').length;
-  const totalMembers = members.length;
+  const activeMembers = members.filter(member => member.is_active).length;
+  const inactiveMembers = members.filter(member => !member.is_active).length;
   const pendingPayments = members.filter(member => member.payment_status === 'pendiente').length;
 
   const stats = [
     { title: "Total Parcelas", value: totalPlots.toString(), icon: MapPin, color: "text-green-600" },
-    { title: "Socios Activos", value: totalMembers.toString(), icon: Users, color: "text-blue-600" },
+    { title: "Socios Activos", value: activeMembers.toString(), icon: Users, color: "text-blue-600" },
     { title: "Pagos Pendientes", value: pendingPayments.toString(), icon: CreditCard, color: "text-orange-600" },
     { title: "Reportes Generados", value: "0", icon: FileText, color: "text-purple-600" },
   ];
 
   const occupancyPercentage = totalPlots > 0 ? Math.round((occupiedPlots / totalPlots) * 100) : 0;
+  const totalMembers = activeMembers + inactiveMembers;
   const paymentPercentage = totalMembers > 0 ? Math.round(((totalMembers - pendingPayments) / totalMembers) * 100) : 0;
 
   return (
@@ -39,7 +42,7 @@ const Index = () => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5 bg-white shadow-sm">
+          <TabsList className="grid w-full grid-cols-6 bg-white shadow-sm">
             <TabsTrigger value="overview" className="flex items-center space-x-2">
               <span>Resumen</span>
             </TabsTrigger>
@@ -50,6 +53,10 @@ const Index = () => {
             <TabsTrigger value="members" className="flex items-center space-x-2">
               <Users className="h-4 w-4" />
               <span>Socios</span>
+            </TabsTrigger>
+            <TabsTrigger value="inactive-members" className="flex items-center space-x-2">
+              <UserX className="h-4 w-4" />
+              <span>Inactivos</span>
             </TabsTrigger>
             <TabsTrigger value="payments" className="flex items-center space-x-2">
               <CreditCard className="h-4 w-4" />
@@ -109,25 +116,26 @@ const Index = () => {
               <Card className="bg-white shadow-sm">
                 <CardHeader>
                   <CardTitle className="flex items-center space-x-2">
-                    <CreditCard className="h-5 w-5 text-blue-600" />
-                    <span>Pagos Anuales</span>
+                    <Users className="h-5 w-5 text-blue-600" />
+                    <span>Estado de Socios</span>
                   </CardTitle>
                   <CardDescription>
-                    Estado de pagos del año actual
+                    Distribución de socios activos e inactivos
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600">Pagados</span>
-                      <span className="font-semibold text-green-600">{totalMembers - pendingPayments} ({paymentPercentage}%)</span>
+                      <span className="text-sm text-gray-600">Activos</span>
+                      <span className="font-semibold text-green-600">{activeMembers}</span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600">Pendientes</span>
-                      <span className="font-semibold text-orange-600">{pendingPayments} ({100 - paymentPercentage}%)</span>
+                      <span className="text-sm text-gray-600">Inactivos</span>
+                      <span className="font-semibold text-red-600">{inactiveMembers}</span>
                     </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div className="bg-green-600 h-2 rounded-full" style={{ width: `${paymentPercentage}%` }}></div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">Pagos pendientes</span>
+                      <span className="font-semibold text-orange-600">{pendingPayments}</span>
                     </div>
                   </div>
                 </CardContent>
@@ -141,6 +149,10 @@ const Index = () => {
 
           <TabsContent value="members">
             <MembersManagement />
+          </TabsContent>
+
+          <TabsContent value="inactive-members">
+            <InactiveMembersManagement />
           </TabsContent>
 
           <TabsContent value="payments">

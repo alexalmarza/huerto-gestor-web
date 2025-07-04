@@ -10,7 +10,7 @@ import { PlotCard } from "./PlotCard";
 import { PlotCreationDialog } from "./PlotCreationDialog";
 
 export const PlotsManagement = () => {
-  const { plots, loading } = usePlots();
+  const { plots, loading, refetch } = usePlots();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [isCreationDialogOpen, setIsCreationDialogOpen] = useState(false);
@@ -32,6 +32,10 @@ export const PlotsManagement = () => {
     
     return matchesSearch && matchesStatus;
   });
+
+  const handlePlotUpdated = () => {
+    refetch();
+  };
 
   if (loading) {
     return (
@@ -133,7 +137,11 @@ export const PlotsManagement = () => {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredPlots.map((plot) => (
-                <PlotCard key={plot.id} plot={plot} />
+                <PlotCard 
+                  key={plot.id} 
+                  plot={plot} 
+                  onPlotUpdated={handlePlotUpdated}
+                />
               ))}
             </div>
           )}

@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { User, Phone, Mail, MapPin, Calendar, AlertTriangle, Edit, Home, UserX, UserCheck } from "lucide-react";
-import { Member } from "@/hooks/useMembers";
+import { Member, useMembers } from "@/hooks/useMembers";
 import { useEntityRedFlags } from "@/hooks/useEntityRedFlags";
 import { MemberEditDialog } from "./MemberEditDialog";
 import { MemberDeactivationDialog } from "./MemberDeactivationDialog";
@@ -20,6 +20,7 @@ export const MemberDetailsDialog = ({ isOpen, onClose, member, onMemberUpdated }
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeactivationDialogOpen, setIsDeactivationDialogOpen] = useState(false);
   const { hasActiveRedFlags } = useEntityRedFlags('member', member.id);
+  const { activateMember } = useMembers();
 
   const getPaymentStatusColor = (status: string) => {
     switch (status) {
@@ -41,6 +42,13 @@ export const MemberDetailsDialog = ({ isOpen, onClose, member, onMemberUpdated }
   const handleDeactivationClose = () => {
     setIsDeactivationDialogOpen(false);
     onMemberUpdated?.();
+  };
+
+  const handleReactivate = async () => {
+    const result = await activateMember(member.id);
+    if (result.error === null) {
+      handleMemberUpdated();
+    }
   };
 
   return (
@@ -87,10 +95,7 @@ export const MemberDetailsDialog = ({ isOpen, onClose, member, onMemberUpdated }
                   </Button>
                 ) : (
                   <Button 
-                    onClick={() => {
-                      // Activar socio directamente
-                      handleMemberUpdated();
-                    }} 
+                    onClick={handleReactivate} 
                     variant="default" 
                     size="sm"
                   >
