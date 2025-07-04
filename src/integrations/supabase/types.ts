@@ -117,6 +117,63 @@ export type Database = {
         }
         Relationships: []
       }
+      payments: {
+        Row: {
+          amount: number
+          concept: string | null
+          created_at: string
+          id: string
+          member_id: string
+          payment_date: string
+          payment_type: string
+          payment_year: number
+          plot_id: string | null
+          receipt_number: string | null
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          concept?: string | null
+          created_at?: string
+          id?: string
+          member_id: string
+          payment_date?: string
+          payment_type: string
+          payment_year?: number
+          plot_id?: string | null
+          receipt_number?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          concept?: string | null
+          created_at?: string
+          id?: string
+          member_id?: string
+          payment_date?: string
+          payment_type?: string
+          payment_year?: number
+          plot_id?: string | null
+          receipt_number?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payments_plot_id_fkey"
+            columns: ["plot_id"]
+            isOneToOne: false
+            referencedRelation: "plots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       plot_incidents: {
         Row: {
           created_at: string

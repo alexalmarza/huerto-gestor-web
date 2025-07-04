@@ -1,168 +1,103 @@
 
 import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { 
-  Dialog, 
-  DialogContent, 
-  DialogDescription, 
-  DialogHeader, 
-  DialogTitle, 
-  DialogTrigger 
-} from "@/components/ui/dialog";
-import { Plus, Search, Euro, Calendar, User, FileText, Download } from "lucide-react";
+  AlertDialog, 
+  AlertDialogAction, 
+  AlertDialogCancel, 
+  AlertDialogContent, 
+  AlertDialogDescription, 
+  AlertDialogFooter, 
+  AlertDialogHeader, 
+  AlertDialogTitle, 
+  AlertDialogTrigger 
+} from "@/components/ui/alert-dialog";
+import { Plus, Search, Euro, Calendar, User, FileText, Download, Trash2 } from "lucide-react";
+import { usePayments } from "@/hooks/usePayments";
+import { PaymentRegistrationDialog } from "@/components/PaymentRegistrationDialog";
 
 export const PaymentsManagement = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("todos");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  
+  const { payments, loading, deletePayment, generateReceiptPDF } = usePayments();
 
-  // Mock data - en producción esto vendría de Supabase
-  const payments = [
-    {
-      id: 1,
-      memberName: "Juan Pérez González",
-      memberDni: "12345678A",
-      plotNumber: "001",
-      year: 2024,
-      amount: 120,
-      dueDate: "2024-03-31",
-      paidDate: "2024-03-15",
-      status: "pagado",
-      receiptNumber: "REC-2024-001"
-    },
-    {
-      id: 2,
-      memberName: "María García López",
-      memberDni: "87654321B",
-      plotNumber: "003",
-      year: 2024,
-      amount: 120,
-      dueDate: "2024-03-31",
-      paidDate: null,
-      status: "pendiente",
-      receiptNumber: null
-    },
-    {
-      id: 3,
-      memberName: "Carlos Rodríguez",
-      memberDni: "11223344C",
-      plotNumber: "015",
-      year: 2024,
-      amount: 120,
-      dueDate: "2024-03-31",
-      paidDate: null,
-      status: "vencido",
-      receiptNumber: null
-    },
-    // Más pagos...
-  ];
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "pagado":
+  const getStatusColor = (paymentType: string) => {
+    switch (paymentType) {
+      case "parcela":
         return "bg-green-100 text-green-800";
-      case "pendiente":
-        return "bg-yellow-100 text-yellow-800";
-      case "vencido":
-        return "bg-red-100 text-red-800";
+      case "material":
+        return "bg-blue-100 text-blue-800";
+      case "alquiler":
+        return "bg-orange-100 text-orange-800";
       default:
         return "bg-gray-100 text-gray-800";
     }
   };
 
+  const getPaymentTypeLabel = (paymentType: string) => {
+    switch (paymentType) {
+      case "parcela":
+        return "Parcela";
+      case "material":
+        return "Material";
+      case "alquiler":
+        return "Alquiler";
+      default:
+        return paymentType;
+    }
+  };
+
   const filteredPayments = payments.filter(payment => {
     const matchesSearch = 
-      payment.memberName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      payment.memberDni.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      payment.plotNumber.includes(searchTerm);
+      payment.member?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      payment.member?.dni.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      payment.plot?.number.includes(searchTerm) ||
+      payment.concept?.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const matchesStatus = filterStatus === "todos" || payment.status === filterStatus;
+    const matchesStatus = filterStatus === "todos" || payment.payment_type === filterStatus;
     
     return matchesSearch && matchesStatus;
   });
 
-  const generateReceipt = (paymentId: number) => {
-    // En producción, esto generaría un PDF real
-    console.log(`Generando recibo para pago ${paymentId}`);
+  const handleDeletePayment = async (paymentId: string) => {
+    await deletePayment(paymentId);
   };
 
-  const generateExpulsionNotice = (paymentId: number) => {
-    // En producción, esto generaría un PDF de aviso de expulsión
-    console.log(`Generando aviso de expulsión para pago ${paymentId}`);
+  const handleGenerateReceipt = async (payment: any) => {
+    await generateReceiptPDF(payment);
   };
+
+  if (loading) {
+    return <div className="text-center py-8">Cargando pagos...</div>;
+  }
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">Gestión de Pagos</h2>
-          <p className="text-gray-600">Administra los pagos anuales de los socios</p>
+          <p className="text-gray-600">Administra los pagos de los socios</p>
         </div>
-        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="bg-green-600 hover:bg-green-700">
-              <Plus className="h-4 w-4 mr-2" />
-              Registrar Pago
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Registrar Nuevo Pago</DialogTitle>
-              <DialogDescription>
-                Registra un pago realizado por un socio
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="member">Socio</Label>
-                <Select>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Seleccionar socio" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="1">Juan Pérez González - Parcela #001</SelectItem>
-                    <SelectItem value="2">María García López - Parcela #003</SelectItem>
-                    <SelectItem value="3">Carlos Rodríguez - Parcela #015</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="amount">Importe (€)</Label>
-                  <Input id="amount" type="number" placeholder="120" />
-                </div>
-                <div>
-                  <Label htmlFor="year">Año</Label>
-                  <Input id="year" type="number" placeholder="2024" />
-                </div>
-              </div>
-              <div>
-                <Label htmlFor="paidDate">Fecha de Pago</Label>
-                <Input id="paidDate" type="date" />
-              </div>
-              <div className="flex justify-end space-x-2">
-                <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
-                  Cancelar
-                </Button>
-                <Button className="bg-green-600 hover:bg-green-700">
-                  Registrar Pago
-                </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
+        <Button 
+          onClick={() => setIsAddDialogOpen(true)}
+          className="bg-green-600 hover:bg-green-700"
+        >
+          <Plus className="h-4 w-4 mr-2" />
+          Registrar Pago
+        </Button>
       </div>
 
       <div className="flex items-center space-x-4">
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
           <Input
-            placeholder="Buscar por socio, DNI o parcela..."
+            placeholder="Buscar por socio, DNI, parcela o concepto..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-10"
@@ -170,94 +105,121 @@ export const PaymentsManagement = () => {
         </div>
         <Select value={filterStatus} onValueChange={setFilterStatus}>
           <SelectTrigger className="w-48">
-            <SelectValue placeholder="Filtrar por estado" />
+            <SelectValue placeholder="Filtrar por tipo" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="todos">Todos los estados</SelectItem>
-            <SelectItem value="pagado">Pagado</SelectItem>
-            <SelectItem value="pendiente">Pendiente</SelectItem>
-            <SelectItem value="vencido">Vencido</SelectItem>
+            <SelectItem value="todos">Todos los tipos</SelectItem>
+            <SelectItem value="parcela">Parcela</SelectItem>
+            <SelectItem value="material">Material</SelectItem>
+            <SelectItem value="alquiler">Alquiler</SelectItem>
           </SelectContent>
         </Select>
       </div>
 
       <div className="space-y-4">
-        {filteredPayments.map((payment) => (
-          <Card key={payment.id} className="bg-white shadow-sm hover:shadow-md transition-shadow">
-            <CardContent className="p-6">
-              <div className="flex justify-between items-start">
-                <div className="flex-1 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="font-semibold text-lg">{payment.memberName}</h3>
-                      <p className="text-sm text-gray-600">DNI: {payment.memberDni} • Parcela #{payment.plotNumber}</p>
+        {filteredPayments.length === 0 ? (
+          <div className="text-center py-8 text-gray-500">
+            No se encontraron pagos
+          </div>
+        ) : (
+          filteredPayments.map((payment) => (
+            <Card key={payment.id} className="bg-white shadow-sm hover:shadow-md transition-shadow">
+              <CardContent className="p-6">
+                <div className="flex justify-between items-start">
+                  <div className="flex-1 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="font-semibold text-lg">{payment.member?.name}</h3>
+                        <p className="text-sm text-gray-600">
+                          DNI: {payment.member?.dni}
+                          {payment.plot?.number && ` • Parcela #${payment.plot.number}`}
+                        </p>
+                      </div>
+                      <Badge className={getStatusColor(payment.payment_type)}>
+                        {getPaymentTypeLabel(payment.payment_type)}
+                      </Badge>
                     </div>
-                    <Badge className={getStatusColor(payment.status)}>
-                      {payment.status}
-                    </Badge>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                    <div className="flex items-center space-x-2">
-                      <Euro className="h-4 w-4 text-gray-400" />
-                      <span><strong>Importe:</strong> {payment.amount}€</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Calendar className="h-4 w-4 text-gray-400" />
-                      <span><strong>Año:</strong> {payment.year}</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Calendar className="h-4 w-4 text-gray-400" />
-                      <span><strong>Vencimiento:</strong> {payment.dueDate}</span>
-                    </div>
-                    {payment.paidDate && (
+                    
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                       <div className="flex items-center space-x-2">
-                        <Calendar className="h-4 w-4 text-green-600" />
-                        <span><strong>Pagado:</strong> {payment.paidDate}</span>
+                        <Euro className="h-4 w-4 text-gray-400" />
+                        <span><strong>Importe:</strong> {payment.amount}€</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Calendar className="h-4 w-4 text-gray-400" />
+                        <span><strong>Año:</strong> {payment.payment_year}</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Calendar className="h-4 w-4 text-gray-400" />
+                        <span><strong>Fecha:</strong> {new Date(payment.payment_date).toLocaleDateString()}</span>
+                      </div>
+                      {payment.receipt_number && (
+                        <div className="flex items-center space-x-2">
+                          <FileText className="h-4 w-4 text-gray-400" />
+                          <span><strong>Recibo:</strong> {payment.receipt_number}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {payment.concept && (
+                      <div className="text-sm">
+                        <strong>Concepto:</strong> {payment.concept}
                       </div>
                     )}
                   </div>
-                </div>
-                
-                <div className="flex flex-col space-y-2 ml-4">
-                  {payment.status === "pagado" && payment.receiptNumber && (
+                  
+                  <div className="flex flex-col space-y-2 ml-4">
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => generateReceipt(payment.id)}
+                      onClick={() => handleGenerateReceipt(payment)}
                       className="flex items-center space-x-1"
                     >
                       <Download className="h-4 w-4" />
                       <span>Recibo</span>
                     </Button>
-                  )}
-                  
-                  {payment.status === "vencido" && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => generateExpulsionNotice(payment.id)}
-                      className="flex items-center space-x-1 text-red-600 border-red-200 hover:bg-red-50"
-                    >
-                      <FileText className="h-4 w-4" />
-                      <span>Aviso</span>
-                    </Button>
-                  )}
-                  
-                  {payment.status === "pendiente" && (
-                    <Button
-                      size="sm"
-                      className="bg-green-600 hover:bg-green-700"
-                    >
-                      Marcar Pagado
-                    </Button>
-                  )}
+                    
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="flex items-center space-x-1 text-red-600 border-red-200 hover:bg-red-50"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                          <span>Eliminar</span>
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>¿Eliminar pago?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Esta acción no se puede deshacer. El pago será eliminado permanentemente.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                          <AlertDialogAction 
+                            onClick={() => handleDeletePayment(payment.id)}
+                            className="bg-red-600 hover:bg-red-700"
+                          >
+                            Eliminar
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+              </CardContent>
+            </Card>
+          ))
+        )}
       </div>
+
+      <PaymentRegistrationDialog
+        isOpen={isAddDialogOpen}
+        onClose={() => setIsAddDialogOpen(false)}
+      />
     </div>
   );
 };
