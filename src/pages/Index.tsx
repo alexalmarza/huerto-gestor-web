@@ -11,11 +11,13 @@ import { ReportsManagement } from "@/components/ReportsManagement";
 import Header from "@/components/Header";
 import { usePlots } from "@/hooks/usePlots";
 import { useMembers } from "@/hooks/useMembers";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("overview");
   const { plots } = usePlots();
   const { members } = useMembers();
+  const { t } = useTranslation();
 
   // Calculate statistics from real data
   const totalPlots = plots.length;
@@ -26,10 +28,10 @@ const Index = () => {
   const pendingPayments = members.filter(member => member.payment_status === 'pendiente').length;
 
   const stats = [
-    { title: "Total Parcelas", value: totalPlots.toString(), icon: MapPin, color: "text-green-600" },
-    { title: "Socios Activos", value: activeMembers.toString(), icon: Users, color: "text-blue-600" },
-    { title: "Pagos Pendientes", value: pendingPayments.toString(), icon: CreditCard, color: "text-orange-600" },
-    { title: "Reportes Generados", value: "0", icon: FileText, color: "text-purple-600" },
+    { title: t('totalPlots'), value: totalPlots.toString(), icon: MapPin, color: "text-green-600" },
+    { title: t('activeMembers'), value: activeMembers.toString(), icon: Users, color: "text-blue-600" },
+    { title: t('pendingPayments'), value: pendingPayments.toString(), icon: CreditCard, color: "text-orange-600" },
+    { title: t('generatedReports'), value: "0", icon: FileText, color: "text-purple-600" },
   ];
 
   const occupancyPercentage = totalPlots > 0 ? Math.round((occupiedPlots / totalPlots) * 100) : 0;
@@ -44,27 +46,27 @@ const Index = () => {
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="grid w-full grid-cols-6 bg-white shadow-sm">
             <TabsTrigger value="overview" className="flex items-center space-x-2">
-              <span>Resumen</span>
+              <span>{t('overview')}</span>
             </TabsTrigger>
             <TabsTrigger value="plots" className="flex items-center space-x-2">
               <MapPin className="h-4 w-4" />
-              <span>Parcelas</span>
+              <span>{t('plots')}</span>
             </TabsTrigger>
             <TabsTrigger value="members" className="flex items-center space-x-2">
               <Users className="h-4 w-4" />
-              <span>Socios</span>
+              <span>{t('members')}</span>
             </TabsTrigger>
             <TabsTrigger value="inactive-members" className="flex items-center space-x-2">
               <UserX className="h-4 w-4" />
-              <span>Inactivos</span>
+              <span>{t('inactiveMembers')}</span>
             </TabsTrigger>
             <TabsTrigger value="payments" className="flex items-center space-x-2">
               <CreditCard className="h-4 w-4" />
-              <span>Pagos</span>
+              <span>{t('payments')}</span>
             </TabsTrigger>
             <TabsTrigger value="reports" className="flex items-center space-x-2">
               <FileText className="h-4 w-4" />
-              <span>Reportes</span>
+              <span>{t('reports')}</span>
             </TabsTrigger>
           </TabsList>
 
@@ -90,20 +92,20 @@ const Index = () => {
                 <CardHeader>
                   <CardTitle className="flex items-center space-x-2">
                     <MapPin className="h-5 w-5 text-green-600" />
-                    <span>Estado de Parcelas</span>
+                    <span>{t('plotStatus')}</span>
                   </CardTitle>
                   <CardDescription>
-                    Distribución actual de las {totalPlots} parcelas
+                    {t('plotsDistribution', { total: totalPlots.toString() })}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600">Ocupadas</span>
+                      <span className="text-sm text-gray-600">{t('occupied')}</span>
                       <span className="font-semibold text-green-600">{occupiedPlots} ({occupancyPercentage}%)</span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600">Disponibles</span>
+                      <span className="text-sm text-gray-600">{t('available')}</span>
                       <span className="font-semibold text-blue-600">{availablePlots} ({100 - occupancyPercentage}%)</span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2">
@@ -117,24 +119,24 @@ const Index = () => {
                 <CardHeader>
                   <CardTitle className="flex items-center space-x-2">
                     <Users className="h-5 w-5 text-blue-600" />
-                    <span>Estado de Socios</span>
+                    <span>{t('memberStatus')}</span>
                   </CardTitle>
                   <CardDescription>
-                    Distribución de socios activos e inactivos
+                    {t('membersDistribution')}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600">Activos</span>
+                      <span className="text-sm text-gray-600">{t('active')}</span>
                       <span className="font-semibold text-green-600">{activeMembers}</span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600">Inactivos</span>
+                      <span className="text-sm text-gray-600">{t('inactive')}</span>
                       <span className="font-semibold text-red-600">{inactiveMembers}</span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600">Pagos pendientes</span>
+                      <span className="text-sm text-gray-600">{t('pendingPayments')}</span>
                       <span className="font-semibold text-orange-600">{pendingPayments}</span>
                     </div>
                   </div>

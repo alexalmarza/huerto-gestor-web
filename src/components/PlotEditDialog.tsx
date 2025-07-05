@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plot, usePlots } from "@/hooks/usePlots";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface PlotEditDialogProps {
   isOpen: boolean;
@@ -21,6 +22,7 @@ export const PlotEditDialog = ({ isOpen, onClose, plot, onPlotUpdated }: PlotEdi
   const [status, setStatus] = useState<"ocupada" | "disponible" | "mantenimiento">("disponible");
   const [price, setPrice] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
+  const { t } = useTranslation();
   
   const { updatePlot } = usePlots();
 
@@ -78,50 +80,50 @@ export const PlotEditDialog = ({ isOpen, onClose, plot, onPlotUpdated }: PlotEdi
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Editar Parcel·la #{plot.number}</DialogTitle>
+          <DialogTitle>{t('editPlotTitle')}{plot.number}</DialogTitle>
           <DialogDescription>
-            Modifica les dades de la parcel·la
+            {t('modifyPlotData')}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <Label htmlFor="number">Número de parcel·la</Label>
+            <Label htmlFor="number">{t('plotNumberLabel')}</Label>
             <Input
               id="number"
               value={number}
               onChange={(e) => setNumber(e.target.value)}
-              placeholder="Ex: 001"
+              placeholder={t('plotNumberPlaceholder')}
               disabled={isUpdating}
               required
             />
           </div>
           
           <div>
-            <Label htmlFor="size">Mida</Label>
+            <Label htmlFor="size">{t('size')}</Label>
             <Input
               id="size"
               value={size}
               onChange={(e) => setSize(e.target.value)}
-              placeholder="Ex: 25m²"
+              placeholder={t('sizePlaceholder')}
               disabled={isUpdating}
               required
             />
           </div>
           
           <div>
-            <Label htmlFor="location">Matriu</Label>
+            <Label htmlFor="location">{t('location')}</Label>
             <Input
               id="location"
               value={location}
               onChange={(e) => setLocation(e.target.value)}
-              placeholder="Ex: Matriu"
+              placeholder={t('locationPlaceholder')}
               disabled={isUpdating}
               required
             />
           </div>
 
           <div>
-            <Label htmlFor="price">Preu (€/any)</Label>
+            <Label htmlFor="price">{t('pricePerYear')}</Label>
             <Input
               id="price"
               type="number"
@@ -129,35 +131,35 @@ export const PlotEditDialog = ({ isOpen, onClose, plot, onPlotUpdated }: PlotEdi
               min="0"
               value={price}
               onChange={(e) => setPrice(e.target.value)}
-              placeholder="120.00"
+              placeholder={t('pricePlaceholder')}
               disabled={isUpdating}
             />
           </div>
           
           <div>
-            <Label htmlFor="status">Estat</Label>
+            <Label htmlFor="status">{t('status')}</Label>
             <Select value={status} onValueChange={(value: "ocupada" | "disponible" | "mantenimiento") => setStatus(value)} disabled={isUpdating}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="disponible">Disponible</SelectItem>
-                <SelectItem value="ocupada">Ocupada</SelectItem>
-                <SelectItem value="mantenimiento">Manteniment</SelectItem>
+                <SelectItem value="disponible">{t('statusAvailable')}</SelectItem>
+                <SelectItem value="ocupada">{t('statusOccupied')}</SelectItem>
+                <SelectItem value="mantenimiento">{t('statusMaintenance')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
           
           <div className="flex justify-end space-x-2 pt-4">
             <Button type="button" variant="outline" onClick={handleClose} disabled={isUpdating}>
-              Cancel·lar
+              {t('cancel')}
             </Button>
             <Button 
               type="submit" 
               disabled={isUpdating || !number.trim() || !size.trim() || !location.trim()}
               className="bg-green-600 hover:bg-green-700"
             >
-              {isUpdating ? "Actualitzant..." : "Actualitzar Parcel·la"}
+              {isUpdating ? t('updating') : t('updatePlotBtn')}
             </Button>
           </div>
         </form>

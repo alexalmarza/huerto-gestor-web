@@ -10,6 +10,8 @@ import { Sprout, Mail, Lock, User } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { toast } from 'sonner';
+import { useTranslation } from '@/hooks/useTranslation';
+import { LanguageSelector } from '@/components/LanguageSelector';
 
 const Auth = () => {
   const [email, setEmail] = useState('');
@@ -18,6 +20,7 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const { signIn, signUp, user } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   // Redirect if user is already logged in
   useEffect(() => {
@@ -67,24 +70,28 @@ const Auth = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
+        <div className="flex justify-end mb-4">
+          <LanguageSelector />
+        </div>
+        
         <div className="text-center mb-8">
           <Sprout className="h-12 w-12 text-green-600 mx-auto mb-4" />
-          <h1 className="text-3xl font-bold text-gray-900">Huerto Gestor</h1>
-          <p className="text-gray-600">Sistema de Gestión de Huertos Comunitarios</p>
+          <h1 className="text-3xl font-bold text-gray-900">{t('appTitle')}</h1>
+          <p className="text-gray-600">{t('appSubtitle')}</p>
         </div>
 
         <Card>
           <CardHeader className="text-center">
-            <CardTitle>Acceso al Sistema</CardTitle>
+            <CardTitle>{t('accessSystem')}</CardTitle>
             <CardDescription>
-              Inicia sesión o regístrate para acceder
+              {t('accessDescription')}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="signin" className="space-y-4">
               <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="signin">Iniciar Sesión</TabsTrigger>
-                <TabsTrigger value="signup">Registrarse</TabsTrigger>
+                <TabsTrigger value="signin">{t('signIn')}</TabsTrigger>
+                <TabsTrigger value="signup">{t('signUp')}</TabsTrigger>
               </TabsList>
 
               <TabsContent value="signin" className="space-y-4">
@@ -106,7 +113,7 @@ const Auth = () => {
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="signin-password">Contraseña</Label>
+                    <Label htmlFor="signin-password">{t('password')}</Label>
                     <div className="relative">
                       <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                       <Input
@@ -122,7 +129,7 @@ const Auth = () => {
                   </div>
 
                   <Button type="submit" className="w-full" disabled={loading}>
-                    {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
+                    {loading ? t('signingIn') : t('signIn')}
                   </Button>
                 </form>
               </TabsContent>
@@ -130,13 +137,13 @@ const Auth = () => {
               <TabsContent value="signup" className="space-y-4">
                 <form onSubmit={handleSignUp} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="signup-name">Nombre Completo</Label>
+                    <Label htmlFor="signup-name">{t('fullName')}</Label>
                     <div className="relative">
                       <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                       <Input
                         id="signup-name"
                         type="text"
-                        placeholder="Tu nombre completo"
+                        placeholder={t('fullNamePlaceholder')}
                         value={fullName}
                         onChange={(e) => setFullName(e.target.value)}
                         className="pl-10"
@@ -162,7 +169,7 @@ const Auth = () => {
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="signup-password">Contraseña</Label>
+                    <Label htmlFor="signup-password">{t('password')}</Label>
                     <div className="relative">
                       <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                       <Input
@@ -179,7 +186,7 @@ const Auth = () => {
                   </div>
 
                   <Button type="submit" className="w-full" disabled={loading}>
-                    {loading ? 'Registrando...' : 'Crear Cuenta'}
+                    {loading ? t('signingUp') : t('createAccount')}
                   </Button>
                 </form>
               </TabsContent>

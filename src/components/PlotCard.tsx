@@ -9,6 +9,7 @@ import { useEntityRedFlags } from "@/hooks/useEntityRedFlags";
 import { PlotDetailsDialog } from "./PlotDetailsDialog";
 import { PlotAssignmentDialog } from "./PlotAssignmentDialog";
 import { PlotUnassignDialog } from "./PlotUnassignDialog";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface PlotCardProps {
   plot: Plot;
@@ -22,6 +23,7 @@ export const PlotCard = ({ plot, onPlotUpdated }: PlotCardProps) => {
   const [isGeneratingContract, setIsGeneratingContract] = useState(false);
   const { hasActiveRedFlags } = useEntityRedFlags('plot', plot.id);
   const { generateRentalContractPDF } = usePlots();
+  const { t } = useTranslation();
 
   console.log('Plot data in card:', plot); // Debug log
 
@@ -41,11 +43,11 @@ export const PlotCard = ({ plot, onPlotUpdated }: PlotCardProps) => {
   const getStatusText = (status: string) => {
     switch (status) {
       case "ocupada":
-        return "ocupada";
+        return t('statusOccupied');
       case "disponible":
-        return "disponible";
+        return t('statusAvailable');
       case "mantenimiento":
-        return "manteniment";
+        return t('statusMaintenance');
       default:
         return status;
     }
@@ -92,7 +94,7 @@ export const PlotCard = ({ plot, onPlotUpdated }: PlotCardProps) => {
           <div className="flex items-center justify-between">
             <CardTitle className="text-lg flex items-center space-x-2">
               <MapPin className="h-5 w-5" />
-              <span>Parcel·la #{plot.number}</span>
+              <span>{t('plotNumber')}{plot.number}</span>
               {hasActiveRedFlags && (
                 <AlertTriangle className="h-4 w-4 text-red-600" />
               )}
@@ -105,17 +107,17 @@ export const PlotCard = ({ plot, onPlotUpdated }: PlotCardProps) => {
           {/* Mostrar información con etiquetas claras */}
           <div className="space-y-2 text-sm">
             <div>
-              <span className="font-medium text-gray-700">Mida:</span> {plot.size}m²
+              <span className="font-medium text-gray-700">{t('size')}:</span> {plot.size}m²
             </div>
             <div>
-              <span className="font-medium text-gray-700">Matriu:</span> {plot.location}
+              <span className="font-medium text-gray-700">{t('location')}:</span> {plot.location}
             </div>
           </div>
           
           {/* Mostrar el precio prominentemente */}
           <div className="flex items-center space-x-2 text-sm font-semibold text-green-600">
             <Euro className="h-4 w-4" />
-            <span>Preu: {plot.price ? `${plot.price}€/any` : 'No definit'}</span>
+            <span>{t('price')}: {plot.price ? `${plot.price}€/any` : 'No definit'}</span>
           </div>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -124,7 +126,7 @@ export const PlotCard = ({ plot, onPlotUpdated }: PlotCardProps) => {
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2 text-sm">
                   <User className="h-4 w-4 text-gray-400" />
-                  <span><strong>Assignada a:</strong> {plot.member.name}</span>
+                  <span><strong>{t('assignedTo')}:</strong> {plot.member.name}</span>
                 </div>
                 <Button
                   size="sm"
@@ -136,7 +138,7 @@ export const PlotCard = ({ plot, onPlotUpdated }: PlotCardProps) => {
                   className="text-orange-600 hover:text-orange-700 hover:bg-orange-50"
                 >
                   <UserMinus className="h-4 w-4 mr-1" />
-                  Desassignar
+                  {t('unassign')}
                 </Button>
               </div>
               
@@ -149,14 +151,14 @@ export const PlotCard = ({ plot, onPlotUpdated }: PlotCardProps) => {
                   className="bg-blue-600 hover:bg-blue-700 w-full"
                 >
                   <FileText className="h-4 w-4 mr-1" />
-                  {isGeneratingContract ? "Generant contracte..." : "Generar Contracte PDF"}
+                  {isGeneratingContract ? t('generatingContract') : t('generateContract')}
                 </Button>
               </div>
             </div>
           ) : (
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-500 italic">
-                Parcel·la disponible
+                {t('plotAvailable')}
               </span>
               <Button
                 size="sm"
@@ -167,14 +169,14 @@ export const PlotCard = ({ plot, onPlotUpdated }: PlotCardProps) => {
                 className="bg-green-600 hover:bg-green-700"
               >
                 <UserPlus className="h-4 w-4 mr-1" />
-                Assignar
+                {t('assign')}
               </Button>
             </div>
           )}
           
           {plot.assigned_date && (
             <div className="text-xs text-gray-500">
-              Assignada: {new Date(plot.assigned_date).toLocaleDateString()}
+              {t('assignedDate')}: {new Date(plot.assigned_date).toLocaleDateString()}
             </div>
           )}
         </CardContent>

@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { usePlots } from "@/hooks/usePlots";
 import { toast } from "sonner";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface PlotCreationDialogProps {
   isOpen: boolean;
@@ -19,12 +20,13 @@ export const PlotCreationDialog = ({ isOpen, onClose }: PlotCreationDialogProps)
   const [price, setPrice] = useState("120");
   const [isCreating, setIsCreating] = useState(false);
   const { createPlot } = usePlots();
+  const { t } = useTranslation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!number.trim() || !size.trim() || !location.trim()) {
-      toast.error("Tots els camps són obligatoris");
+      toast.error(t('allFieldsRequired'));
       return;
     }
 
@@ -45,7 +47,7 @@ export const PlotCreationDialog = ({ isOpen, onClose }: PlotCreationDialogProps)
       onClose();
     } catch (error) {
       console.error("Error creating plot:", error);
-      toast.error("Error al crear la parcela");
+      toast.error(t('errorCreatingPlot'));
     } finally {
       setIsCreating(false);
     }
@@ -66,58 +68,58 @@ export const PlotCreationDialog = ({ isOpen, onClose }: PlotCreationDialogProps)
       <DialogContent className="sm:max-w-[425px]">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>Nova Parcel·la</DialogTitle>
+            <DialogTitle>{t('newPlot')}</DialogTitle>
             <DialogDescription>
-              Crear una nova parcel·la a l'hort urbà
+              {t('createNewPlot')}
             </DialogDescription>
           </DialogHeader>
           
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="number" className="text-right">
-                Número
+                {t('plotNumberLabel')}
               </Label>
               <Input
                 id="number"
                 value={number}
                 onChange={(e) => setNumber(e.target.value)}
                 className="col-span-3"
-                placeholder="ex: 001"
+                placeholder={t('plotNumberPlaceholder')}
                 required
               />
             </div>
             
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="size" className="text-right">
-                Mida
+                {t('size')}
               </Label>
               <Input
                 id="size"
                 value={size}
                 onChange={(e) => setSize(e.target.value)}
                 className="col-span-3"
-                placeholder="ex: 25 m²"
+                placeholder={t('sizePlaceholder')}
                 required
               />
             </div>
             
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="location" className="text-right">
-                Matriu
+                {t('location')}
               </Label>
               <Input
                 id="location"
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
                 className="col-span-3"
-                placeholder="ex: Matriu"
+                placeholder={t('locationPlaceholder')}
                 required
               />
             </div>
 
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="price" className="text-right">
-                Preu (€/any)
+                {t('pricePerYear')}
               </Label>
               <Input
                 id="price"
@@ -127,17 +129,17 @@ export const PlotCreationDialog = ({ isOpen, onClose }: PlotCreationDialogProps)
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}
                 className="col-span-3"
-                placeholder="120.00"
+                placeholder={t('pricePlaceholder')}
               />
             </div>
           </div>
           
           <DialogFooter>
             <Button type="button" variant="outline" onClick={handleClose} disabled={isCreating}>
-              Cancel·lar
+              {t('cancel')}
             </Button>
             <Button type="submit" disabled={isCreating}>
-              {isCreating ? "Creant..." : "Crear Parcel·la"}
+              {isCreating ? t('creating') : t('createPlotBtn')}
             </Button>
           </DialogFooter>
         </form>
