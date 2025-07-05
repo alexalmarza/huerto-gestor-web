@@ -101,9 +101,16 @@ export const PlotCard = ({ plot, onPlotUpdated }: PlotCardProps) => {
               {getStatusText(plot.status)}
             </Badge>
           </div>
-          <CardDescription>
-            {plot.size} • {plot.location}
-          </CardDescription>
+          
+          {/* Mostrar información con etiquetas claras */}
+          <div className="space-y-2 text-sm">
+            <div>
+              <span className="font-medium text-gray-700">Mida:</span> {plot.size}m²
+            </div>
+            <div>
+              <span className="font-medium text-gray-700">Matriu:</span> {plot.location}
+            </div>
+          </div>
           
           {/* Mostrar el precio prominentemente */}
           <div className="flex items-center space-x-2 text-sm font-semibold text-green-600">
