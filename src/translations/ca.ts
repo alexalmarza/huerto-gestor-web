@@ -5,6 +5,7 @@ export const translations = {
   appSubtitle: "Sistema de Gestió d'Horts Comunitaris",
   welcome: "Benvingut",
   signOut: "Tancar Sessió",
+  signOutPopUp: "Fins aviat!",
 
   // Navigation
   overview: "Resum",

@@ -12,7 +12,7 @@ const Header = () => {
 
   const handleSignOut = async () => {
     await signOut();
-    toast.success('¡Hasta luego!');
+    toast.success(t('signOutPopUp'));
   };
 
   return (

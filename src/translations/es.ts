@@ -5,6 +5,7 @@ export const translations = {
   appSubtitle: "Sistema de Gestión de Huertos Comunitarios",
   welcome: "Bienvenido",
   signOut: "Cerrar Sesión",
+  signOutPopUp: "¡Hasta luego!",
 
   // Navigation
   overview: "Resumen",
