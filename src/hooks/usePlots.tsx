@@ -44,7 +44,8 @@ export const usePlots = () => {
           *,
           member:members!assigned_member_id(name, dni, address)
         `)
-        .order('number');
+        .eq('location', 'Matriu')
+        .order('number', { ascending: true });
 
       if (error) throw error;
       console.log('Plots fetched:', data); // Debug log
