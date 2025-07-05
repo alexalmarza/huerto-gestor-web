@@ -218,6 +218,7 @@ export type Database = {
           id: string
           location: string
           number: string
+          price: number | null
           size: string
           status: string
           updated_at: string
@@ -229,6 +230,7 @@ export type Database = {
           id?: string
           location: string
           number: string
+          price?: number | null
           size: string
           status?: string
           updated_at?: string
@@ -240,6 +242,7 @@ export type Database = {
           id?: string
           location?: string
           number?: string
+          price?: number | null
           size?: string
           status?: string
           updated_at?: string
