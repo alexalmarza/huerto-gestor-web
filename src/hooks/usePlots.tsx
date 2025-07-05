@@ -13,6 +13,7 @@ export interface Plot {
   assigned_date: string | null;
   created_at: string;
   updated_at: string;
+  price?: number | null;
   member?: {
     name: string;
     dni: string;
@@ -24,6 +25,7 @@ export interface CreatePlotData {
   number: string;
   size: string;
   location: string;
+  price?: number;
 }
 
 export interface AssignPlotData {
@@ -41,7 +43,7 @@ export const usePlots = () => {
         .from('plots')
         .select(`
           *,
-          member:members!assigned_member_id(name)
+          member:members!assigned_member_id(name, dni, address)
         `)
         .order('number');
 
@@ -91,7 +93,7 @@ export const usePlots = () => {
         .eq('id', plotId)
         .select(`
           *,
-          member:members!assigned_member_id(name)
+          member:members!assigned_member_id(name, dni, address)
         `)
         .single();
 
@@ -194,12 +196,12 @@ export const usePlots = () => {
         const year = today.getFullYear();
         const dateText = `Girona, ${today.getDate()} / ${today.toLocaleString('ca-ES', { month: 'long' })} / ${year}`;
 
-        const annualFee = 120;
+        const annualFee = plot.price || 120;
         const total = annualFee;
 
         // Encabezado
         doc.setFontSize(11);
-        doc.text('ASSOCIACIÓ D’USUARIS DE LES HORTES DE SANTA EUGÈNIA', 105, 15, { align: 'center' });
+        doc.text('ASSOCIACIÓ D\'USUARIS DE LES HORTES DE SANTA EUGÈNIA', 105, 15, { align: 'center' });
         doc.text('e-mail ........ masmarria2009@gmail.com', 105, 22, { align: 'center' });
         doc.text('Can Po Vell telèfon. 679750654 (tardes)', 105, 28, { align: 'center' });
         doc.text('NIF G55066021', 105, 34, { align: 'center' });
@@ -222,9 +224,9 @@ export const usePlots = () => {
           ``,
           `La concessió es renovarà anualment. Prorrogable sempre que es compleixi la`,
           `normativa i els estatuts de l'Associació. En cas d'incompliment l'adjudicatari/a`,
-          `perdrà els drets d’ús de la parcel·la i la seva condició de soci/a.`,
+          `perdrà els drets d'ús de la parcel·la i la seva condició de soci/a.`,
           ``,
-          `Al cessar com a soci/a, per renúncia o pèrdua dels drets, s’abonarà la fiança amb el`,
+          `Al cessar com a soci/a, per renúncia o pèrdua dels drets, s'abonarà la fiança amb el`,
           `retorn de la clau.`,
         ];
 
