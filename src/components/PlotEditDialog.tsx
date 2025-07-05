@@ -19,6 +19,7 @@ export const PlotEditDialog = ({ isOpen, onClose, plot, onPlotUpdated }: PlotEdi
   const [size, setSize] = useState("");
   const [location, setLocation] = useState("");
   const [status, setStatus] = useState<"ocupada" | "disponible" | "mantenimiento">("disponible");
+  const [price, setPrice] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
   
   const { updatePlot } = usePlots();
@@ -29,6 +30,7 @@ export const PlotEditDialog = ({ isOpen, onClose, plot, onPlotUpdated }: PlotEdi
       setSize(plot.size);
       setLocation(plot.location);
       setStatus(plot.status as "ocupada" | "disponible" | "mantenimiento");
+      setPrice(plot.price?.toString() || "120");
     }
   }, [plot, isOpen]);
 
@@ -46,7 +48,8 @@ export const PlotEditDialog = ({ isOpen, onClose, plot, onPlotUpdated }: PlotEdi
         number: number.trim(),
         size: size.trim(),
         location: location.trim(),
-        status
+        status,
+        price: price ? parseFloat(price) : 120
       });
       
       if (result.error === null) {
@@ -66,6 +69,7 @@ export const PlotEditDialog = ({ isOpen, onClose, plot, onPlotUpdated }: PlotEdi
       setSize(plot.size);
       setLocation(plot.location);
       setStatus(plot.status as "ocupada" | "disponible" | "mantenimiento");
+      setPrice(plot.price?.toString() || "120");
       onClose();
     }
   };
@@ -105,14 +109,28 @@ export const PlotEditDialog = ({ isOpen, onClose, plot, onPlotUpdated }: PlotEdi
           </div>
           
           <div>
-            <Label htmlFor="location">Ubicació</Label>
+            <Label htmlFor="location">Matriu</Label>
             <Input
               id="location"
               value={location}
               onChange={(e) => setLocation(e.target.value)}
-              placeholder="Ex: Sector A, Filera 1"
+              placeholder="Ex: Matriu"
               disabled={isUpdating}
               required
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="price">Preu (€/any)</Label>
+            <Input
+              id="price"
+              type="number"
+              step="0.01"
+              min="0"
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+              placeholder="120.00"
+              disabled={isUpdating}
             />
           </div>
           

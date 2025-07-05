@@ -4,7 +4,6 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { usePlots } from "@/hooks/usePlots";
 import { toast } from "sonner";
 
@@ -16,7 +15,7 @@ interface PlotCreationDialogProps {
 export const PlotCreationDialog = ({ isOpen, onClose }: PlotCreationDialogProps) => {
   const [number, setNumber] = useState("");
   const [size, setSize] = useState("");
-  const [location, setLocation] = useState("Matriu");
+  const [location, setLocation] = useState("");
   const [price, setPrice] = useState("120");
   const [isCreating, setIsCreating] = useState(false);
   const { createPlot } = usePlots();
@@ -41,7 +40,7 @@ export const PlotCreationDialog = ({ isOpen, onClose }: PlotCreationDialogProps)
       // Reset form
       setNumber("");
       setSize("");
-      setLocation("Matriu");
+      setLocation("");
       setPrice("120");
       onClose();
     } catch (error) {
@@ -56,7 +55,7 @@ export const PlotCreationDialog = ({ isOpen, onClose }: PlotCreationDialogProps)
     if (!isCreating) {
       setNumber("");
       setSize("");
-      setLocation("Matriu");
+      setLocation("");
       setPrice("120");
       onClose();
     }
@@ -104,19 +103,16 @@ export const PlotCreationDialog = ({ isOpen, onClose }: PlotCreationDialogProps)
             
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="location" className="text-right">
-                Ubicació
+                Matriu
               </Label>
-              <Select value={location} onValueChange={setLocation}>
-                <SelectTrigger className="col-span-3">
-                  <SelectValue placeholder="Selecciona ubicació" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Matriu">Matriu</SelectItem>
-                  <SelectItem value="Sector A">Sector A</SelectItem>
-                  <SelectItem value="Sector B">Sector B</SelectItem>
-                  <SelectItem value="Sector C">Sector C</SelectItem>
-                </SelectContent>
-              </Select>
+              <Input
+                id="location"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                className="col-span-3"
+                placeholder="ex: Matriu"
+                required
+              />
             </div>
 
             <div className="grid grid-cols-4 items-center gap-4">
