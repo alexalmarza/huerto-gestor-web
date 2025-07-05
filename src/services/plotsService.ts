@@ -4,17 +4,23 @@ import { toast } from 'sonner';
 import { Plot, CreatePlotData, AssignPlotData } from '@/hooks/usePlots';
 
 export const fetchPlots = async (): Promise<Plot[]> => {
+  console.log('Fetching plots...'); // Debug log
+  
   const { data, error } = await supabase
     .from('plots')
     .select(`
       *,
       member:members!assigned_member_id(name, dni, address)
     `)
-    .eq('location', 'Matriu')
     .order('number', { ascending: true });
 
-  if (error) throw error;
-  console.log('Plots fetched:', data); // Debug log
+  if (error) {
+    console.error('Error fetching plots:', error);
+    throw error;
+  }
+  
+  console.log('All plots fetched:', data); // Debug log to see all data
+  console.log('Number of plots:', data?.length || 0); // Debug log
   
   return (data || []) as Plot[];
 };

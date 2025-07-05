@@ -1,12 +1,12 @@
 
 import { useState } from "react";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { MapPin, Plus } from "lucide-react";
 import { usePlots } from "@/hooks/usePlots";
+import { toast } from "sonner";
 
 interface PlotCreationDialogProps {
   isOpen: boolean;
@@ -14,125 +14,137 @@ interface PlotCreationDialogProps {
 }
 
 export const PlotCreationDialog = ({ isOpen, onClose }: PlotCreationDialogProps) => {
+  const [number, setNumber] = useState("");
+  const [size, setSize] = useState("");
+  const [location, setLocation] = useState("Matriu");
+  const [price, setPrice] = useState("120");
+  const [isCreating, setIsCreating] = useState(false);
   const { createPlot } = usePlots();
-  const [number, setNumber] = useState('');
-  const [location, setLocation] = useState('');
-  const [size, setSize] = useState('');
-  const [status, setStatus] = useState('disponible');
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = async () => {
-    if (!number.trim() || !location.trim() || !size.trim()) {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!number.trim() || !size.trim() || !location.trim()) {
+      toast.error("Tots els camps són obligatoris");
       return;
     }
 
-    setIsSubmitting(true);
-    
+    setIsCreating(true);
     try {
-      const result = await createPlot({
+      await createPlot({
         number: number.trim(),
+        size: size.trim(),
         location: location.trim(),
-        size: size.trim()
+        price: price ? parseFloat(price) : 120
       });
-
-      if (result.error === null) {
-        // Reset form
-        setNumber('');
-        setLocation('');
-        setSize('');
-        setStatus('disponible');
-        onClose();
-      }
+      
+      // Reset form
+      setNumber("");
+      setSize("");
+      setLocation("Matriu");
+      setPrice("120");
+      onClose();
     } catch (error) {
-      console.error('Error creating plot:', error);
+      console.error("Error creating plot:", error);
+      toast.error("Error al crear la parcela");
     } finally {
-      setIsSubmitting(false);
+      setIsCreating(false);
     }
   };
 
   const handleClose = () => {
-    if (!isSubmitting) {
-      setNumber('');
-      setLocation('');
-      setSize('');
-      setStatus('disponible');
+    if (!isCreating) {
+      setNumber("");
+      setSize("");
+      setLocation("Matriu");
+      setPrice("120");
       onClose();
     }
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
-          <DialogTitle className="flex items-center space-x-2">
-            <MapPin className="h-5 w-5" />
-            <span>Nova Parcel·la</span>
-          </DialogTitle>
-          <DialogDescription>
-            Crear una nova parcel·la a l'hort
-          </DialogDescription>
-        </DialogHeader>
+      <DialogContent className="sm:max-w-[425px]">
+        <form onSubmit={handleSubmit}>
+          <DialogHeader>
+            <DialogTitle>Nova Parcel·la</DialogTitle>
+            <DialogDescription>
+              Crear una nova parcel·la a l'hort urbà
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="number" className="text-right">
+                Número
+              </Label>
+              <Input
+                id="number"
+                value={number}
+                onChange={(e) => setNumber(e.target.value)}
+                className="col-span-3"
+                placeholder="ex: 001"
+                required
+              />
+            </div>
+            
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="size" className="text-right">
+                Mida
+              </Label>
+              <Input
+                id="size"
+                value={size}
+                onChange={(e) => setSize(e.target.value)}
+                className="col-span-3"
+                placeholder="ex: 25 m²"
+                required
+              />
+            </div>
+            
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="location" className="text-right">
+                Ubicació
+              </Label>
+              <Select value={location} onValueChange={setLocation}>
+                <SelectTrigger className="col-span-3">
+                  <SelectValue placeholder="Selecciona ubicació" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Matriu">Matriu</SelectItem>
+                  <SelectItem value="Sector A">Sector A</SelectItem>
+                  <SelectItem value="Sector B">Sector B</SelectItem>
+                  <SelectItem value="Sector C">Sector C</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
-        <div className="space-y-4">
-          <div>
-            <Label htmlFor="number">Número de Parcel·la *</Label>
-            <Input
-              id="number"
-              placeholder="Ex: 001, A-12, etc."
-              value={number}
-              onChange={(e) => setNumber(e.target.value)}
-              disabled={isSubmitting}
-            />
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="price" className="text-right">
+                Preu (€/any)
+              </Label>
+              <Input
+                id="price"
+                type="number"
+                step="0.01"
+                min="0"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+                className="col-span-3"
+                placeholder="120.00"
+              />
+            </div>
           </div>
-
-          <div>
-            <Label htmlFor="location">Ubicació *</Label>
-            <Input
-              id="location"
-              placeholder="Ex: Sector A, Zona Nord, etc."
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              disabled={isSubmitting}
-            />
-          </div>
-
-          <div>
-            <Label htmlFor="size">Mida *</Label>
-            <Input
-              id="size"
-              placeholder="Ex: 25m², 50m², etc."
-              value={size}
-              onChange={(e) => setSize(e.target.value)}
-              disabled={isSubmitting}
-            />
-          </div>
-
-          <div>
-            <Label htmlFor="status">Estat Inicial</Label>
-            <Select value={status} onValueChange={setStatus} disabled={isSubmitting}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="disponible">Disponible</SelectItem>
-                <SelectItem value="mantenimiento">Manteniment</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="flex justify-end space-x-2">
-            <Button variant="outline" onClick={handleClose} disabled={isSubmitting}>
+          
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={handleClose} disabled={isCreating}>
               Cancel·lar
             </Button>
-            <Button 
-              onClick={handleSubmit} 
-              disabled={!number.trim() || !location.trim() || !size.trim() || isSubmitting}
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              {isSubmitting ? 'Creant...' : 'Crear Parcel·la'}
+            <Button type="submit" disabled={isCreating}>
+              {isCreating ? "Creant..." : "Crear Parcel·la"}
             </Button>
-          </div>
-        </div>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );

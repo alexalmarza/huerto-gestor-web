@@ -1,8 +1,9 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPin, User, UserPlus, UserMinus, AlertTriangle, FileText } from "lucide-react";
+import { MapPin, User, UserPlus, UserMinus, AlertTriangle, FileText, Euro } from "lucide-react";
 import { Plot, usePlots } from "@/hooks/usePlots";
 import { useEntityRedFlags } from "@/hooks/useEntityRedFlags";
 import { PlotDetailsDialog } from "./PlotDetailsDialog";
@@ -21,6 +22,8 @@ export const PlotCard = ({ plot, onPlotUpdated }: PlotCardProps) => {
   const [isGeneratingContract, setIsGeneratingContract] = useState(false);
   const { hasActiveRedFlags } = useEntityRedFlags('plot', plot.id);
   const { generateRentalContractPDF } = usePlots();
+
+  console.log('Plot data in card:', plot); // Debug log
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -101,6 +104,12 @@ export const PlotCard = ({ plot, onPlotUpdated }: PlotCardProps) => {
           <CardDescription>
             {plot.size} • {plot.location}
           </CardDescription>
+          
+          {/* Mostrar el precio prominentemente */}
+          <div className="flex items-center space-x-2 text-sm font-semibold text-green-600">
+            <Euro className="h-4 w-4" />
+            <span>Preu: {plot.price ? `${plot.price}€/any` : 'No definit'}</span>
+          </div>
         </CardHeader>
         <CardContent className="space-y-3">
           {plot.member?.name ? (

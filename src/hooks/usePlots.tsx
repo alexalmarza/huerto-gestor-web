@@ -26,6 +26,7 @@ export interface CreatePlotData {
   number: string;
   size: string;
   location: string;
+  price?: number;
 }
 
 export interface AssignPlotData {
@@ -40,6 +41,7 @@ export const usePlots = () => {
     try {
       setLoading(true);
       const plotsData = await plotsService.fetchPlots();
+      console.log('Plots data received in hook:', plotsData); // Debug log
       setPlots(plotsData);
     } catch (error) {
       console.error('Error fetching plots:', error);
