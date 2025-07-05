@@ -1,9 +1,8 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPin, User, UserPlus, UserMinus, AlertTriangle } from "lucide-react";
+import { MapPin, User, UserPlus, UserMinus, AlertTriangle, FileText } from "lucide-react";
 import { Plot, usePlots } from "@/hooks/usePlots";
 import { useEntityRedFlags } from "@/hooks/useEntityRedFlags";
 import { PlotDetailsDialog } from "./PlotDetailsDialog";
@@ -19,7 +18,9 @@ export const PlotCard = ({ plot, onPlotUpdated }: PlotCardProps) => {
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
   const [isUnassignDialogOpen, setIsUnassignDialogOpen] = useState(false);
+  const [isGeneratingContract, setIsGeneratingContract] = useState(false);
   const { hasActiveRedFlags } = useEntityRedFlags('plot', plot.id);
+  const { generateRentalContractPDF } = usePlots();
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -69,6 +70,18 @@ export const PlotCard = ({ plot, onPlotUpdated }: PlotCardProps) => {
     onPlotUpdated?.();
   };
 
+  const handleGenerateContract = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (isGeneratingContract) return;
+    
+    setIsGeneratingContract(true);
+    try {
+      await generateRentalContractPDF(plot);
+    } finally {
+      setIsGeneratingContract(false);
+    }
+  };
+
   return (
     <>
       <Card className={cardClassName} onClick={handleCardClick}>
@@ -91,23 +104,38 @@ export const PlotCard = ({ plot, onPlotUpdated }: PlotCardProps) => {
         </CardHeader>
         <CardContent className="space-y-3">
           {plot.member?.name ? (
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2 text-sm">
-                <User className="h-4 w-4 text-gray-400" />
-                <span><strong>Assignada a:</strong> {plot.member.name}</span>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2 text-sm">
+                  <User className="h-4 w-4 text-gray-400" />
+                  <span><strong>Assignada a:</strong> {plot.member.name}</span>
+                </div>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsUnassignDialogOpen(true);
+                  }}
+                  className="text-orange-600 hover:text-orange-700 hover:bg-orange-50"
+                >
+                  <UserMinus className="h-4 w-4 mr-1" />
+                  Desassignar
+                </Button>
               </div>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setIsUnassignDialogOpen(true);
-                }}
-                className="text-orange-600 hover:text-orange-700 hover:bg-orange-50"
-              >
-                <UserMinus className="h-4 w-4 mr-1" />
-                Desassignar
-              </Button>
+              
+              {/* Botón para generar contrato */}
+              <div className="flex justify-center">
+                <Button
+                  size="sm"
+                  onClick={handleGenerateContract}
+                  disabled={isGeneratingContract}
+                  className="bg-blue-600 hover:bg-blue-700 w-full"
+                >
+                  <FileText className="h-4 w-4 mr-1" />
+                  {isGeneratingContract ? "Generant contracte..." : "Generar Contracte PDF"}
+                </Button>
+              </div>
             </div>
           ) : (
             <div className="flex items-center justify-between">

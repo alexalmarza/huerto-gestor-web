@@ -1,7 +1,7 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import jsPDF from 'jspdf';
 
 export interface Plot {
   id: string;
@@ -180,6 +180,84 @@ export const usePlots = () => {
     }
   };
 
+  const generateRentalContractPDF = async (plot: Plot) => {
+    try {
+      if (!plot.member?.name || !plot.assigned_date) {
+        toast.error('No se puede generar el contrato: falta información de asignación');
+        return { data: null, error: 'Missing assignment information' };
+      }
+
+      const doc = new jsPDF();
+      const currentDate = new Date().toLocaleDateString('es-ES');
+      const assignedDate = new Date(plot.assigned_date).toLocaleDateString('es-ES');
+      
+      // Valores del contrato
+      const annualQuota = 120; // Cuota anual por defecto
+      const deposit = 25; // Fianza
+      const total = annualQuota + deposit;
+      
+      // Título del contrato
+      doc.setFontSize(18);
+      doc.text('CONTRATO DE ARRENDAMIENTO DE HUERTO', 105, 25, { align: 'center' });
+      
+      // Información de la parcela
+      doc.setFontSize(14);
+      doc.text('DATOS DE LA PARCELA', 20, 50);
+      doc.setFontSize(11);
+      doc.text(`Número de Parcela: ${plot.number}`, 20, 65);
+      doc.text(`Tamaño: ${plot.size}`, 20, 75);
+      doc.text(`Ubicación: ${plot.location}`, 20, 85);
+      doc.text(`Fecha de Asignación: ${assignedDate}`, 20, 95);
+      
+      // Información del arrendatario
+      doc.setFontSize(14);
+      doc.text('DATOS DEL ARRENDATARIO', 20, 115);
+      doc.setFontSize(11);
+      doc.text(`Nombre: ${plot.member.name}`, 20, 130);
+      
+      // Condiciones económicas
+      doc.setFontSize(14);
+      doc.text('CONDICIONES ECONÓMICAS', 20, 150);
+      doc.setFontSize(11);
+      doc.text(`Cuota Anual del Huerto: ${annualQuota}€`, 20, 165);
+      doc.text(`Fianza: ${deposit}€`, 20, 175);
+      doc.text(`TOTAL A PAGAR: ${total}€`, 20, 190);
+      
+      // Términos y condiciones
+      doc.setFontSize(12);
+      doc.text('TÉRMINOS Y CONDICIONES', 20, 210);
+      doc.setFontSize(10);
+      
+      const terms = [
+        '1. El presente contrato tiene una duración de un año natural.',
+        '2. La cuota anual debe abonarse al inicio del período de arrendamiento.',
+        '3. La fianza será devuelta al finalizar el contrato si no hay daños.',
+        '4. El arrendatario se compromete a mantener la parcela en buen estado.',
+        '5. Cualquier modificación debe ser acordada por escrito.',
+      ];
+      
+      terms.forEach((term, index) => {
+        doc.text(term, 20, 225 + (index * 8));
+      });
+      
+      // Firmas
+      doc.text('Firma del Arrendador: ________________________', 20, 275);
+      doc.text('Firma del Arrendatario: ________________________', 20, 285);
+      doc.text(`Fecha: ${currentDate}`, 20, 295);
+      
+      // Generar y descargar el PDF
+      const fileName = `contrato_parcela_${plot.number}_${plot.member.name.replace(/\s+/g, '_')}_${new Date().getFullYear()}.pdf`;
+      doc.save(fileName);
+      
+      toast.success('Contrato PDF generado y descargado exitosamente');
+      return { data: { fileName }, error: null };
+    } catch (error) {
+      console.error('Error generating rental contract:', error);
+      toast.error('Error al generar el contrato PDF');
+      return { data: null, error };
+    }
+  };
+
   useEffect(() => {
     fetchPlots();
   }, []);
@@ -192,6 +270,7 @@ export const usePlots = () => {
     unassignPlot,
     updatePlot,
     deletePlot,
+    generateRentalContractPDF,
     refetch: fetchPlots
   };
 };
