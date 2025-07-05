@@ -1,8 +1,8 @@
 
 export const translations = {
   // Header
-  appTitle: "Huerto Gestor",
-  appSubtitle: "Sistema de Gestión de Huertos Comunitarios",
+  appTitle: "Associació d’Usuaris de les Hortes de Santa Eugènia",
+  appSubtitle: "Sistema de Gestión de Huertos",
   welcome: "Bienvenido",
   signOut: "Cerrar Sesión",
   signOutPopUp: "¡Hasta luego!",
