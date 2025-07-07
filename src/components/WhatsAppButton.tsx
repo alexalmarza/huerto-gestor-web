@@ -7,16 +7,41 @@ interface WhatsAppButtonProps {
 
 export const WhatsAppButton = ({ phoneNumber }: WhatsAppButtonProps) => {
   const handleWhatsAppClick = (e: React.MouseEvent) => {
+    e.preventDefault();
     e.stopPropagation(); // Evitar que se abra el diálogo de detalles del miembro
     
-    // Limpiar el número de teléfono (quitar espacios, guiones, etc.)
-    const cleanPhone = phoneNumber.replace(/[\s\-\(\)]/g, '');
+    console.log('Original phone number:', phoneNumber);
+    
+    // Limpiar el número de teléfono (quitar espacios, guiones, paréntesis, etc.)
+    let cleanPhone = phoneNumber.replace(/[\s\-\(\)\.]/g, '');
+    
+    // Si el número no empieza con +, agregar +34 (España) por defecto
+    if (!cleanPhone.startsWith('+')) {
+      // Si no empieza con 34 ni con +, agregar +34
+      if (!cleanPhone.startsWith('34')) {
+        cleanPhone = '34' + cleanPhone;
+      }
+      cleanPhone = '+' + cleanPhone;
+    }
+    
+    console.log('Cleaned phone number:', cleanPhone);
     
     // Crear la URL de WhatsApp
-    const whatsappUrl = `https://wa.me/${cleanPhone}`;
+    const whatsappUrl = `https://wa.me/${cleanPhone.replace('+', '')}`;
+    console.log('WhatsApp URL:', whatsappUrl);
     
     // Abrir WhatsApp en una nueva ventana/pestaña
-    window.open(whatsappUrl, '_blank');
+    try {
+      window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+    } catch (error) {
+      console.error('Error opening WhatsApp:', error);
+      // Fallback: copiar número al portapapeles
+      navigator.clipboard.writeText(cleanPhone).then(() => {
+        alert(`Número copiado al portapapeles: ${cleanPhone}`);
+      }).catch(() => {
+        alert(`No se pudo abrir WhatsApp. Número: ${cleanPhone}`);
+      });
+    }
   };
 
   return (
@@ -25,7 +50,8 @@ export const WhatsAppButton = ({ phoneNumber }: WhatsAppButtonProps) => {
       size="sm"
       onClick={handleWhatsAppClick}
       className="h-6 w-6 p-0 text-green-600 hover:text-green-700 hover:bg-green-50"
-      title="Abrir WhatsApp"
+      title={`Abrir WhatsApp: ${phoneNumber}`}
+      type="button"
     >
       <svg
         className="h-4 w-4"
