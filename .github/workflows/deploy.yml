@@ -38,8 +38,10 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Copy .nojekyll
-        run: cp public/.nojekyll dist/
+      - name: Copy .nojekyll and .htaccess
+        run: |
+          cp public/.nojekyll dist/
+          cp public/.htaccess dist/
 
       - name: Setup Pages
         uses: actions/configure-pages@v4

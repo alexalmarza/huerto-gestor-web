@@ -1,0 +1,7 @@
+
+AddType application/javascript .js
+AddType application/javascript .mjs
+AddType text/javascript .js
+RewriteEngine On
+RewriteRule ^(.*)\.tsx$ $1.js [L]
+RewriteRule ^(.*)\.ts$ $1.js [L]
