@@ -29,19 +29,26 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Build
         run: npm run build
 
-      - name: Copy .nojekyll and .htaccess
+      - name: Copy static files
         run: |
-          cp public/.nojekyll dist/
-          cp public/.htaccess dist/
+          cp public/.nojekyll dist/ || true
+          cp public/.htaccess dist/ || true
+
+      - name: List dist contents for debugging
+        run: |
+          echo "Contents of dist directory:"
+          ls -la dist/
+          echo "Contents of dist/assets directory:"
+          ls -la dist/assets/ || echo "No assets directory found"
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
