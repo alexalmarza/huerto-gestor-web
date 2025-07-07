@@ -6,7 +6,7 @@ import { componentTagger } from "lovable-tagger";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
-  base: "/huerto-gestor-web/",
+  base: mode === 'production' ? "/huerto-gestor-web/" : "/",
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
