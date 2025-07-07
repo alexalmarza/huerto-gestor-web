@@ -6,6 +6,7 @@ import { User, Phone, Mail, MapPin, AlertTriangle, Home } from "lucide-react";
 import { Member } from "@/hooks/useMembers";
 import { useEntityRedFlags } from "@/hooks/useEntityRedFlags";
 import { MemberDetailsDialog } from "./MemberDetailsDialog";
+import { WhatsAppButton } from "./WhatsAppButton";
 
 interface MemberCardProps {
   member: Member;
@@ -78,9 +79,12 @@ export const MemberCard = ({ member, onMemberUpdated }: MemberCardProps) => {
             <span>{member.email}</span>
           </div>
           {member.phone && (
-            <div className="flex items-center space-x-2 text-sm text-gray-600">
-              <Phone className="h-4 w-4" />
-              <span>{member.phone}</span>
+            <div className="flex items-center justify-between text-sm text-gray-600">
+              <div className="flex items-center space-x-2">
+                <Phone className="h-4 w-4" />
+                <span>{member.phone}</span>
+              </div>
+              <WhatsAppButton phoneNumber={member.phone} />
             </div>
           )}
           {member.address && (
