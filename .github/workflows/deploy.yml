@@ -38,10 +38,19 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Copy static files
+      - name: Copy static files and fix paths
         run: |
           cp public/.nojekyll dist/ || true
           cp public/.htaccess dist/ || true
+          # Fix the main.tsx reference in index.html to point to the built JS file
+          if [ -f "dist/index.html" ]; then
+            # Find the actual main JS file in assets
+            MAIN_JS=$(find dist/assets -name "index-*.js" | head -1)
+            if [ -n "$MAIN_JS" ]; then
+              MAIN_JS_NAME=$(basename "$MAIN_JS")
+              sed -i "s|/src/main.tsx|/huerto-gestor-web/assets/$MAIN_JS_NAME|g" dist/index.html
+            fi
+          fi
 
       - name: List dist contents for debugging
         run: |
@@ -49,6 +58,8 @@ jobs:
           ls -la dist/
           echo "Contents of dist/assets directory:"
           ls -la dist/assets/ || echo "No assets directory found"
+          echo "Contents of index.html:"
+          cat dist/index.html
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
