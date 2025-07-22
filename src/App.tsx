@@ -19,7 +19,7 @@ const App = () => (
       <LanguageProvider>
         <Toaster />
         <Sonner />
-        <BrowserRouter basename="/huerto-gestor-web">
+        <BrowserRouter>
           <AuthProvider>
             <Routes>
               <Route path="/auth" element={<Auth />} />
