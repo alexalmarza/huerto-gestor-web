@@ -122,7 +122,10 @@ export const MemberCard = ({ member, onMemberUpdated }: MemberCardProps) => {
         isOpen={isDetailsOpen}
         onClose={() => setIsDetailsOpen(false)}
         member={member}
-        onMemberUpdated={onMemberUpdated}
+        onMemberUpdated={() => {
+          setIsDetailsOpen(false); // Asegurar que se cierre el diálogo
+          onMemberUpdated?.();
+        }}
       />
     </>
   );

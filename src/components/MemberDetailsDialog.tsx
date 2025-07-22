@@ -69,9 +69,18 @@ export const MemberDetailsDialog = ({ isOpen, onClose, member, onMemberUpdated }
   const handleDelete = async () => {
     const result = await deleteMember(member.id);
     if (result.error === null) {
+      // Cerrar todos los diálogos primero
       setIsDeleteDialogOpen(false);
+      setIsEditDialogOpen(false);
+      setIsDeactivationDialogOpen(false);
+      
+      // Cerrar el diálogo principal
       onClose();
-      handleMemberUpdated();
+      
+      // Actualizar la lista después de un pequeño delay
+      setTimeout(() => {
+        handleMemberUpdated();
+      }, 100);
     }
   };
 
