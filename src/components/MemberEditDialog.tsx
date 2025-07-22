@@ -22,6 +22,7 @@ export const MemberEditDialog = ({ isOpen, onClose, member, onMemberUpdated }: M
   const [dni, setDni] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  const [landlinePhone, setLandlinePhone] = useState('');
   const [address, setAddress] = useState('');
   const [postalCode, setPostalCode] = useState('');
   const [city, setCity] = useState('');
@@ -36,6 +37,7 @@ export const MemberEditDialog = ({ isOpen, onClose, member, onMemberUpdated }: M
       setDni(member.dni);
       setEmail(member.email);
       setPhone(member.phone || '');
+      setLandlinePhone(member.landline_phone || '');
       setAddress(member.address || '');
       setPostalCode(member.postal_code || '');
       setCity(member.city || '');
@@ -56,6 +58,7 @@ export const MemberEditDialog = ({ isOpen, onClose, member, onMemberUpdated }: M
       dni,
       email,
       phone: phone || null,
+      landline_phone: landlinePhone || null,
       address: address || null,
       postal_code: postalCode || null,
       city: city || null,
@@ -79,6 +82,7 @@ export const MemberEditDialog = ({ isOpen, onClose, member, onMemberUpdated }: M
       setDni(member.dni);
       setEmail(member.email);
       setPhone(member.phone || '');
+      setLandlinePhone(member.landline_phone || '');
       setAddress(member.address || '');
       setPostalCode(member.postal_code || '');
       setCity(member.city || '');
@@ -144,14 +148,25 @@ export const MemberEditDialog = ({ isOpen, onClose, member, onMemberUpdated }: M
             />
           </div>
 
-          <div>
-            <Label htmlFor="edit-phone">Telèfon</Label>
-            <Input
-              id="edit-phone"
-              placeholder="600123456"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-            />
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="edit-phone">Telèfon mòbil</Label>
+              <Input
+                id="edit-phone"
+                placeholder="600123456"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+              />
+            </div>
+            <div>
+              <Label htmlFor="edit-landline-phone">Telèfon fix</Label>
+              <Input
+                id="edit-landline-phone"
+                placeholder="971123456"
+                value={landlinePhone}
+                onChange={(e) => setLandlinePhone(e.target.value)}
+              />
+            </div>
           </div>
 
           <div>
