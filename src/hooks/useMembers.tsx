@@ -10,6 +10,7 @@ export interface Member {
   dni: string;
   email: string;
   phone: string | null;
+  landline_phone: string | null;
   address: string | null;
   postal_code: string | null;
   city: string | null;
@@ -34,6 +35,7 @@ export interface CreateMemberData {
   dni: string;
   email: string;
   phone?: string;
+  landline_phone?: string;
   address?: string;
   postal_code?: string;
   city?: string;

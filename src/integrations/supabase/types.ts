@@ -87,6 +87,7 @@ export type Database = {
           id: string
           is_active: boolean
           join_date: string
+          landline_phone: string | null
           last_name: string | null
           payment_status: string
           phone: string | null
@@ -105,6 +106,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           join_date?: string
+          landline_phone?: string | null
           last_name?: string | null
           payment_status?: string
           phone?: string | null
@@ -123,6 +125,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           join_date?: string
+          landline_phone?: string | null
           last_name?: string | null
           payment_status?: string
           phone?: string | null

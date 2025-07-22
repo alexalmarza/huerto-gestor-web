@@ -20,6 +20,7 @@ export const MemberCreationDialog = ({ isOpen, onClose }: MemberCreationDialogPr
   const [dni, setDni] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  const [landlinePhone, setLandlinePhone] = useState('');
   const [address, setAddress] = useState('');
   const [postalCode, setPostalCode] = useState('');
   const [city, setCity] = useState('');
@@ -137,15 +138,27 @@ export const MemberCreationDialog = ({ isOpen, onClose }: MemberCreationDialogPr
             />
           </div>
 
-          <div>
-            <Label htmlFor="phone">Telèfon</Label>
-            <Input
-              id="phone"
-              placeholder="600123456"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              disabled={isSubmitting}
-            />
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="phone">Telèfon mòbil</Label>
+              <Input
+                id="phone"
+                placeholder="600123456"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                disabled={isSubmitting}
+              />
+            </div>
+            <div>
+              <Label htmlFor="landline-phone">Telèfon fix</Label>
+              <Input
+                id="landline-phone"
+                placeholder="971123456"
+                value={landlinePhone}
+                onChange={(e) => setLandlinePhone(e.target.value)}
+                disabled={isSubmitting}
+              />
+            </div>
           </div>
 
           <div>
