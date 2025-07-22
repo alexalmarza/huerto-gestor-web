@@ -95,9 +95,21 @@ export const useMembers = () => {
       await fetchMembers(); // Refrescar la lista completa
       toast.success('Socio creado exitosamente');
       return { data, error: null };
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating member:', error);
-      toast.error('Error al crear el socio');
+      
+      // Handle specific database errors
+      if (error?.code === '23505') {
+        if (error.message.includes('members_email_key')) {
+          toast.error('Ya existe un socio con este email');
+        } else if (error.message.includes('members_dni_key')) {
+          toast.error('Ya existe un socio con este DNI');
+        } else {
+          toast.error('Ya existe un socio con estos datos');
+        }
+      } else {
+        toast.error('Error al crear el socio');
+      }
       return { data: null, error };
     }
   };
