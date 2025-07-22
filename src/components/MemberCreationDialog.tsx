@@ -20,6 +20,8 @@ export const MemberCreationDialog = ({ isOpen, onClose }: MemberCreationDialogPr
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [address, setAddress] = useState('');
+  const [postalCode, setPostalCode] = useState('');
+  const [city, setCity] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async () => {
@@ -35,7 +37,9 @@ export const MemberCreationDialog = ({ isOpen, onClose }: MemberCreationDialogPr
         dni: dni.trim(),
         email: email.trim(),
         phone: phone.trim() || undefined,
-        address: address.trim() || undefined
+        address: address.trim() || undefined,
+        postal_code: postalCode.trim() || undefined,
+        city: city.trim() || undefined
       });
 
       if (result.error === null) {
@@ -45,6 +49,8 @@ export const MemberCreationDialog = ({ isOpen, onClose }: MemberCreationDialogPr
         setEmail('');
         setPhone('');
         setAddress('');
+        setPostalCode('');
+        setCity('');
         onClose();
       }
     } catch (error) {
@@ -61,6 +67,8 @@ export const MemberCreationDialog = ({ isOpen, onClose }: MemberCreationDialogPr
       setEmail('');
       setPhone('');
       setAddress('');
+      setPostalCode('');
+      setCity('');
       onClose();
     }
   };
@@ -134,6 +142,31 @@ export const MemberCreationDialog = ({ isOpen, onClose }: MemberCreationDialogPr
               rows={2}
               disabled={isSubmitting}
             />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="postal-code">Codi Postal</Label>
+              <Input
+                id="postal-code"
+                placeholder="07142"
+                value={postalCode}
+                onChange={(e) => setPostalCode(e.target.value)}
+                maxLength={5}
+                pattern="[0-9]{5}"
+                disabled={isSubmitting}
+              />
+            </div>
+            <div>
+              <Label htmlFor="city">Ciutat</Label>
+              <Input
+                id="city"
+                placeholder="Santa Eugènia"
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+                disabled={isSubmitting}
+              />
+            </div>
           </div>
 
           <div className="flex justify-end space-x-2">

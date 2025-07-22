@@ -10,6 +10,8 @@ export interface Member {
   email: string;
   phone: string | null;
   address: string | null;
+  postal_code: string | null;
+  city: string | null;
   join_date: string;
   payment_status: 'al día' | 'pendiente' | 'vencido';
   is_active: boolean;
@@ -31,6 +33,8 @@ export interface CreateMemberData {
   email: string;
   phone?: string;
   address?: string;
+  postal_code?: string;
+  city?: string;
 }
 
 export interface DeactivateMemberData {

@@ -22,6 +22,8 @@ export const MemberEditDialog = ({ isOpen, onClose, member, onMemberUpdated }: M
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [address, setAddress] = useState('');
+  const [postalCode, setPostalCode] = useState('');
+  const [city, setCity] = useState('');
   const [paymentStatus, setPaymentStatus] = useState<'al día' | 'pendiente' | 'vencido'>('pendiente');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { updateMember } = useMembers();
@@ -33,6 +35,8 @@ export const MemberEditDialog = ({ isOpen, onClose, member, onMemberUpdated }: M
       setEmail(member.email);
       setPhone(member.phone || '');
       setAddress(member.address || '');
+      setPostalCode(member.postal_code || '');
+      setCity(member.city || '');
       setPaymentStatus(member.payment_status as 'al día' | 'pendiente' | 'vencido');
     }
   }, [member, isOpen]);
@@ -50,6 +54,8 @@ export const MemberEditDialog = ({ isOpen, onClose, member, onMemberUpdated }: M
       email,
       phone: phone || null,
       address: address || null,
+      postal_code: postalCode || null,
+      city: city || null,
       payment_status: paymentStatus
     });
 
@@ -70,6 +76,8 @@ export const MemberEditDialog = ({ isOpen, onClose, member, onMemberUpdated }: M
       setEmail(member.email);
       setPhone(member.phone || '');
       setAddress(member.address || '');
+      setPostalCode(member.postal_code || '');
+      setCity(member.city || '');
       setPaymentStatus(member.payment_status as 'al día' | 'pendiente' | 'vencido');
     }
   };
@@ -140,6 +148,29 @@ export const MemberEditDialog = ({ isOpen, onClose, member, onMemberUpdated }: M
               onChange={(e) => setAddress(e.target.value)}
               rows={2}
             />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="edit-postal-code">Codi Postal</Label>
+              <Input
+                id="edit-postal-code"
+                placeholder="07142"
+                value={postalCode}
+                onChange={(e) => setPostalCode(e.target.value)}
+                maxLength={5}
+                pattern="[0-9]{5}"
+              />
+            </div>
+            <div>
+              <Label htmlFor="edit-city">Ciutat</Label>
+              <Input
+                id="edit-city"
+                placeholder="Santa Eugènia"
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+              />
+            </div>
           </div>
 
           <div>

@@ -161,6 +161,17 @@ export const MemberDetailsDialog = ({ isOpen, onClose, member, onMemberUpdated }
                     </div>
                   </div>
                 )}
+                {(member.postal_code || member.city) && (
+                  <div>
+                    <label className="text-sm font-medium text-gray-500">Localització</label>
+                    <p className="text-base">
+                      {member.postal_code && member.city 
+                        ? `${member.postal_code} ${member.city}`
+                        : member.postal_code || member.city
+                      }
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
 
