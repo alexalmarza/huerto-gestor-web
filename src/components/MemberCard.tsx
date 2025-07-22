@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { User, Phone, Mail, MapPin, AlertTriangle, Home } from "lucide-react";
+import { User, Phone, Mail, MapPin, AlertTriangle, Home, Building2 } from "lucide-react";
 import { Member } from "@/hooks/useMembers";
 import { useEntityRedFlags } from "@/hooks/useEntityRedFlags";
 import { MemberDetailsDialog } from "./MemberDetailsDialog";
@@ -95,7 +95,7 @@ export const MemberCard = ({ member, onMemberUpdated }: MemberCardProps) => {
           )}
           {(member.postal_code || member.city) && (
             <div className="flex items-center space-x-2 text-sm text-gray-600">
-              <MapPin className="h-4 w-4" />
+              <Building2 className="h-4 w-4" />
               <span>
                 {member.postal_code && member.city 
                   ? `${member.postal_code} ${member.city}`
