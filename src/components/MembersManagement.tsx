@@ -30,7 +30,9 @@ export const MembersManagement = () => {
   const filteredMembers = activeMembers.filter(member => {
     const matchesSearch = member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          member.dni.includes(searchTerm) ||
-                         member.email.toLowerCase().includes(searchTerm.toLowerCase());
+                         member.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         (member.postal_code && member.postal_code.includes(searchTerm)) ||
+                         (member.city && member.city.toLowerCase().includes(searchTerm.toLowerCase()));
     
     // Remove status filter logic since we only show active members here
     const matchesPayment = paymentFilter === "all" || member.payment_status === paymentFilter;
@@ -118,7 +120,7 @@ export const MembersManagement = () => {
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
               <Input
-                placeholder="Cercar per nom, DNI o correu electrònic..."
+                placeholder="Cercar per nom, DNI, correu, codi postal o ciutat..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"

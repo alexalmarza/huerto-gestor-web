@@ -93,6 +93,17 @@ export const MemberCard = ({ member, onMemberUpdated }: MemberCardProps) => {
               <span>{member.address}</span>
             </div>
           )}
+          {(member.postal_code || member.city) && (
+            <div className="flex items-center space-x-2 text-sm text-gray-600">
+              <MapPin className="h-4 w-4" />
+              <span>
+                {member.postal_code && member.city 
+                  ? `${member.postal_code} ${member.city}`
+                  : member.postal_code || member.city
+                }
+              </span>
+            </div>
+          )}
           {member.assigned_plot && (
             <div className="flex items-center space-x-2 text-sm text-green-600 bg-green-50 p-2 rounded">
               <Home className="h-4 w-4" />
