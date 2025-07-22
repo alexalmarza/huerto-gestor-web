@@ -5,7 +5,7 @@ import { Plot } from '@/hooks/usePlots';
 
 export const generateRentalContractPDF = async (plot: Plot) => {
   try {
-    if (!plot.member?.name || !plot.assigned_date) {
+    if (!plot.member?.first_name || !plot.assigned_date) {
       toast.error('No es pot generar el contracte: manca informació');
       return { data: null, error: 'Falta informació d\'assignació' };
     }
@@ -30,7 +30,7 @@ export const generateRentalContractPDF = async (plot: Plot) => {
     doc.text(`Ref. ${plot.location} - ${plot.number}`, 14, 45);
 
     // Datos del usuario
-    doc.text(`${plot.member.name}`, 140, 45);
+    doc.text(`${plot.member.first_name} ${plot.member.last_name || ''}`, 140, 45);
     if (plot.member.address) {
       doc.text(`${plot.member.address}`, 140, 50);
     }
@@ -39,7 +39,7 @@ export const generateRentalContractPDF = async (plot: Plot) => {
     doc.setFontSize(11);
     const body = [
       `L'Associació d'Usuaris de les Hortes de Sta. Eugènia rep de part del/la titular`,
-      `${plot.member.name}, amb NIF/NIE ${plot.member.dni || 'N/A'}, la quantitat de ${total}€`,
+      `${plot.member.first_name} ${plot.member.last_name || ''}, amb NIF/NIE ${plot.member.dni || 'N/A'}, la quantitat de ${total}€`,
       `en concepte de lloguer per a l'any ${year} de la parcel·la núm. ${plot.number} de la`,
       `matriu ${plot.location} de ${plot.size} m².`,
       ``,
@@ -61,10 +61,10 @@ export const generateRentalContractPDF = async (plot: Plot) => {
     doc.text('El President', 14, y + 15);
     doc.text(dateText, 14, y + 35);
 
-    doc.save(`contracte-hort-${plot.member.name}-${year}.pdf`);
+    doc.save(`contracte-hort-${plot.member.first_name}-${plot.member.last_name || ''}-${year}.pdf`);
     
     toast.success('Contracte PDF generat i descarregat exitosament');
-    return { data: { fileName: `contracte-hort-${plot.member.name}-${year}.pdf` }, error: null };
+    return { data: { fileName: `contracte-hort-${plot.member.first_name}-${plot.member.last_name || ''}-${year}.pdf` }, error: null };
   } catch (error) {
     console.error('Error generating rental contract:', error);
     toast.error('Error al generar el contracte PDF');

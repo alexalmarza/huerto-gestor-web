@@ -33,7 +33,8 @@ export const PaymentsManagement = () => {
   const filteredPayments = useMemo(() => {
     return payments.filter(payment => {
       const matchesSearch = 
-        payment.member?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (payment.member?.first_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+         payment.member?.last_name?.toLowerCase().includes(searchTerm.toLowerCase())) ||
         payment.member?.dni.toLowerCase().includes(searchTerm.toLowerCase()) ||
         payment.plot?.number.includes(searchTerm) ||
         payment.concept?.toLowerCase().includes(searchTerm.toLowerCase());

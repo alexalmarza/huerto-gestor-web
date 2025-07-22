@@ -17,7 +17,8 @@ export interface Payment {
   created_at: string;
   updated_at: string;
   member?: {
-    name: string;
+    first_name: string;
+    last_name: string | null;
     dni: string;
   };
   plot?: {
@@ -48,7 +49,7 @@ export const usePayments = () => {
         .from('payments')
         .select(`
           *,
-          member:members(name, dni),
+          member:members(first_name, last_name, dni),
           plot:plots(number)
         `, { count: 'exact' })
         .order('created_at', { ascending: false });
@@ -82,7 +83,7 @@ export const usePayments = () => {
         .insert([paymentData])
         .select(`
           *,
-          member:members(name, dni),
+          member:members(first_name, last_name, dni),
           plot:plots(number)
         `)
         .single();
@@ -131,7 +132,7 @@ export const usePayments = () => {
       doc.setFontSize(14);
       doc.text('DATOS DEL SOCIO', 20, 100);
       doc.setFontSize(12);
-      doc.text(`Nombre: ${payment.member?.name || 'N/A'}`, 20, 115);
+      doc.text(`Nombre: ${payment.member?.first_name || ''} ${payment.member?.last_name || ''}`, 20, 115);
       doc.text(`DNI: ${payment.member?.dni || 'N/A'}`, 20, 125);
       
       doc.setFontSize(14);

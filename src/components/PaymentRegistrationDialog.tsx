@@ -99,7 +99,7 @@ export const PaymentRegistrationDialog = ({ isOpen, onClose, onPaymentRegistered
               <SelectContent>
                 {members.map((member) => (
                   <SelectItem key={member.id} value={member.id}>
-                    {member.name} - {member.dni}
+                    {member.first_name} {member.last_name || ''} - {member.dni}
                   </SelectItem>
                 ))}
               </SelectContent>

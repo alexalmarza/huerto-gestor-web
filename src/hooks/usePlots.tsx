@@ -15,7 +15,8 @@ export interface Plot {
   updated_at: string;
   price?: number | null;
   member?: {
-    name: string;
+    first_name: string;
+    last_name: string | null;
     dni: string;
     address: string;
   };
@@ -43,7 +44,7 @@ export const usePlots = () => {
         .from('plots')
         .select(`
           *,
-          member:members!assigned_member_id(name, dni, address)
+          member:members!assigned_member_id(first_name, last_name, dni, address)
         `)
         .order('number');
 
@@ -93,7 +94,7 @@ export const usePlots = () => {
         .eq('id', plotId)
         .select(`
           *,
-          member:members!assigned_member_id(name, dni, address)
+          member:members!assigned_member_id(first_name, last_name, dni, address)
         `)
         .single();
 
@@ -186,7 +187,7 @@ export const usePlots = () => {
 
   const generateRentalContractPDF = async (plot: Plot) => {
       try {
-        if (!plot.member?.name || !plot.assigned_date) {
+        if (!plot.member?.first_name || !plot.assigned_date) {
           toast.error('No es pot generar el contracte: manca informació');
           return { data: null, error: 'Falta informació d\'assignació' };
         }
@@ -210,7 +211,7 @@ export const usePlots = () => {
         doc.text(`Ref. ${plot.location} - ${plot.number}`, 14, 45);
 
         // Datos del usuario
-        doc.text(`${plot.member.name}`, 140, 45);
+        doc.text(`${plot.member.first_name} ${plot.member.last_name || ''}`, 140, 45);
         doc.text(`${plot.member.address}`, 140, 50);
       //  doc.text(`${plot.member.cp} - GIRONA`, 140, 55);
 
@@ -218,7 +219,7 @@ export const usePlots = () => {
         doc.setFontSize(11);
         const body = [
           `L'Associació d'Usuaris de les Hortes de Sta. Eugènia rep de part del/la titular`,
-          `${plot.member.name}, amb NIF/NIE ${plot.member.dni}, la quantitat de ${total}€`,
+          `${plot.member.first_name} ${plot.member.last_name || ''}, amb NIF/NIE ${plot.member.dni}, la quantitat de ${total}€`,
           `en concepte de lloguer per a l'any ${year} de la parcel·la núm. ${plot.number} de la`,
           `matriu ${plot.location} de ${plot.size} m².`,
           ``,
@@ -240,7 +241,7 @@ export const usePlots = () => {
     doc.text('El President', 14, y + 15);
     doc.text(dateText, 14, y + 35);
 
-    doc.save(`contracte-hort-${plot.member.name}-${year}.pdf`);
+    doc.save(`contracte-hort-${plot.member.first_name}-${plot.member.last_name || ''}-${year}.pdf`);
   } catch (error) {
     console.error(error);
     toast.error('Error generant el PDF');

@@ -166,11 +166,11 @@ export const PlotDetailsDialog = ({ isOpen, onClose, plot, onRedFlagChange }: Pl
               </div>
               
               <div className="space-y-2">
-                {plot.member?.name ? (
+                {plot.member?.first_name ? (
                   <>
                     <div className="flex items-center space-x-2 text-sm">
                       <User className="h-4 w-4 text-gray-400" />
-                      <span><strong>Assignada a:</strong> {plot.member.name}</span>
+                      <span><strong>Assignada a:</strong> {plot.member.first_name} {plot.member.last_name || ''}</span>
                     </div>
                     {plot.assigned_date && (
                       <div className="flex items-center space-x-2 text-sm">

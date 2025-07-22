@@ -57,7 +57,7 @@ export const MemberCard = ({ member, onMemberUpdated }: MemberCardProps) => {
           <div className="flex items-center justify-between">
             <CardTitle className="text-lg flex items-center space-x-2">
               <User className="h-5 w-5" />
-              <span>{member.name}</span>
+              <span>{member.first_name} {member.last_name || ''}</span>
               {hasActiveRedFlags && (
                 <AlertTriangle className="h-4 w-4 text-red-600" />
               )}

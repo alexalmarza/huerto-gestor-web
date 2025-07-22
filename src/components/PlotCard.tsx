@@ -121,12 +121,12 @@ export const PlotCard = ({ plot, onPlotUpdated }: PlotCardProps) => {
           </div>
         </CardHeader>
         <CardContent className="space-y-3">
-          {plot.member?.name ? (
+          {plot.member?.first_name ? (
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2 text-sm">
                   <User className="h-4 w-4 text-gray-400" />
-                  <span><strong>{t('assignedTo')}:</strong> {plot.member.name}</span>
+                  <span><strong>{t('assignedTo')}:</strong> {plot.member.first_name} {plot.member.last_name || ''}</span>
                 </div>
                 <Button
                   size="sm"
@@ -201,7 +201,7 @@ export const PlotCard = ({ plot, onPlotUpdated }: PlotCardProps) => {
         onClose={handleUnassignClose}
         plotId={plot.id}
         plotNumber={plot.number}
-        assignedMemberName={plot.member?.name || ""}
+        assignedMemberName={`${plot.member?.first_name || ''} ${plot.member?.last_name || ''}`}
       />
     </>
   );

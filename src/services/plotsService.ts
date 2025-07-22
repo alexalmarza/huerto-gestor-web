@@ -9,7 +9,7 @@ export const fetchPlots = async (): Promise<Plot[]> => {
     .from('plots')
     .select(`
       *,
-      member:members!assigned_member_id(name, dni, address)
+      member:members!assigned_member_id(first_name, last_name, dni, address)
     `)
     .order('number', { ascending: true });
 
@@ -50,7 +50,7 @@ export const assignPlot = async (plotId: string, assignData: AssignPlotData) => 
     .eq('id', plotId)
     .select(`
       *,
-      member:members!assigned_member_id(name)
+      member:members!assigned_member_id(first_name, last_name)
     `)
     .single();
 

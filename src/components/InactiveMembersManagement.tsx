@@ -22,7 +22,8 @@ export const InactiveMembersManagement = () => {
 
   // Filter inactive members based on search and payment filters
   const filteredMembers = inactiveMembers.filter(member => {
-    const matchesSearch = member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    const matchesSearch = member.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         (member.last_name && member.last_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
                          member.dni.includes(searchTerm) ||
                          member.email.toLowerCase().includes(searchTerm.toLowerCase());
     

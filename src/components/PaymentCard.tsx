@@ -56,7 +56,7 @@ export const PaymentCard = ({ payment, onDelete, onGenerateReceipt }: PaymentCar
           <div className="flex-1 space-y-3">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="font-semibold text-lg">{payment.member?.name}</h3>
+                <h3 className="font-semibold text-lg">{payment.member?.first_name} {payment.member?.last_name || ''}</h3>
                 <p className="text-sm text-gray-600">
                   DNI: {payment.member?.dni}
                   {payment.plot?.number && ` • Parcela #${payment.plot.number}`}

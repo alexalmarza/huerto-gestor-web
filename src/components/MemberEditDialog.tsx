@@ -17,7 +17,8 @@ interface MemberEditDialogProps {
 }
 
 export const MemberEditDialog = ({ isOpen, onClose, member, onMemberUpdated }: MemberEditDialogProps) => {
-  const [name, setName] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [dni, setDni] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -30,7 +31,8 @@ export const MemberEditDialog = ({ isOpen, onClose, member, onMemberUpdated }: M
 
   useEffect(() => {
     if (member && isOpen) {
-      setName(member.name);
+      setFirstName(member.first_name);
+      setLastName(member.last_name || '');
       setDni(member.dni);
       setEmail(member.email);
       setPhone(member.phone || '');
@@ -42,14 +44,15 @@ export const MemberEditDialog = ({ isOpen, onClose, member, onMemberUpdated }: M
   }, [member, isOpen]);
 
   const handleSubmit = async () => {
-    if (!member || !name || !dni || !email) {
+    if (!member || !firstName || !dni || !email) {
       return;
     }
 
     setIsSubmitting(true);
     
     const result = await updateMember(member.id, {
-      name,
+      first_name: firstName,
+      last_name: lastName || null,
       dni,
       email,
       phone: phone || null,
@@ -71,7 +74,8 @@ export const MemberEditDialog = ({ isOpen, onClose, member, onMemberUpdated }: M
     onClose();
     // Reset form when closing
     if (member) {
-      setName(member.name);
+      setFirstName(member.first_name);
+      setLastName(member.last_name || '');
       setDni(member.dni);
       setEmail(member.email);
       setPhone(member.phone || '');
@@ -93,19 +97,30 @@ export const MemberEditDialog = ({ isOpen, onClose, member, onMemberUpdated }: M
             <span>Editar Soci</span>
           </DialogTitle>
           <DialogDescription>
-            Modificar la informació del soci: {member.name}
+            Modificar la informació del soci: {member.first_name} {member.last_name || ''}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
-          <div>
-            <Label htmlFor="edit-name">Nom *</Label>
-            <Input
-              id="edit-name"
-              placeholder="Nom complet"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            />
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="edit-first-name">Nom *</Label>
+              <Input
+                id="edit-first-name"
+                placeholder="Nom"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+              />
+            </div>
+            <div>
+              <Label htmlFor="edit-last-name">Cognoms</Label>
+              <Input
+                id="edit-last-name"
+                placeholder="Cognoms"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+              />
+            </div>
           </div>
 
           <div>
@@ -193,7 +208,7 @@ export const MemberEditDialog = ({ isOpen, onClose, member, onMemberUpdated }: M
             </Button>
             <Button 
               onClick={handleSubmit} 
-              disabled={!name || !dni || !email || isSubmitting}
+              disabled={!firstName || !dni || !email || isSubmitting}
             >
               <Edit className="h-4 w-4 mr-2" />
               {isSubmitting ? 'Guardant...' : 'Guardar Canvis'}

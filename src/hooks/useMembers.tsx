@@ -5,7 +5,8 @@ import { toast } from 'sonner';
 
 export interface Member {
   id: string;
-  name: string;
+  first_name: string;
+  last_name: string | null;
   dni: string;
   email: string;
   phone: string | null;
@@ -28,7 +29,8 @@ export interface Member {
 }
 
 export interface CreateMemberData {
-  name: string;
+  first_name: string;
+  last_name?: string;
   dni: string;
   email: string;
   phone?: string;
@@ -59,7 +61,7 @@ export const useMembers = () => {
             location
           )
         `)
-        .order('name');
+        .order('first_name');
 
       if (error) throw error;
       

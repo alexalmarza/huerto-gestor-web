@@ -75,7 +75,7 @@ export const PlotAssignmentDialog = ({ isOpen, onClose, plotId, plotNumber }: Pl
               <SelectContent>
                 {availableMembers.map((member) => (
                   <SelectItem key={member.id} value={member.id}>
-                    {member.name} - {member.dni}
+                    {member.first_name} {member.last_name || ''} - {member.dni}
                   </SelectItem>
                 ))}
               </SelectContent>

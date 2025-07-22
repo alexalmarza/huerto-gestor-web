@@ -15,7 +15,8 @@ interface MemberCreationDialogProps {
 
 export const MemberCreationDialog = ({ isOpen, onClose }: MemberCreationDialogProps) => {
   const { createMember } = useMembers();
-  const [name, setName] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [dni, setDni] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -25,7 +26,7 @@ export const MemberCreationDialog = ({ isOpen, onClose }: MemberCreationDialogPr
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async () => {
-    if (!name.trim() || !dni.trim() || !email.trim()) {
+    if (!firstName.trim() || !dni.trim() || !email.trim()) {
       return;
     }
 
@@ -33,7 +34,8 @@ export const MemberCreationDialog = ({ isOpen, onClose }: MemberCreationDialogPr
     
     try {
       const result = await createMember({
-        name: name.trim(),
+        first_name: firstName.trim(),
+        last_name: lastName.trim() || undefined,
         dni: dni.trim(),
         email: email.trim(),
         phone: phone.trim() || undefined,
@@ -44,7 +46,8 @@ export const MemberCreationDialog = ({ isOpen, onClose }: MemberCreationDialogPr
 
       if (result.error === null) {
         // Reset form
-        setName('');
+        setFirstName('');
+        setLastName('');
         setDni('');
         setEmail('');
         setPhone('');
@@ -62,7 +65,8 @@ export const MemberCreationDialog = ({ isOpen, onClose }: MemberCreationDialogPr
 
   const handleClose = () => {
     if (!isSubmitting) {
-      setName('');
+      setFirstName('');
+      setLastName('');
       setDni('');
       setEmail('');
       setPhone('');
@@ -87,15 +91,27 @@ export const MemberCreationDialog = ({ isOpen, onClose }: MemberCreationDialogPr
         </DialogHeader>
 
         <div className="space-y-4">
-          <div>
-            <Label htmlFor="name">Nom *</Label>
-            <Input
-              id="name"
-              placeholder="Nom complet"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              disabled={isSubmitting}
-            />
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="first-name">Nom *</Label>
+              <Input
+                id="first-name"
+                placeholder="Nom"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                disabled={isSubmitting}
+              />
+            </div>
+            <div>
+              <Label htmlFor="last-name">Cognoms</Label>
+              <Input
+                id="last-name"
+                placeholder="Cognoms"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                disabled={isSubmitting}
+              />
+            </div>
           </div>
 
           <div>
@@ -175,7 +191,7 @@ export const MemberCreationDialog = ({ isOpen, onClose }: MemberCreationDialogPr
             </Button>
             <Button 
               onClick={handleSubmit} 
-              disabled={!name.trim() || !dni.trim() || !email.trim() || isSubmitting}
+              disabled={!firstName.trim() || !dni.trim() || !email.trim() || isSubmitting}
             >
               <Plus className="h-4 w-4 mr-2" />
               {isSubmitting ? 'Creant...' : 'Crear Soci'}

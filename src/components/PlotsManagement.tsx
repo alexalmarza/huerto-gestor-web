@@ -26,7 +26,8 @@ export const PlotsManagement = () => {
     const matchesSearch = plot.number.includes(searchTerm) ||
                          plot.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          plot.size.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         (plot.member?.name.toLowerCase().includes(searchTerm.toLowerCase()));
+                         (plot.member && (plot.member.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          (plot.member.last_name && plot.member.last_name.toLowerCase().includes(searchTerm.toLowerCase()))));
     
     const matchesStatus = statusFilter === "all" || plot.status === statusFilter;
     

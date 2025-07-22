@@ -83,10 +83,11 @@ export type Database = {
           deactivation_reason: string | null
           dni: string
           email: string
+          first_name: string
           id: string
           is_active: boolean
           join_date: string
-          name: string
+          last_name: string | null
           payment_status: string
           phone: string | null
           postal_code: string | null
@@ -100,10 +101,11 @@ export type Database = {
           deactivation_reason?: string | null
           dni: string
           email: string
+          first_name: string
           id?: string
           is_active?: boolean
           join_date?: string
-          name: string
+          last_name?: string | null
           payment_status?: string
           phone?: string | null
           postal_code?: string | null
@@ -117,10 +119,11 @@ export type Database = {
           deactivation_reason?: string | null
           dni?: string
           email?: string
+          first_name?: string
           id?: string
           is_active?: boolean
           join_date?: string
-          name?: string
+          last_name?: string | null
           payment_status?: string
           phone?: string | null
           postal_code?: string | null

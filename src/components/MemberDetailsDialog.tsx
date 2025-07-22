@@ -71,7 +71,7 @@ export const MemberDetailsDialog = ({ isOpen, onClose, member, onMemberUpdated }
           <DialogHeader>
             <DialogTitle className="flex items-center space-x-2">
               <User className="h-5 w-5" />
-              <span>{member.name}</span>
+              <span>{member.first_name} {member.last_name || ''}</span>
               {hasActiveRedFlags && (
                 <AlertTriangle className="h-4 w-4 text-red-600" />
               )}
@@ -224,7 +224,7 @@ export const MemberDetailsDialog = ({ isOpen, onClose, member, onMemberUpdated }
         isOpen={isDeactivationDialogOpen}
         onClose={handleDeactivationClose}
         memberId={member.id}
-        memberName={member.name}
+        memberName={`${member.first_name} ${member.last_name || ''}`}
       />
     </>
   );
