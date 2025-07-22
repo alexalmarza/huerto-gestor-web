@@ -5,17 +5,21 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, Plus, Users, UserCheck, UserX, AlertCircle } from "lucide-react";
+import { Search, Plus, Users, UserCheck, UserX, AlertCircle, Download, Upload, Trash2 } from "lucide-react";
 import { useMembers } from "@/hooks/useMembers";
 import { MemberCard } from "./MemberCard";
 import { MemberCreationDialog } from "./MemberCreationDialog";
+import { ExcelImportDialog } from "./ExcelImportDialog";
+import { generateMembersTemplate, MEMBERS_EXPECTED_COLUMNS } from "@/utils/excelTemplates";
+import { toast } from "sonner";
 
 export const MembersManagement = () => {
-  const { members, loading, refetch } = useMembers();
+  const { members, loading, refetch, createMember } = useMembers();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [paymentFilter, setPaymentFilter] = useState("all");
   const [isCreationDialogOpen, setIsCreationDialogOpen] = useState(false);
+  const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
 
   // Filter only ACTIVE members
   const activeMembers = members.filter(member => member.is_active);
@@ -48,6 +52,29 @@ export const MembersManagement = () => {
   const handleCreationDialogClose = () => {
     setIsCreationDialogOpen(false);
     refetch(); // Refresh the list when dialog closes
+  };
+
+  const handleImportMembers = async (data: any[]) => {
+    try {
+      for (const memberData of data) {
+        await createMember({
+          first_name: memberData.first_name || memberData.nom || '',
+          last_name: memberData.last_name || memberData.cognoms || '',
+          dni: memberData.dni || '',
+          email: memberData.email || memberData.correu || '',
+          phone: memberData.phone || memberData.telefon_mobil || '',
+          landline_phone: memberData.landline_phone || memberData.telefon_fix || '',
+          address: memberData.address || memberData.adreca || '',
+          postal_code: memberData.postal_code || memberData.codi_postal || '',
+          city: memberData.city || memberData.ciutat || ''
+        });
+      }
+      toast.success(`${data.length} socios importats correctament`);
+      refetch();
+    } catch (error) {
+      console.error('Error importing members:', error);
+      toast.error('Error en importar els socios');
+    }
   };
 
   if (loading) {
@@ -110,10 +137,28 @@ export const MembersManagement = () => {
                 Administra la informació dels socis actius de l'hort
               </CardDescription>
             </div>
-            <Button onClick={() => setIsCreationDialogOpen(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              Nou Soci
-            </Button>
+            <div className="flex space-x-2">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={generateMembersTemplate}
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Descarregar plantilla
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => setIsImportDialogOpen(true)}
+              >
+                <Upload className="h-4 w-4 mr-2" />
+                Importar Excel
+              </Button>
+              <Button onClick={() => setIsCreationDialogOpen(true)}>
+                <Plus className="h-4 w-4 mr-2" />
+                Nou Soci
+              </Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
@@ -164,6 +209,15 @@ export const MembersManagement = () => {
       <MemberCreationDialog
         isOpen={isCreationDialogOpen}
         onClose={handleCreationDialogClose}
+      />
+
+      <ExcelImportDialog
+        isOpen={isImportDialogOpen}
+        onClose={() => setIsImportDialogOpen(false)}
+        onImport={handleImportMembers}
+        title="Importar Socios"
+        description="Importa socios des d'un fitxer Excel. Els nous socios s'afegiran als existents."
+        expectedColumns={MEMBERS_EXPECTED_COLUMNS}
       />
     </div>
   );
