@@ -1,19 +1,22 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, Plus, MapPin, CheckCircle, Clock, Wrench } from "lucide-react";
+import { Search, Plus, MapPin, CheckCircle, Clock, Wrench, Download, Upload } from "lucide-react";
 import { usePlots } from "@/hooks/usePlots";
 import { PlotCard } from "./PlotCard";
 import { PlotCreationDialog } from "./PlotCreationDialog";
+import { ExcelImportDialog } from "./ExcelImportDialog";
+import { generatePlotsTemplate, PLOTS_EXPECTED_COLUMNS } from "@/utils/excelTemplates";
+import { toast } from "sonner";
 
 export const PlotsManagement = () => {
-  const { plots, loading, refetch } = usePlots();
+  const { plots, loading, createPlot, refetch } = usePlots();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [isCreationDialogOpen, setIsCreationDialogOpen] = useState(false);
+  const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
 
   // Calculate statistics
   const totalPlots = plots.length;
@@ -41,6 +44,24 @@ export const PlotsManagement = () => {
   const handleCreationDialogClose = () => {
     setIsCreationDialogOpen(false);
     refetch(); // Refresh the list when dialog closes
+  };
+
+  const handleImportPlots = async (data: any[]) => {
+    try {
+      for (const plotData of data) {
+        await createPlot({
+          number: plotData.number || plotData.numero || '',
+          size: plotData.size || plotData.mida || plotData.tamaño || '',
+          location: plotData.location || plotData.ubicacio || plotData.ubicacion || '',
+          price: plotData.price ? Number(plotData.price) : undefined
+        });
+      }
+      toast.success(`${data.length} parcel·les importades correctament`);
+      refetch();
+    } catch (error) {
+      console.error('Error importing plots:', error);
+      toast.error('Error en importar les parcel·les');
+    }
   };
 
   if (loading) {
@@ -103,10 +124,28 @@ export const PlotsManagement = () => {
                 Administra les parcel·les de l'hort urbà
               </CardDescription>
             </div>
-            <Button onClick={() => setIsCreationDialogOpen(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              Nova Parcel·la
-            </Button>
+            <div className="flex space-x-2">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={generatePlotsTemplate}
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Descarregar plantilla
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => setIsImportDialogOpen(true)}
+              >
+                <Upload className="h-4 w-4 mr-2" />
+                Importar Excel
+              </Button>
+              <Button onClick={() => setIsCreationDialogOpen(true)}>
+                <Plus className="h-4 w-4 mr-2" />
+                Nova Parcel·la
+              </Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
@@ -157,6 +196,15 @@ export const PlotsManagement = () => {
       <PlotCreationDialog
         isOpen={isCreationDialogOpen}
         onClose={handleCreationDialogClose}
+      />
+
+      <ExcelImportDialog
+        isOpen={isImportDialogOpen}
+        onClose={() => setIsImportDialogOpen(false)}
+        onImport={handleImportPlots}
+        title="Importar Parcel·les"
+        description="Importa parcel·les des d'un fitxer Excel. Les noves parcel·les s'afegiran a les existents."
+        expectedColumns={PLOTS_EXPECTED_COLUMNS}
       />
     </div>
   );
