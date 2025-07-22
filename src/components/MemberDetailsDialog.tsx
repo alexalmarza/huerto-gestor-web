@@ -3,7 +3,8 @@ import { useState } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { User, Phone, Mail, MapPin, Calendar, AlertTriangle, Edit, Home, UserX, UserCheck } from "lucide-react";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { User, Phone, Mail, MapPin, Calendar, AlertTriangle, Edit, Home, UserX, UserCheck, Trash2 } from "lucide-react";
 import { Member, useMembers } from "@/hooks/useMembers";
 import { useEntityRedFlags } from "@/hooks/useEntityRedFlags";
 import { MemberEditDialog } from "./MemberEditDialog";
@@ -19,8 +20,9 @@ interface MemberDetailsDialogProps {
 export const MemberDetailsDialog = ({ isOpen, onClose, member, onMemberUpdated }: MemberDetailsDialogProps) => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeactivationDialogOpen, setIsDeactivationDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const { hasActiveRedFlags } = useEntityRedFlags('member', member.id);
-  const { activateMember } = useMembers();
+  const { activateMember, deleteMember } = useMembers();
 
   const getPaymentStatusColor = (status: string) => {
     switch (status) {
@@ -60,6 +62,15 @@ export const MemberDetailsDialog = ({ isOpen, onClose, member, onMemberUpdated }
   const handleReactivate = async () => {
     const result = await activateMember(member.id);
     if (result.error === null) {
+      handleMemberUpdated();
+    }
+  };
+
+  const handleDelete = async () => {
+    const result = await deleteMember(member.id);
+    if (result.error === null) {
+      setIsDeleteDialogOpen(false);
+      onClose();
       handleMemberUpdated();
     }
   };
@@ -116,6 +127,14 @@ export const MemberDetailsDialog = ({ isOpen, onClose, member, onMemberUpdated }
                     Reactivar
                   </Button>
                 )}
+                <Button 
+                  onClick={() => setIsDeleteDialogOpen(true)} 
+                  variant="destructive" 
+                  size="sm"
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Eliminar
+                </Button>
               </div>
             </div>
 
@@ -226,6 +245,27 @@ export const MemberDetailsDialog = ({ isOpen, onClose, member, onMemberUpdated }
         memberId={member.id}
         memberName={`${member.first_name} ${member.last_name || ''}`}
       />
+
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Eliminar Socio</AlertDialogTitle>
+            <AlertDialogDescription>
+              ¿Estás seguro de que quieres eliminar definitivamente a <strong>{member.first_name} {member.last_name || ''}</strong>? 
+              Esta acción no se puede deshacer y eliminará todos los datos del socio de forma permanente.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleDelete}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Eliminar Definitivamente
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 };
