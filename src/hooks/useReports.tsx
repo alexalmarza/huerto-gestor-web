@@ -16,15 +16,15 @@ export const useReports = () => {
 
   const fetchAllData = async (): Promise<ReportData> => {
     const [membersRes, plotsRes, paymentsRes, redFlagsRes] = await Promise.all([
-      supabase.from('members').select('*').order('name'),
+      supabase.from('members').select('*').order('first_name'),
       supabase.from('plots').select(`
         *,
-        member:members!assigned_member_id(name, dni, email)
+        members!assigned_member_id(first_name, last_name, dni, email, phone)
       `).order('number'),
       supabase.from('payments').select(`
         *,
-        member:members(name, dni),
-        plot:plots(number)
+        members!member_id(first_name, last_name, dni, email),
+        plots!plot_id(number, size, location)
       `).order('created_at', { ascending: false }),
       supabase.from('red_flags').select('*').order('created_at', { ascending: false })
     ]);
@@ -47,22 +47,28 @@ export const useReports = () => {
 
       // Preparar datos para Excel
       const activeMembersData = activeMembers.map(member => ({
-        'Nombre': member.name,
+        'Nombre': `${member.first_name} ${member.last_name || ''}`.trim(),
         'DNI': member.dni,
         'Email': member.email,
         'Teléfono': member.phone || 'N/A',
+        'Teléfono Fijo': member.landline_phone || 'N/A',
         'Dirección': member.address || 'N/A',
+        'Código Postal': member.postal_code || 'N/A',
+        'Ciudad': member.city || 'N/A',
         'Fecha de Alta': new Date(member.join_date).toLocaleDateString('es-ES'),
         'Estado de Pago': member.payment_status,
         'Estado': 'Activo'
       }));
 
       const inactiveMembersData = inactiveMembers.map(member => ({
-        'Nombre': member.name,
+        'Nombre': `${member.first_name} ${member.last_name || ''}`.trim(),
         'DNI': member.dni,
         'Email': member.email,
         'Teléfono': member.phone || 'N/A',
+        'Teléfono Fijo': member.landline_phone || 'N/A',
         'Dirección': member.address || 'N/A',
+        'Código Postal': member.postal_code || 'N/A',
+        'Ciudad': member.city || 'N/A',
         'Fecha de Alta': new Date(member.join_date).toLocaleDateString('es-ES'),
         'Fecha de Baja': member.deactivation_date ? new Date(member.deactivation_date).toLocaleDateString('es-ES') : 'N/A',
         'Motivo de Baja': member.deactivation_reason || 'N/A',
@@ -116,8 +122,11 @@ export const useReports = () => {
         'Tamaño': plot.size,
         'Ubicación': plot.location,
         'Estado': plot.status,
-        'Socio Asignado': plot.member?.name || 'Sin asignar',
-        'DNI del Socio': plot.member?.dni || 'N/A',
+        'Precio': plot.price ? `${plot.price}€` : 'N/A',
+        'Socio Asignado': plot.members ? `${plot.members.first_name} ${plot.members.last_name || ''}`.trim() : 'Sin asignar',
+        'DNI del Socio': plot.members?.dni || 'N/A',
+        'Email del Socio': plot.members?.email || 'N/A',
+        'Teléfono del Socio': plot.members?.phone || 'N/A',
         'Fecha de Asignación': plot.assigned_date ? new Date(plot.assigned_date).toLocaleDateString('es-ES') : 'N/A'
       }));
 
@@ -168,12 +177,15 @@ export const useReports = () => {
 
       const paymentsData = filteredPayments.map(payment => ({
         'Número de Recibo': payment.receipt_number || 'N/A',
-        'Socio': payment.member?.name || 'N/A',
-        'DNI': payment.member?.dni || 'N/A',
+        'Socio': payment.members ? `${payment.members.first_name} ${payment.members.last_name || ''}`.trim() : 'N/A',
+        'DNI': payment.members?.dni || 'N/A',
+        'Email': payment.members?.email || 'N/A',
         'Tipo de Pago': payment.payment_type,
         'Concepto': payment.concept || 'N/A',
-        'Parcela': payment.plot?.number || 'N/A',
-        'Importe': payment.amount,
+        'Parcela': payment.plots?.number || 'N/A',
+        'Tamaño Parcela': payment.plots?.size || 'N/A',
+        'Ubicación Parcela': payment.plots?.location || 'N/A',
+        'Importe': `${payment.amount}€`,
         'Fecha de Pago': new Date(payment.payment_date).toLocaleDateString('es-ES'),
         'Año': payment.payment_year
       }));
@@ -280,10 +292,13 @@ export const useReports = () => {
       const pendingMembers = data.members.filter(m => m.is_active && m.payment_status === 'pendiente');
       
       const pendingData = pendingMembers.map(member => ({
-        'Nombre': member.name,
+        'Nombre': `${member.first_name} ${member.last_name || ''}`.trim(),
         'DNI': member.dni,
         'Email': member.email,
         'Teléfono': member.phone || 'N/A',
+        'Teléfono Fijo': member.landline_phone || 'N/A',
+        'Dirección': member.address || 'N/A',
+        'Ciudad': member.city || 'N/A',
         'Estado de Pago': member.payment_status,
         'Fecha de Alta': new Date(member.join_date).toLocaleDateString('es-ES'),
         'Días desde Alta': Math.floor((new Date().getTime() - new Date(member.join_date).getTime()) / (1000 * 60 * 60 * 24))
