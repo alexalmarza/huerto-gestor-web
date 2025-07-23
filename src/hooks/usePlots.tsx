@@ -229,20 +229,11 @@ const generateRentalContractPDF = async (plot: Plot) => {
     if (imageData) {
       console.log('Añadiendo imagen al PDF...');
       try {
-        // Intentar con JPG primero, luego JPEG
-        doc.addImage(imageData, 'JPG', marginLeft, y, 40, 20);
+        doc.addImage(imageData, 'JPEG', marginLeft, y, 40, 20);
         console.log('Imagen añadida exitosamente');
         y += 25;
       } catch (error) {
         console.error('Error añadiendo imagen:', error);
-        // Si falla JPG, intentar con JPEG
-        try {
-          doc.addImage(imageData, 'JPEG', marginLeft, y, 40, 20);
-          console.log('Imagen añadida como JPEG');
-          y += 25;
-        } catch (error2) {
-          console.error('Error añadiendo imagen como JPEG:', error2);
-        }
       }
     } else {
       // Si no hay logo, continuamos con el texto normalmente
