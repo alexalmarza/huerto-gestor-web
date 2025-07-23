@@ -227,8 +227,23 @@ const generateRentalContractPDF = async (plot: Plot) => {
 
     // 🖼️ Insertar logo (ancho máx 40, alto proporcional) - solo si se cargó correctamente
     if (imageData) {
-      doc.addImage(imageData, 'JPEG', marginLeft, y, 40, 20);
-      y += 25;
+      console.log('Añadiendo imagen al PDF...');
+      try {
+        // Intentar con JPG primero, luego JPEG
+        doc.addImage(imageData, 'JPG', marginLeft, y, 40, 20);
+        console.log('Imagen añadida exitosamente');
+        y += 25;
+      } catch (error) {
+        console.error('Error añadiendo imagen:', error);
+        // Si falla JPG, intentar con JPEG
+        try {
+          doc.addImage(imageData, 'JPEG', marginLeft, y, 40, 20);
+          console.log('Imagen añadida como JPEG');
+          y += 25;
+        } catch (error2) {
+          console.error('Error añadiendo imagen como JPEG:', error2);
+        }
+      }
     } else {
       // Si no hay logo, continuamos con el texto normalmente
       console.log('Generando PDF sin logo');
