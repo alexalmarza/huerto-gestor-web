@@ -199,30 +199,41 @@ const generateRentalContractPDF = async (plot: Plot) => {
     const annualFee = plot.price || 120;
     const total = annualFee;
 
-    // 🖼️ Cargar imagen del logo como base64
+    // 🖼️ Usar una imagen de prueba primero para verificar que jsPDF funciona
+    // Imagen de prueba en base64 (un pequeño cuadrado azul)
+    const testImageData = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==';
+    
+    // Intentar cargar el logo real
     const imageUrl = '/images/logoHortes1.jpg';
-    let imageData = null;
+    let imageData = testImageData; // Usar imagen de prueba por defecto
     
     try {
       const response = await fetch(imageUrl);
       if (response.ok) {
         const blob = await response.blob();
-        imageData = await new Promise<string>((resolve, reject) => {
+        
+        // Verificar el tipo de archivo
+        console.log('Tipo de archivo:', blob.type);
+        
+        // Convertir a base64
+        const realImageData = await new Promise<string>((resolve, reject) => {
           const reader = new FileReader();
           reader.onloadend = () => {
             const result = reader.result as string;
-            console.log('Base64 generado, tamaño:', result.length);
+            console.log('Base64 generado, tamaño:', result.length, 'primeros chars:', result.substring(0, 50));
             resolve(result);
           };
           reader.onerror = reject;
           reader.readAsDataURL(blob);
         });
-        console.log('Logo cargado correctamente para PDF');
+        
+        imageData = realImageData; // Usar la imagen real si se carga correctamente
+        console.log('Logo real cargado correctamente para PDF');
       } else {
-        console.error('Error cargando logo:', response.status);
+        console.error('Error cargando logo, usando imagen de prueba:', response.status);
       }
     } catch (error) {
-      console.error('Error fetching logo:', error);
+      console.error('Error fetching logo, usando imagen de prueba:', error);
     }
 
     // 📌 Márgenes y posiciones
@@ -234,8 +245,12 @@ const generateRentalContractPDF = async (plot: Plot) => {
     if (imageData) {
       console.log('Añadiendo imagen al PDF con dimensiones 50x30...');
       try {
+        // Detectar el formato de la imagen desde el data URL
+        const format = imageData.startsWith('data:image/png') ? 'PNG' : 'JPEG';
+        console.log('Formato detectado:', format);
+        
         // Hacer el logo más grande y añadir un borde para debug
-        doc.addImage(imageData, 'JPEG', marginLeft, y, 50, 30);
+        doc.addImage(imageData, format, marginLeft, y, 50, 30);
         
         // Añadir un rectángulo alrededor para verificar la posición (solo para debug)
         doc.setDrawColor(255, 0, 0); // Color rojo para debug
