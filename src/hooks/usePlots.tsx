@@ -201,22 +201,38 @@ const generateRentalContractPDF = async (plot: Plot) => {
 
     // 🖼️ Cargar imagen del logo como base64
     const imageUrl = '/images/logoHortes1.jpg'; // Relativo a public/
-    const imageData = await fetch(imageUrl)
-      .then(res => res.blob())
-      .then(blob => new Promise<string>((resolve) => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result as string);
-        reader.readAsDataURL(blob);
-      }));
+    let imageData = null;
+    
+    try {
+      const response = await fetch(imageUrl);
+      if (response.ok) {
+        const blob = await response.blob();
+        imageData = await new Promise<string>((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result as string);
+          reader.readAsDataURL(blob);
+        });
+        console.log('Logo cargado correctamente');
+      } else {
+        console.error('Error cargando logo:', response.status);
+      }
+    } catch (error) {
+      console.error('Error fetching logo:', error);
+    }
 
     // 📌 Márgenes y posiciones
     const marginLeft = 20;
     const rightColumnX = 140;
     let y = 15;
 
-    // 🖼️ Insertar logo (ancho máx 40, alto proporcional)
-    doc.addImage(imageData, 'JPEG', marginLeft, y, 40, 20);
-    y += 25;
+    // 🖼️ Insertar logo (ancho máx 40, alto proporcional) - solo si se cargó correctamente
+    if (imageData) {
+      doc.addImage(imageData, 'JPEG', marginLeft, y, 40, 20);
+      y += 25;
+    } else {
+      // Si no hay logo, continuamos con el texto normalmente
+      console.log('Generando PDF sin logo');
+    }
 
     // 🧾 Encabezado
     doc.setFontSize(11);
