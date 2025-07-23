@@ -185,6 +185,96 @@ export const usePlots = () => {
     }
   };
 
+const generateRentalContractPDF = async (plot: Plot) => {
+  try {
+    if (!plot.member?.first_name || !plot.assigned_date) {
+      toast.error('No es pot generar el contracte: manca informació');
+      return { data: null, error: 'Falta informació d\'assignació' };
+    }
+
+    const doc = new jsPDF();
+    const today = new Date();
+    const year = today.getFullYear();
+    const dateText = `Girona, ${today.getDate()} / ${today.toLocaleString('ca-ES', { month: 'long' })} / ${year}`;
+    const annualFee = plot.price || 120;
+    const total = annualFee;
+
+    // 🖼️ Cargar imagen del logo como base64
+    const imageUrl = '/images/logoHortes1.jpg'; // Relativo a public/
+    const imageData = await fetch(imageUrl)
+      .then(res => res.blob())
+      .then(blob => new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.readAsDataURL(blob);
+      }));
+
+    // 📌 Márgenes y posiciones
+    const marginLeft = 20;
+    const rightColumnX = 140;
+    let y = 15;
+
+    // 🖼️ Insertar logo (ancho máx 40, alto proporcional)
+    doc.addImage(imageData, 'JPEG', marginLeft, y, 40, 20);
+    y += 25;
+
+    // 🧾 Encabezado
+    doc.setFontSize(11);
+    doc.text('ASSOCIACIÓ D\'USUARIS DE LES HORTES DE SANTA EUGÈNIA', 105, y, { align: 'center' });
+    y += 7;
+    doc.text('e-mail ........ masmarria2009@gmail.com', 105, y, { align: 'center' });
+    y += 6;
+    doc.text('Can Po Vell telèfon. 679750654 (tardes)', 105, y, { align: 'center' });
+    y += 6;
+    doc.text('NIF G55066021', 105, y, { align: 'center' });
+    y += 10;
+
+    doc.setFontSize(10);
+    doc.text(`Ref. ${plot.location} - ${plot.number}`, marginLeft, y);
+    doc.text(`${plot.member.first_name} ${plot.member.last_name || ''}`, rightColumnX, y);
+    y += 5;
+    doc.text(`${plot.member.address}`, rightColumnX, y);
+    // doc.text(`${plot.member.cp} - GIRONA`, rightColumnX, y + 5); // si quieres el CP
+
+    y += 15;
+    doc.setFontSize(11);
+
+    // 📄 Cuerpo
+    const body = [
+      `L'Associació d'Usuaris de les Hortes de Sta. Eugènia rep de part del/la titular`,
+      `${plot.member.first_name} ${plot.member.last_name || ''}, amb NIF/NIE ${plot.member.dni}, la quantitat de ${total}€`,
+      `en concepte de lloguer per a l'any ${year} de la parcel·la núm. ${plot.number} de la`,
+      `matriu ${plot.location} de ${plot.size} m².`,
+      ``,
+      `La concessió es renovarà anualment. Prorrogable sempre que es compleixi la`,
+      `normativa i els estatuts de l'Associació. En cas d'incompliment l'adjudicatari/a`,
+      `perdrà els drets d'ús de la parcel·la i la seva condició de soci/a.`,
+      ``,
+      `Al cessar com a soci/a, per renúncia o pèrdua dels drets, s'abonarà la fiança amb el`,
+      `retorn de la clau.`,
+    ];
+
+    body.forEach(line => {
+      doc.text(line, marginLeft, y);
+      y += 7;
+    });
+
+    // ✍️ Firma
+    y += 20;
+    doc.text('El President', marginLeft, y);
+    doc.text(dateText, marginLeft, y + 20);
+
+    // 💾 Guardar
+    doc.save(`contracte-hort-${plot.member.first_name}-${plot.member.last_name || ''}-${year}.pdf`);
+  } catch (error) {
+    console.error(error);
+    toast.error('Error generant el PDF');
+    return { data: null, error };
+  }
+};
+
+
+/*
   const generateRentalContractPDF = async (plot: Plot) => {
       try {
         if (!plot.member?.first_name || !plot.assigned_date) {
@@ -247,7 +337,7 @@ export const usePlots = () => {
     toast.error('Error generant el PDF');
     return { data: null, error };
   }
-};
+};*/
 
   useEffect(() => {
     fetchPlots();
