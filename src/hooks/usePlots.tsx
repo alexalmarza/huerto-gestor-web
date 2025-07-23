@@ -200,19 +200,24 @@ const generateRentalContractPDF = async (plot: Plot) => {
     const total = annualFee;
 
     // 🖼️ Cargar imagen del logo como base64
-    const imageUrl = '/images/logoHortes1.jpg'; // Relativo a public/
+    const imageUrl = '/images/logoHortes1.jpg';
     let imageData = null;
     
     try {
       const response = await fetch(imageUrl);
       if (response.ok) {
         const blob = await response.blob();
-        imageData = await new Promise<string>((resolve) => {
+        imageData = await new Promise<string>((resolve, reject) => {
           const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result as string);
+          reader.onloadend = () => {
+            const result = reader.result as string;
+            console.log('Base64 generado, tamaño:', result.length);
+            resolve(result);
+          };
+          reader.onerror = reject;
           reader.readAsDataURL(blob);
         });
-        console.log('Logo cargado correctamente');
+        console.log('Logo cargado correctamente para PDF');
       } else {
         console.error('Error cargando logo:', response.status);
       }
@@ -225,19 +230,26 @@ const generateRentalContractPDF = async (plot: Plot) => {
     const rightColumnX = 140;
     let y = 15;
 
-    // 🖼️ Insertar logo (ancho máx 40, alto proporcional) - solo si se cargó correctamente
+    // 🖼️ Insertar logo (más grande y visible) - solo si se cargó correctamente
     if (imageData) {
-      console.log('Añadiendo imagen al PDF...');
+      console.log('Añadiendo imagen al PDF con dimensiones 50x30...');
       try {
-        doc.addImage(imageData, 'JPEG', marginLeft, y, 40, 20);
-        console.log('Imagen añadida exitosamente');
-        y += 25;
+        // Hacer el logo más grande y añadir un borde para debug
+        doc.addImage(imageData, 'JPEG', marginLeft, y, 50, 30);
+        
+        // Añadir un rectángulo alrededor para verificar la posición (solo para debug)
+        doc.setDrawColor(255, 0, 0); // Color rojo para debug
+        doc.rect(marginLeft, y, 50, 30);
+        
+        console.log('Imagen añadida exitosamente con marco rojo');
+        y += 35; // Más espacio después del logo
       } catch (error) {
         console.error('Error añadiendo imagen:', error);
+        // Si hay error, continuar sin logo
       }
     } else {
       // Si no hay logo, continuamos con el texto normalmente
-      console.log('Generando PDF sin logo');
+      console.log('Generando PDF sin logo - imageData es null');
     }
 
     // 🧾 Encabezado
