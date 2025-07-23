@@ -199,56 +199,27 @@ const generateRentalContractPDF = async (plot: Plot) => {
     const annualFee = plot.price || 120;
     const total = annualFee;
 
-    // 🖼️ Logo que SÍ FUNCIONA - creamos una imagen simple como logo
-    const canvas = document.createElement('canvas');
-    canvas.width = 200;
-    canvas.height = 80;
-    const ctx = canvas.getContext('2d')!;
-    
-    // Crear un logo simple pero profesional
-    ctx.fillStyle = '#2563eb'; // Azul
-    ctx.fillRect(0, 0, 200, 80);
-    ctx.fillStyle = '#ffffff'; // Blanco
-    ctx.font = 'bold 16px Arial';
-    ctx.textAlign = 'center';
-    ctx.fillText('HORTES DE', 100, 25);
-    ctx.fillText('SANTA EUGÈNIA', 100, 45);
-    ctx.font = '12px Arial';
-    ctx.fillText('Associació d\'Usuaris', 100, 65);
-    
-    const imageData = canvas.toDataURL('image/png');
-    console.log('Logo generado como PNG base64');
-
     // 📌 Márgenes y posiciones
     const marginLeft = 20;
     const rightColumnX = 140;
     let y = 15;
 
-    // 🖼️ Insertar logo (más grande y visible) - solo si se cargó correctamente
-    if (imageData) {
-      console.log('Añadiendo imagen al PDF con dimensiones 50x30...');
-      try {
-        // Detectar el formato de la imagen desde el data URL
-        const format = imageData.startsWith('data:image/png') ? 'PNG' : 'JPEG';
-        console.log('Formato detectado:', format);
-        
-        // Hacer el logo más grande y añadir un borde para debug
-        doc.addImage(imageData, format, marginLeft, y, 50, 30);
-        
-        // Añadir un rectángulo alrededor para verificar la posición (solo para debug)
-        doc.setDrawColor(255, 0, 0); // Color rojo para debug
-        doc.rect(marginLeft, y, 50, 30);
-        
-        console.log('Imagen añadida exitosamente con marco rojo');
-        y += 35; // Más espacio después del logo
-      } catch (error) {
-        console.error('Error añadiendo imagen:', error);
-        // Si hay error, continuar sin logo
-      }
-    } else {
-      // Si no hay logo, continuamos con el texto normalmente
-      console.log('Generando PDF sin logo - imageData es null');
-    }
+    // 🎨 LOGO SIMPLE CON TEXTO - SIN IMÁGENES
+    doc.setFillColor(37, 99, 235); // Azul
+    doc.rect(marginLeft, y, 50, 25, 'F'); // Rectángulo relleno
+    
+    doc.setTextColor(255, 255, 255); // Texto blanco
+    doc.setFontSize(12);
+    doc.setFont(undefined, 'bold');
+    doc.text('HORTES DE', marginLeft + 25, y + 8, { align: 'center' });
+    doc.text('SANTA EUGÈNIA', marginLeft + 25, y + 16, { align: 'center' });
+    doc.setFontSize(8);
+    doc.setFont(undefined, 'normal');
+    doc.text('Associació d\'Usuaris', marginLeft + 25, y + 22, { align: 'center' });
+    
+    // Resetear color de texto a negro
+    doc.setTextColor(0, 0, 0);
+    y += 35;
 
     // 🧾 Encabezado
     doc.setFontSize(11);
